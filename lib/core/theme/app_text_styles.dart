@@ -41,5 +41,25 @@ class AppTextStyles {
   ) {
     return style.copyWith(color: color);
   }
+
+
+  static const TextStyle inter12W500 = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+  );
+
+  static const TextStyle inter10W500 = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 10,
+    fontWeight: FontWeight.w500,
+  );
+
+  static const TextStyle inter10W400 = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 10,
+    fontWeight: FontWeight.w400,
+  );
 }
+
 

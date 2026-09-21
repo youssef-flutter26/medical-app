@@ -1,19 +1,28 @@
 import 'dart:ui' as ui;
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:medical_app/core/di/service_locator.dart';
 import 'package:medical_app/core/localization/app_localization.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
-import 'package:medical_app/core/routing/app_router.dart';
 import 'package:medical_app/core/theme/app_theme.dart';
+import 'package:medical_app/features/auth/presentation/pages/login_screen.dart';
 import 'package:medical_app/features/splash/presentation/views/splash_screen.dart';
+
+import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   setupServiceLocator();
+
   runApp(const MyApp());
 }
 
@@ -46,7 +55,7 @@ class MyApp extends StatelessWidget {
                   child: child ?? const SizedBox.shrink(),
                 );
               },
-              onGenerateRoute: getIt<AppRouter>().generateRoute,
+             // onGenerateRoute: getIt<AppRouter>().generateRoute,
               home: const SplashScreen(),
             );
           },

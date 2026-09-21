@@ -9,7 +9,7 @@ abstract final class ValidatorApp {
   );
 
   static final RegExp _passwordRegex = RegExp(
-    r'^(?=.*[A-Z])(?=.*\d)[A-Za-z\d@]{6,}$',
+    r'^\S{8,}$',
   );
 
   static final RegExp _phoneRegex = RegExp(r'^\+?\d{10,15}$');

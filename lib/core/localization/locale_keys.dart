@@ -39,7 +39,7 @@ abstract class LocaleKeys {
   static const verify = 'verify';
   static const didntGetTheCode = 'didntGetTheCode';
   static const resend = 'resend';
-  static const forgotPassword = 'forgotPassword';
+  static const forgotPassword = 'forgotPassword?';
   static const yourEmail = 'yourEmail';
   static const sendCode = 'sendCode';
   static const createNewPassword = 'createNewPassword';
@@ -51,8 +51,11 @@ abstract class LocaleKeys {
   static const yourName = 'yourName';
   static const or = 'or';
   static const continueWithGoogle = 'continueWithGoogle';
+  static const SignInWithGoogle = 'Sign In with Google';
   static const continueWithFacebook = 'continueWithFacebook';
+  static const SignInWithFacebook = 'Sign In with Facebook';
   static const doYouHaveAnAccount = 'doYouHaveAnAccount';
+  static const DontHaveAnAccountYet = 'Don’t have an account yet? Sign up';
   static const signIn = 'signIn';
   static const nickname = 'nickname';
   static const nameExample = 'nameExample';
@@ -63,6 +66,8 @@ abstract class LocaleKeys {
   static const accountReady = 'accountReady';
   static const hopeYouAreDoingFine = 'hopeYouAreDoingFine';
   static const welcomeBack = 'welcomeBack';
+  static const HiWelcomeBack = 'Hi, WelcomeBack!';
+  static const HopeYouAreDoingFine = 'Hope you’re doing fine.';
   static const dontHaveAnAccount = 'dontHaveAnAccount';
   static const signUp = 'signUp';
 }
