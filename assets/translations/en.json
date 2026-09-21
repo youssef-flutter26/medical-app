@@ -1,0 +1,20 @@
+{
+  "appName": "MediConnect",
+  "unexpectedError": "An unexpected error occurred",
+  "noInternetConnection": "No internet connection. Please try again.",
+  "authFailed": "Authentication failed. Please try again.",
+  "requestFailed": "Request failed (HTTP {code}).",
+  "parseFailed": "Failed to parse the server response.",
+  "retry": "Retry",
+  "emailCannotBeEmpty": "Email cannot be empty",
+  "enterValidEmail": "Enter a valid email address",
+  "passwordCannotBeEmpty": "Password cannot be empty",
+  "passwordRequirements": "Password must contain at least 6 characters, one uppercase letter, and one number",
+  "confirmPasswordCannotBeEmpty": "Confirm password cannot be empty",
+  "confirmPasswordMustMatch": "Confirm password must match the password",
+  "nameCannotBeEmpty": "Name cannot be empty",
+  "phoneNumberCannotBeEmpty": "Phone number cannot be empty",
+  "enterValidPhoneNumber": "Enter a valid phone number",
+  "codeCannotBeEmpty": "Code cannot be empty",
+  "codeMustBeSixDigits": "Code must be exactly 6 digits"
+}
