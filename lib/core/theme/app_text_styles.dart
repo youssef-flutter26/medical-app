@@ -5,6 +5,12 @@ class AppTextStyles {
 
   static const String fontFamily = 'Inter';
 
+  static const TextStyle inter20W600 = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 20,
+    fontWeight: FontWeight.w600,
+  );
+
   static const TextStyle inter18W700 = TextStyle(
     fontFamily: fontFamily,
     fontSize: 18,
@@ -14,6 +20,12 @@ class AppTextStyles {
   static const TextStyle inter16W500 = TextStyle(
     fontFamily: fontFamily,
     fontSize: 16,
+    fontWeight: FontWeight.w500,
+  );
+
+  static const TextStyle inter14W500 = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 14,
     fontWeight: FontWeight.w500,
   );
 
