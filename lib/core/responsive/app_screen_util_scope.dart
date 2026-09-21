@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class AppScreenUtilScope extends StatelessWidget {
   const AppScreenUtilScope({super.key, required this.child});
 
-  static const Size designSize = Size(375, 812);
+  static const Size designSize = Size(442, 888);
 
   final Widget child;
 
