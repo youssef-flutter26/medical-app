@@ -1,36 +1,54 @@
-import 'package:flutter/material.dart';
+import 'dart:ui' as ui;
 
-void main() {
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:medical_app/core/localization/app_localization.dart';
+import 'package:medical_app/core/localization/locale_keys.dart';
+import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
+import 'package:medical_app/core/di/service_locator.dart';
+import 'package:medical_app/core/theme/app_theme.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
+  setupServiceLocator();
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+    return EasyLocalization(
+      supportedLocales: AppLocalization.supportedLocales,
+      path: AppLocalization.translationsPath,
+      fallbackLocale: AppLocalization.fallbackLocale,
+      child: AppScreenUtilScope(
+        child: Builder(
+          builder: (context) {
+            final locale = context.locale;
+            const textDirection = ui.TextDirection.ltr;
+
+            return MaterialApp(
+              key: ValueKey(locale.languageCode),
+              title: LocaleKeys.appName.tr(),
+              theme: AppTheme.theme,
+              debugShowCheckedModeBanner: false,
+              localizationsDelegates: context.localizationDelegates,
+              supportedLocales: context.supportedLocales,
+              locale: locale,
+              builder: (context, child) {
+                return Directionality(
+                  textDirection: textDirection,
+                  child: child ?? const SizedBox.shrink(),
+                );
+              },
+              home: const MyHomePage(title: 'Flutter Demo Home Page'),
+            );
+          },
+        ),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
