@@ -47,7 +47,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       OnboardingPageModel(
         image: AppAssets.imagesOnboarding2,
         title: LocaleKeys.onboardingConnectSpecialistsTitle.tr(),
-        description: LocaleKeys.onboardingMeetDoctorsDescription.tr(),
+        description: LocaleKeys.onboardingConnectSpecialistsDescription.tr(),
       ),
       OnboardingPageModel(
         image: AppAssets.imagesOnboarding3,
@@ -82,42 +82,34 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: Column(
-        children: [
-          Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: pages.length,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentIndex = index;
-                });
-              },
-              itemBuilder: (context, index) {
-                final page = pages[index];
-                return Column(
-                  children: [
-                    OnboardingImage(image: page.image),
-                    // Space between image and title: 28
-                    SizedBox(height: 28.h),
-                    OnboardingTextContent(
-                      title: page.title,
-                      description: page.description,
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-          // Space between description and button: adjusted to 16 to visually match Figma reference
-          SizedBox(height: 16.h),
-          OnboardingBottomSection(
-            pageCount: pages.length,
-            currentIndex: _currentIndex,
-            onNextPressed: () => _onNextPressed(pages.length),
-            onSkipPressed: _onSkipPressed,
-          ),
-        ],
+      body: PageView.builder(
+        controller: _pageController,
+        itemCount: pages.length,
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        itemBuilder: (context, index) {
+          final page = pages[index];
+          return Column(
+            children: [
+              OnboardingImage(image: page.image),
+              SizedBox(height: 28.h),
+              OnboardingTextContent(
+                title: page.title,
+                description: page.description,
+              ),
+              SizedBox(height: 24.h),
+              OnboardingBottomSection(
+                pageCount: pages.length,
+                currentIndex: index,
+                onNextPressed: () => _onNextPressed(pages.length),
+                onSkipPressed: _onSkipPressed,
+              ),
+            ],
+          );
+        },
       ),
     );
   }
