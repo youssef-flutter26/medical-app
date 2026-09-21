@@ -26,6 +26,8 @@ abstract class LocaleKeys {
       'onboardingMeetDoctorsDescription';
   static const onboardingConnectSpecialistsTitle =
       'onboardingConnectSpecialistsTitle';
+  static const onboardingConnectSpecialistsDescription =
+      'onboardingConnectSpecialistsDescription';
   static const onboardingSpecialistsTitle = 'onboardingSpecialistsTitle';
   static const onboardingSpecialistsDescription =
       'onboardingSpecialistsDescription';

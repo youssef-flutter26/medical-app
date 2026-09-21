@@ -24,6 +24,7 @@ class OnboardingBottomSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       top: false,
+      bottom: false,
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 36.w),
         child: Column(
@@ -34,19 +35,16 @@ class OnboardingBottomSection extends StatelessWidget {
               text: LocaleKeys.onboardingNext.tr(),
               onPressed: onNextPressed,
             ),
-            // Space between button(s) and page dots: 28
             SizedBox(height: 28.h),
             OnboardingPageIndicator(
               count: pageCount,
               currentIndex: currentIndex,
             ),
-            // Space between page dots and Skip text: 24
             SizedBox(height: 24.h),
             OnboardingSkipButton(
               onPressed: onSkipPressed,
             ),
-            // Bottom spacing: 24
-            SizedBox(height: 24.h),
+            SizedBox(height: 56.h),
           ],
         ),
       ),

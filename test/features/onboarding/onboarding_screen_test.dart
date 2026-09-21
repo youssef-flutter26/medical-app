@@ -18,6 +18,8 @@ class TestAssetLoader extends AssetLoader {
       "onboardingMeetDoctorsDescription":
           "Connect with Specialized Doctors Online for Convenient and Comprehensive Medical Consultations.",
       "onboardingConnectSpecialistsTitle": "Connect with Specialists",
+      "onboardingConnectSpecialistsDescription":
+          "Connect with Specialized Doctors Online for Convenient and Comprehensive Medical Consultations.",
       "onboardingSpecialistsTitle": "Thousands of Online Specialists",
       "onboardingSpecialistsDescription":
           "Explore a Vast Array of Online Medical Specialists, Offering an Extensive Range of Expertise Tailored to Your Healthcare Needs.",
