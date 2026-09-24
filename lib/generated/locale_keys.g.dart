@@ -1,6 +1,8 @@
+// DO NOT EDIT. This is code generated via package:easy_localization/generate.dart
+
 // ignore_for_file: constant_identifier_names
 
-abstract class LocaleKeys {
+abstract class  LocaleKeys {
   static const appName = 'appName';
   static const unexpectedError = 'unexpectedError';
   static const noInternetConnection = 'noInternetConnection';
@@ -24,26 +26,20 @@ abstract class LocaleKeys {
   static const onboardingNext = 'onboardingNext';
   static const onboardingSkip = 'onboardingSkip';
   static const onboardingMeetDoctorsTitle = 'onboardingMeetDoctorsTitle';
-  static const onboardingMeetDoctorsDescription =
-      'onboardingMeetDoctorsDescription';
-  static const onboardingConnectSpecialistsTitle =
-      'onboardingConnectSpecialistsTitle';
-  static const onboardingConnectSpecialistsDescription =
-      'onboardingConnectSpecialistsDescription';
+  static const onboardingMeetDoctorsDescription = 'onboardingMeetDoctorsDescription';
+  static const onboardingConnectSpecialistsTitle = 'onboardingConnectSpecialistsTitle';
+  static const onboardingConnectSpecialistsDescription = 'onboardingConnectSpecialistsDescription';
   static const onboardingSpecialistsTitle = 'onboardingSpecialistsTitle';
-  static const onboardingSpecialistsDescription =
-      'onboardingSpecialistsDescription';
-  static const onboardingOnlineSpecialistsTitle =
-      'onboardingOnlineSpecialistsTitle';
-  static const onboardingOnlineSpecialistsDescription =
-      'onboardingOnlineSpecialistsDescription';
+  static const onboardingSpecialistsDescription = 'onboardingSpecialistsDescription';
+  static const onboardingOnlineSpecialistsTitle = 'onboardingOnlineSpecialistsTitle';
+  static const onboardingOnlineSpecialistsDescription = 'onboardingOnlineSpecialistsDescription';
   static const healthPal = 'healthPal';
   static const verifyCode = 'verifyCode';
   static const enterTheCode = 'enterTheCode';
   static const verify = 'verify';
   static const didntGetTheCode = 'didntGetTheCode';
   static const resend = 'resend';
-  static const forgotPassword = 'forgotPassword?';
+  static const forgotPassword = 'forgotPassword';
   static const yourEmail = 'yourEmail';
   static const sendCode = 'sendCode';
   static const createNewPassword = 'createNewPassword';
@@ -55,11 +51,8 @@ abstract class LocaleKeys {
   static const yourName = 'yourName';
   static const or = 'or';
   static const continueWithGoogle = 'continueWithGoogle';
-  static const SignInWithGoogle = 'Sign In with Google';
   static const continueWithFacebook = 'continueWithFacebook';
-  static const SignInWithFacebook = 'Sign In with Facebook';
   static const doYouHaveAnAccount = 'doYouHaveAnAccount';
-  static const DontHaveAnAccountYet = 'Don’t have an account yet? Sign up';
   static const signIn = 'signIn';
   static const nickname = 'nickname';
   static const nameExample = 'nameExample';
@@ -70,8 +63,7 @@ abstract class LocaleKeys {
   static const accountReady = 'accountReady';
   static const hopeYouAreDoingFine = 'hopeYouAreDoingFine';
   static const welcomeBack = 'welcomeBack';
-  static const HiWelcomeBack = 'Hi, WelcomeBack!';
-  static const HopeYouAreDoingFine = 'Hope you’re doing fine.';
   static const dontHaveAnAccount = 'dontHaveAnAccount';
   static const signUp = 'signUp';
+
 }

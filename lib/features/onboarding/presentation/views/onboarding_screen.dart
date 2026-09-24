@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
+import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
 import 'package:medical_app/features/onboarding/data/models/onboarding_page_model.dart';
@@ -73,7 +74,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _onFinish() {
-    widget.onFinish?.call();
+    if (widget.onFinish != null) {
+      widget.onFinish?.call();
+    } else {
+      Navigator.pushReplacementNamed(context, Routes.login);
+    }
   }
 
   @override
