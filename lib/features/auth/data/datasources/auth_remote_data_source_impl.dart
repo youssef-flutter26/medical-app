@@ -50,7 +50,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } catch (_) {
       throw const AuthException();
     }
-  }override
+  }
+  @override
   Future<User> loginWithGoogle() async {
     try {
       debugPrint('========== GOOGLE SIGN-IN START ==========');
