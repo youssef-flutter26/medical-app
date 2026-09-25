@@ -6,4 +6,5 @@ abstract final class Routes {
   static const String login = '/login';
   static const String register = '/register';
   static const String fillProfile = '/fill-profile';
+  static const String forgotPassword = '/forgot-password';
 }

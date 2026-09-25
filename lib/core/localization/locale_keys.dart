@@ -26,8 +26,6 @@ abstract class LocaleKeys {
       'onboardingMeetDoctorsDescription';
   static const onboardingConnectSpecialistsTitle =
       'onboardingConnectSpecialistsTitle';
-  static const onboardingConnectSpecialistsDescription =
-      'onboardingConnectSpecialistsDescription';
   static const onboardingSpecialistsTitle = 'onboardingSpecialistsTitle';
   static const onboardingSpecialistsDescription =
       'onboardingSpecialistsDescription';
@@ -41,7 +39,7 @@ abstract class LocaleKeys {
   static const verify = 'verify';
   static const didntGetTheCode = 'didntGetTheCode';
   static const resend = 'resend';
-  static const forgotPassword = 'forgotPassword?';
+  static const forgotPassword = 'forgotPassword';
   static const yourEmail = 'yourEmail';
   static const sendCode = 'sendCode';
   static const createNewPassword = 'createNewPassword';
