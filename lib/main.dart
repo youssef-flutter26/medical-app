@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
                 );
               },
              // onGenerateRoute: getIt<AppRouter>().generateRoute,
-              home: const SplashScreen(),
+              home: const LoginScreen(),
             );
           },
         ),

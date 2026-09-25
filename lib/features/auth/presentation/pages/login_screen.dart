@@ -90,22 +90,20 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: double.infinity,
                 child: Column(
                   children: [
-                    // =========================
-                    // Logo Section
-                    // =========================
+
                     SizedBox(
                       width: double.infinity,
-                      height: 107.h,
+                      height: 160.h,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          SizedBox(height: 20.h),
+                          SizedBox(height: 24.h),
                           SvgPicture.asset(
                             AppAssets.iconsLogo,
                             width: 48.w,
-                            height: 48.h,
+                            height: 100.h,
                           ),
-                          SizedBox(height: 8.h),
+                          SizedBox(height: 12.h),
                           Text(
                             LocaleKeys.healthPal,
                             style: AppTextStyles.withColor(
@@ -130,11 +128,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              SizedBox(height: 28.h),
+                              SizedBox(height: 25.h),
 
-                              // =========================
-                              // Welcome Text
-                              // =========================
+
                               Text(
                                 LocaleKeys.HiWelcomeBack,
                                 textAlign: TextAlign.center,
@@ -144,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
 
-                              SizedBox(height: 4.h),
+                              SizedBox(height: 6.h),
 
                               Text(
                                 LocaleKeys.HopeYouAreDoingFine,
@@ -155,11 +151,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
 
-                              SizedBox(height: 23.h),
+                              SizedBox(height: 30.h),
 
-                              // =========================
-                              // Email
-                              // =========================
+
                               AuthTextField(
                                 controller: _emailController,
                                 hintText: LocaleKeys.yourEmail,
@@ -169,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 validator: ValidatorApp.validateEmail,
                               ),
 
-                              SizedBox(height: 10.h),
+                              SizedBox(height: 18.h),
 
                               // =========================
                               // Password
@@ -197,14 +191,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 },
                               ),
 
-                              SizedBox(height: 12.h),
+                              SizedBox(height: 30.h),
 
-                              // =========================
-                              // Sign In Button
-                              // =========================
                               SizedBox(
                                 width: double.infinity,
-                                height: 34.h,
+                                height: 40.h,
                                 child: ElevatedButton(
                                   onPressed: isLoading
                                       ? null
@@ -243,11 +234,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
 
-                              SizedBox(height: 23.h),
+                              SizedBox(height: 50.h),
 
-                              // =========================
-                              // Or
-                              // =========================
+
                               Row(
                                 children: [
                                   Expanded(
@@ -277,21 +266,23 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ],
                               ),
 
-                              SizedBox(height: 16.h),
+                              SizedBox(height: 50.h),
 
-                              // =========================
-                              // Social Buttons
-                              // =========================
+
                               SizedBox(
                                 width: double.infinity,
-                                height: 98.h,
+                                height: 150.h,
                                 child: Column(
                                   children: [
                                     _SocialButton(
                                       icon: AppAssets.iconsGoogle,
-                                      text:
-                                      LocaleKeys.SignInWithGoogle,
-                                      onPressed: () {},
+                                      text: LocaleKeys.SignInWithGoogle,
+                                      onPressed: isLoading
+                                          ? null
+                                          : () {
+                                        context.read<AuthCubit>()
+                                            .loginWithGoogleUser();
+                                      },
                                     ),
                                     SizedBox(height: 16.h),
                                     _SocialButton(
@@ -304,7 +295,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
 
-                              SizedBox(height: 16.h),
+                              SizedBox(height: 22.h),
 
                               // =========================
                               // Forgot Password
@@ -326,7 +317,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
 
-                              SizedBox(height: 16.h),
+                              SizedBox(height: 26.h),
 
                               // =========================
                               // Sign Up
@@ -387,8 +378,7 @@ class _SocialButton extends StatelessWidget {
 
   final String icon;
   final String text;
-  final VoidCallback onPressed;
-
+  final VoidCallback? onPressed;
   @override
   Widget build(BuildContext context) {
     return SizedBox(

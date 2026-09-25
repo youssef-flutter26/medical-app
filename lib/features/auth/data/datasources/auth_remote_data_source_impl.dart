@@ -1,4 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../../../core/error/app_exception.dart';
 import 'auth_remote_data_source.dart';
@@ -7,6 +9,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final FirebaseAuth firebaseAuth;
 
   AuthRemoteDataSourceImpl(this.firebaseAuth);
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+
+  bool _googleInitialized = false;
+
+  Future<void> _initializeGoogleSignIn() async {
+    if (_googleInitialized) return;
+
+    await _googleSignIn.initialize(
+      serverClientId:
+          '445898493273-aij0vhb3h9s9c7t4jbqvh8mdahnfn7pl.apps.googleusercontent.com',
+    );
+
+    _googleInitialized = true;
+  }
 
   @override
   Future<User> login({
@@ -32,6 +49,57 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       rethrow;
     } catch (_) {
       throw const AuthException();
+    }
+  }override
+  Future<User> loginWithGoogle() async {
+    try {
+      debugPrint('========== GOOGLE SIGN-IN START ==========');
+
+      await _initializeGoogleSignIn();
+
+      debugPrint('GOOGLE SIGN-IN INITIALIZED');
+
+      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
+
+      debugPrint('GOOGLE ACCOUNT: ${googleUser.email}');
+
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+
+      debugPrint('GOOGLE ID TOKEN: ${googleAuth.idToken != null}');
+
+      final credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+      );
+
+      final userCredential = await firebaseAuth.signInWithCredential(
+        credential,
+      );
+
+      final user = userCredential.user;
+
+      if (user == null) {
+        throw const AuthException();
+      }
+
+      debugPrint('FIREBASE USER: ${user.email}');
+      debugPrint('========== GOOGLE SIGN-IN SUCCESS ==========');
+
+      return user;
+    } on FirebaseAuthException catch (e, stackTrace) {
+      debugPrint('========== FIREBASE GOOGLE ERROR ==========');
+      debugPrint('Code: ${e.code}');
+      debugPrint('Message: ${e.message}');
+      debugPrint('StackTrace: $stackTrace');
+
+      throw AuthException(_mapFirebaseAuthError(e));
+    } on AuthException {
+      rethrow;
+    } catch (e, stackTrace) {
+      debugPrint('========== GOOGLE SIGN-IN ERROR ==========');
+      debugPrint('Exception: $e');
+      debugPrint('StackTrace: $stackTrace');
+
+      throw AuthException(e.toString());
     }
   }
 
@@ -69,6 +137,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> logout() async {
     try {
       await firebaseAuth.signOut();
+      await _googleSignIn.signOut();
     } catch (_) {
       throw const AuthException();
     }
