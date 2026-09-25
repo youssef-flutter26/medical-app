@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
-import 'package:medical_app/features/onboarding/presentation/views/onboarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({
@@ -27,15 +27,18 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _startTimer() {
-    _timer = Timer(widget.splashDuration, _navigateToOnboarding);
+    _timer = Timer(
+      widget.splashDuration,
+      _navigateToOnboarding,
+    );
   }
 
   void _navigateToOnboarding() {
     if (!mounted) return;
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => const OnboardingScreen(),
-      ),
+
+    Navigator.pushReplacementNamed(
+      context,
+      Routes.onboarding,
     );
   }
 

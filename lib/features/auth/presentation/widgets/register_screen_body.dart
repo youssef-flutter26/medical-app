@@ -26,6 +26,7 @@ class RegisterScreenBody extends StatefulWidget {
 
 class _RegisterScreenBodyState extends State<RegisterScreenBody> {
   final formKey = GlobalKey<FormState>();
+
   late final TextEditingController nameController;
   late final TextEditingController emailController;
   late final TextEditingController passwordController;
@@ -35,6 +36,7 @@ class _RegisterScreenBodyState extends State<RegisterScreenBody> {
   @override
   void initState() {
     super.initState();
+
     nameController = TextEditingController();
     emailController = TextEditingController();
     passwordController = TextEditingController();
@@ -48,21 +50,78 @@ class _RegisterScreenBodyState extends State<RegisterScreenBody> {
     super.dispose();
   }
 
+  void _register(BuildContext context) {
+    if (!formKey.currentState!.validate()) {
+      return;
+    }
+
+    context.read<AuthCubit>().signupUser(
+      name: nameController.text.trim(),
+      email: emailController.text.trim(),
+      password: passwordController.text,
+    );
+  }
+
+  void _loginWithGoogle(BuildContext context) {
+    context.read<AuthCubit>().loginWithGoogleUser();
+  }
+
+  void _goToFillProfile({
+    required String name,
+    required String email,
+  }) {
+    Navigator.pushNamed(
+      context,
+      Routes.fillProfile,
+      arguments: {
+        'name': name,
+        'email': email,
+      },
+    );
+  }
+
+  void _goToHome() {
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      Routes.login,
+          (route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is SignupSuccess) {
-          Navigator.pushNamed(context, Routes.fillProfile);
+          _goToFillProfile(
+            name: nameController.text.trim(),
+            email: emailController.text.trim(),
+          );
+        } else if (state is GoogleLoginSuccess) {
+          if (state.isNewUser) {
+            _goToFillProfile(
+              name: state.user.name ?? '',
+              email: state.user.email,
+            );
+          } else {
+            _goToHome();
+          }
         } else if (state is AuthFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: Colors.red,
+            ),
           );
         }
-      },
-      builder: (context, state) {
+      }, builder: (context, state) {
+      final isLoading = state is AuthLoading;
+
         return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 32.0.w, vertical: 24.h),
+          padding: EdgeInsets.symmetric(
+            horizontal: 32.w,
+            vertical: 24.h,
+          ),
           child: Form(
             key: formKey,
             child: Column(
@@ -75,36 +134,57 @@ class _RegisterScreenBodyState extends State<RegisterScreenBody> {
                     height: 66.h,
                   ),
                 ),
+
                 SizedBox(height: 16.h),
+
                 const CustomHealthPal(),
+
                 SizedBox(height: 25.h),
-                Text('Create Account', style: AppTextStyles.inter20W600),
+
+                Text(
+                  'Create Account',
+                  style: AppTextStyles.inter20W600,
+                ),
+
                 SizedBox(height: 16.h),
+
                 Text(
                   'We are here to help you!',
                   style: AppTextStyles.inter14W400.copyWith(
                     color: AppColors.gray500,
                   ),
                 ),
+
                 SizedBox(height: 24.h),
+
                 AuthTextField(
                   controller: nameController,
                   hintText: 'Your Name',
-                  prefixIcon: SvgPicture.asset(AppAssets.iconsUser),
+                  prefixIcon: SvgPicture.asset(
+                    AppAssets.iconsUser,
+                  ),
                   validator: ValidatorApp.validateName,
                 ),
+
                 SizedBox(height: 12.h),
+
                 AuthTextField(
                   controller: emailController,
                   hintText: 'Your Email',
-                  prefixIcon: SvgPicture.asset(AppAssets.iconsEmail),
+                  prefixIcon: SvgPicture.asset(
+                    AppAssets.iconsEmail,
+                  ),
                   validator: ValidatorApp.validateEmail,
                 ),
+
                 SizedBox(height: 12.h),
+
                 AuthTextField(
                   controller: passwordController,
                   hintText: 'Password',
-                  prefixIcon: SvgPicture.asset(AppAssets.iconsPassword),
+                  prefixIcon: SvgPicture.asset(
+                    AppAssets.iconsPassword,
+                  ),
                   obscureText: obscurePassword,
                   validator: ValidatorApp.validatePassword,
                   suffixIcon: Icon(
@@ -120,36 +200,43 @@ class _RegisterScreenBodyState extends State<RegisterScreenBody> {
                     });
                   },
                 ),
+
                 SizedBox(height: 24.h),
-                state is AuthLoading
+
+                isLoading
                     ? const CircularProgressIndicator()
                     : AppButton(
-                        text: 'Create Account',
-                        backgroundColor: Colors.black,
-                        onPressed: () {
-                          if (formKey.currentState!.validate()) {
-                            context.read<AuthCubit>().signupUser(
-                              name: nameController.text.trim(),
-                              email: emailController.text.trim(),
-                              password: passwordController.text,
-                            );
-                          }
-                        },
-                      ),
+                  text: 'Create Account',
+                  backgroundColor: Colors.black,
+                  onPressed: () {
+                    _register(context);
+                  },
+                ),
+
                 SizedBox(height: 24.h),
+
                 const OrWidget(),
+
                 SocialAuthButtons(
                   icon: AppAssets.iconsGoogle,
                   text: LocaleKeys.SignInWithGoogle,
-                  onPressed: () {},
+                  onPressed: isLoading
+                      ? () {}
+                      : () {
+                    _loginWithGoogle(context);
+                  },
                 ),
+
                 SizedBox(height: 16.h),
+
                 SocialAuthButtons(
                   icon: AppAssets.iconsFacebook,
                   text: LocaleKeys.SignInWithFacebook,
                   onPressed: () {},
                 ),
+
                 SizedBox(height: 12.h),
+
                 const HaveAnAccountWidget(),
               ],
             ),

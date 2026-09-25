@@ -24,6 +24,26 @@ class SignupSuccess extends AuthState {
   const SignupSuccess(this.user);
 }
 
+class GoogleLoginSuccess extends AuthState {
+  final UserEntity user;
+  final bool isNewUser;
+
+  const GoogleLoginSuccess({
+    required this.user,
+    required this.isNewUser,
+  });
+}
+
+class VerificationEmailSent extends AuthState {
+  final String message;
+
+  const VerificationEmailSent(this.message);
+}
+
+class ProfileSaved extends AuthState {
+  const ProfileSaved();
+}
+
 class AuthFailure extends AuthState {
   final String message;
 
@@ -32,4 +52,8 @@ class AuthFailure extends AuthState {
 
 class LogoutSuccess extends AuthState {
   const LogoutSuccess();
+}
+
+class PasswordResetEmailSent extends AuthState {
+  const PasswordResetEmailSent();
 }

@@ -4,16 +4,18 @@ import 'package:medical_app/core/di/service_locator.dart';
 import 'package:medical_app/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:medical_app/features/auth/presentation/widgets/register_screen_body.dart';
 
-class RigesterScreen extends StatelessWidget {
-  const RigesterScreen({super.key});
+class RegisterScreen extends StatelessWidget {
+  const RegisterScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: BlocProvider(
-        create: (context) => getIt<AuthCubit>(),
+    return BlocProvider(
+      create: (_) => getIt<AuthCubit>(),
+      child: const SafeArea(
         child: Scaffold(
-          body: SingleChildScrollView(child: RegisterScreenBody()),
+          body: SingleChildScrollView(
+            child: RegisterScreenBody(),
+          ),
         ),
       ),
     );

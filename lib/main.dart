@@ -10,15 +10,17 @@ import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
 import 'package:medical_app/core/routing/app_router.dart';
 import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_theme.dart';
-import 'package:medical_app/features/splash/presentation/views/splash_screen.dart';
 
 import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await EasyLocalization.ensureInitialized();
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   setupServiceLocator();
 
@@ -48,14 +50,17 @@ class MyApp extends StatelessWidget {
               localizationsDelegates: context.localizationDelegates,
               supportedLocales: context.supportedLocales,
               locale: locale,
+
+              initialRoute: Routes.splash,
+
+              onGenerateRoute: getIt<AppRouter>().generateRoute,
+
               builder: (context, child) {
                 return Directionality(
                   textDirection: textDirection,
                   child: child ?? const SizedBox.shrink(),
                 );
               },
-              onGenerateRoute: AppRouter().generateRoute,
-              initialRoute: Routes.splash,
             );
           },
         ),
