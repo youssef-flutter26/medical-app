@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
@@ -8,7 +9,7 @@ class AuthTextField extends StatelessWidget {
     super.key,
     required this.controller,
     required this.hintText,
-    this.prefixIcon, // أصبح اختياري بدون required
+    this.prefixIcon,
     this.validator,
     this.obscureText = false,
     this.suffixIcon,
@@ -39,7 +40,6 @@ class AuthTextField extends StatelessWidget {
           AppTextStyles.inter14W400,
           AppColors.gray400,
         ),
-        // فحص إذا كان الـ prefixIcon ممرر أم لا
         prefixIcon: prefixIcon == null
             ? null
             : Padding(padding: EdgeInsets.all(14.w), child: prefixIcon),

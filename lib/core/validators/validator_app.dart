@@ -92,6 +92,7 @@ abstract final class ValidatorApp {
 
     return null;
   }
+
   static String? validateBirthDate(String? value) {
     if (value == null || value.trim().isEmpty) {
       return LocaleKeys.dateOfBirth.tr();

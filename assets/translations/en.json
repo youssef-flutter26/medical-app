@@ -60,11 +60,5 @@
   "hopeYouAreDoingFine": "Hope you're doing fine.",
   "welcomeBack": "Hi, Welcome Back!",
   "dontHaveAnAccount": "Don't have an account yet?",
-  "signUp": "Sign up",
-  "BirthDateCannotBeEmpty": "Birth Date cannot be empty",
-  "GenderCannotBeEmpty": "Gender cannot be empty",
-  "PasswordCannotBeEmpty": "Password cannot be empty",
-  "ConfirmPasswordCannotBeEmpty": "Confirm Password cannot be empty",
-  "PasswordAndConfirmPasswordMustBeSame": "Password and Confirm Password must be same",
-  "NicknameCannotBeEmpty": "Nickname cannot be empty"
+  "signUp": "Sign up"
 }

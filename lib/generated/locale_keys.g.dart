@@ -2,7 +2,7 @@
 
 // ignore_for_file: constant_identifier_names
 
-abstract class  LocaleKeys {
+abstract class LocaleKeys {
   static const appName = 'appName';
   static const unexpectedError = 'unexpectedError';
   static const noInternetConnection = 'noInternetConnection';
@@ -26,13 +26,19 @@ abstract class  LocaleKeys {
   static const onboardingNext = 'onboardingNext';
   static const onboardingSkip = 'onboardingSkip';
   static const onboardingMeetDoctorsTitle = 'onboardingMeetDoctorsTitle';
-  static const onboardingMeetDoctorsDescription = 'onboardingMeetDoctorsDescription';
-  static const onboardingConnectSpecialistsTitle = 'onboardingConnectSpecialistsTitle';
-  static const onboardingConnectSpecialistsDescription = 'onboardingConnectSpecialistsDescription';
+  static const onboardingMeetDoctorsDescription =
+      'onboardingMeetDoctorsDescription';
+  static const onboardingConnectSpecialistsTitle =
+      'onboardingConnectSpecialistsTitle';
+  static const onboardingConnectSpecialistsDescription =
+      'onboardingConnectSpecialistsDescription';
   static const onboardingSpecialistsTitle = 'onboardingSpecialistsTitle';
-  static const onboardingSpecialistsDescription = 'onboardingSpecialistsDescription';
-  static const onboardingOnlineSpecialistsTitle = 'onboardingOnlineSpecialistsTitle';
-  static const onboardingOnlineSpecialistsDescription = 'onboardingOnlineSpecialistsDescription';
+  static const onboardingSpecialistsDescription =
+      'onboardingSpecialistsDescription';
+  static const onboardingOnlineSpecialistsTitle =
+      'onboardingOnlineSpecialistsTitle';
+  static const onboardingOnlineSpecialistsDescription =
+      'onboardingOnlineSpecialistsDescription';
   static const healthPal = 'healthPal';
   static const verifyCode = 'verifyCode';
   static const enterTheCode = 'enterTheCode';
@@ -65,5 +71,4 @@ abstract class  LocaleKeys {
   static const welcomeBack = 'welcomeBack';
   static const dontHaveAnAccount = 'dontHaveAnAccount';
   static const signUp = 'signUp';
-
 }

@@ -35,12 +35,10 @@ class AppTextStyles {
     fontWeight: FontWeight.w400,
   );
 
-  static TextStyle withColor(
-    TextStyle style,
-    Color color,
-  ) {
+  static TextStyle withColor(TextStyle style, Color color) {
     return style.copyWith(color: color);
   }
+
   static const TextStyle inter12W500 = TextStyle(
     fontFamily: fontFamily,
     fontSize: 12,

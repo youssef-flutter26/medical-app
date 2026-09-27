@@ -11,10 +11,7 @@ import 'package:medical_app/features/onboarding/presentation/widgets/onboarding_
 import 'package:medical_app/features/onboarding/presentation/widgets/onboarding_text_content.dart';
 
 class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({
-    super.key,
-    this.onFinish,
-  });
+  const OnboardingScreen({super.key, this.onFinish});
 
   final VoidCallback? onFinish;
 
@@ -24,11 +21,13 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   late final PageController _pageController;
+
   int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
+
     _pageController = PageController();
   }
 
@@ -48,7 +47,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       OnboardingPageModel(
         image: AppAssets.imagesOnboarding2,
         title: LocaleKeys.onboardingConnectSpecialistsTitle.tr(),
-        description: LocaleKeys.onboardingConnectSpecialistsDescription.tr(),
+        description: LocaleKeys.onboardingMeetDoctorsDescription.tr(),
       ),
       OnboardingPageModel(
         image: AppAssets.imagesOnboarding3,
@@ -75,10 +74,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _onFinish() {
     if (widget.onFinish != null) {
-      widget.onFinish?.call();
-    } else {
-      Navigator.pushReplacementNamed(context, Routes.login);
+      widget.onFinish!.call();
+      return;
     }
+
+    Navigator.pushReplacementNamed(context, Routes.login);
   }
 
   @override
@@ -87,34 +87,45 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: PageView.builder(
-        controller: _pageController,
-        itemCount: pages.length,
-        onPageChanged: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        itemBuilder: (context, index) {
-          final page = pages[index];
-          return Column(
-            children: [
-              OnboardingImage(image: page.image),
-              SizedBox(height: 28.h),
-              OnboardingTextContent(
-                title: page.title,
-                description: page.description,
-              ),
-              SizedBox(height: 24.h),
-              OnboardingBottomSection(
-                pageCount: pages.length,
-                currentIndex: index,
-                onNextPressed: () => _onNextPressed(pages.length),
-                onSkipPressed: _onSkipPressed,
-              ),
-            ],
-          );
-        },
+      body: Column(
+        children: [
+          Expanded(
+            child: PageView.builder(
+              controller: _pageController,
+              itemCount: pages.length,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+              itemBuilder: (context, index) {
+                final page = pages[index];
+
+                return Column(
+                  children: [
+                    OnboardingImage(image: page.image),
+                    SizedBox(height: 28.h),
+                    OnboardingTextContent(
+                      title: page.title,
+                      description: page.description,
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+
+          SizedBox(height: 16.h),
+
+          OnboardingBottomSection(
+            pageCount: pages.length,
+            currentIndex: _currentIndex,
+            onNextPressed: () {
+              _onNextPressed(pages.length);
+            },
+            onSkipPressed: _onSkipPressed,
+          ),
+        ],
       ),
     );
   }

@@ -46,9 +46,7 @@ class OnboardingTextContent extends StatelessWidget {
             style: AppTextStyles.withColor(
               AppTextStyles.inter14W400,
               AppColors.gray500,
-            ).copyWith(
-              height: 1.4,
-            ),
+            ).copyWith(height: 1.4),
           ),
         ),
       ],

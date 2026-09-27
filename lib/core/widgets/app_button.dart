@@ -37,11 +37,9 @@ class AppButton extends StatelessWidget {
     final effectiveTextColor = textColor ?? AppColors.white;
     final effectiveHeight = height ?? 52.h;
     final effectiveRadius = borderRadius ?? 26.r;
-    final effectiveTextStyle = textStyle ??
-        AppTextStyles.withColor(
-          AppTextStyles.inter16W500,
-          effectiveTextColor,
-        );
+    final effectiveTextStyle =
+        textStyle ??
+        AppTextStyles.withColor(AppTextStyles.inter16W500, effectiveTextColor);
 
     return SizedBox(
       width: width ?? double.infinity,
@@ -54,10 +52,10 @@ class AppButton extends StatelessWidget {
           minimumSize: Size.zero,
           backgroundColor: effectiveBackgroundColor,
           foregroundColor: effectiveTextColor,
-          disabledBackgroundColor:
-              effectiveBackgroundColor.withValues(alpha: 0.6),
-          disabledForegroundColor:
-              effectiveTextColor.withValues(alpha: 0.6),
+          disabledBackgroundColor: effectiveBackgroundColor.withValues(
+            alpha: 0.6,
+          ),
+          disabledForegroundColor: effectiveTextColor.withValues(alpha: 0.6),
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(effectiveRadius),
@@ -76,14 +74,8 @@ class AppButton extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (icon != null) ...[
-                    icon!,
-                    SizedBox(width: 8.w),
-                  ],
-                  Text(
-                    text,
-                    style: effectiveTextStyle,
-                  ),
+                  if (icon != null) ...[icon!, SizedBox(width: 8.w)],
+                  Text(text, style: effectiveTextStyle),
                 ],
               ),
       ),

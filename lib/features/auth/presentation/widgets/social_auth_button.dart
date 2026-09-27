@@ -5,15 +5,16 @@ import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 
 class SocialAuthButtons extends StatelessWidget {
+  final String icon;
+  final String text;
+  final VoidCallback? onPressed;
+
   const SocialAuthButtons({
+    super.key,
     required this.icon,
     required this.text,
     required this.onPressed,
   });
-
-  final String icon;
-  final String text;
-  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {

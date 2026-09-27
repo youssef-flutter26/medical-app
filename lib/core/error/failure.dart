@@ -7,12 +7,9 @@ class NetworkFailure extends Failure {
   const NetworkFailure([super.message = 'No internet connection']);
 }
 
-
 class ServerFailure extends Failure {
-  const ServerFailure({
-    this.statusCode,
-    String message = 'Server error',
-  }) : super(message);
+  const ServerFailure({this.statusCode, String message = 'Server error'})
+    : super(message);
 
   final int? statusCode;
 }

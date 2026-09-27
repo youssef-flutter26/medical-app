@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
 class OnboardingImage extends StatelessWidget {
-  const OnboardingImage({
-    super.key,
-    required this.image,
-  });
+  const OnboardingImage({super.key, required this.image});
 
   final String image;
 

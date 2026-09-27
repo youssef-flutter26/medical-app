@@ -6,10 +6,7 @@ import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 
 class OnboardingSkipButton extends StatelessWidget {
-  const OnboardingSkipButton({
-    super.key,
-    required this.onPressed,
-  });
+  const OnboardingSkipButton({super.key, required this.onPressed});
 
   final VoidCallback onPressed;
 
@@ -20,10 +17,7 @@ class OnboardingSkipButton extends StatelessWidget {
       onPressed: onPressed,
       style: TextButton.styleFrom(
         minimumSize: Size.zero,
-        padding: EdgeInsets.symmetric(
-          horizontal: 16.w,
-          vertical: 4.h,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
       child: Text(
