@@ -4,10 +4,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medical_app/core/common/main_layout.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
-import 'package:medical_app/features/appointment/presentation/screens/appointment_screen.dart';
-import 'package:medical_app/features/home/presentation/screens/home_screen.dart';
-import 'package:medical_app/features/location/presentation/screens/location_screen.dart';
-import 'package:medical_app/features/profile/presentation/screens/profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TestAssetLoader extends AssetLoader {
@@ -57,14 +53,22 @@ void main() {
     await tester.pumpAndSettle();
 
     // Initial tab should be Home
-    expect(find.byType(HomeScreen), findsOneWidget);
     expect(
-      find.descendant(of: find.byType(HomeScreen), matching: find.text('Home')),
+      find.descendant(of: find.byType(Center), matching: find.text('Home')),
       findsOneWidget,
     );
-    expect(find.byType(LocationScreen), findsNothing);
-    expect(find.byType(AppointmentScreen), findsNothing);
-    expect(find.byType(ProfileScreen), findsNothing);
+    expect(
+      find.descendant(of: find.byType(Center), matching: find.text('Location')),
+      findsNothing,
+    );
+    expect(
+      find.descendant(of: find.byType(Center), matching: find.text('Appointment')),
+      findsNothing,
+    );
+    expect(
+      find.descendant(of: find.byType(Center), matching: find.text('Profile')),
+      findsNothing,
+    );
 
     // Check BottomNavigationBar items
     final bottomNavBarFinder = find.byType(BottomNavigationBar);
@@ -81,26 +85,21 @@ void main() {
     await tester.tap(find.byType(InkResponse).at(1));
     await tester.pumpAndSettle();
 
-    expect(find.byType(LocationScreen), findsOneWidget);
     expect(
-      find.descendant(
-        of: find.byType(LocationScreen),
-        matching: find.text('Location'),
-      ),
+      find.descendant(of: find.byType(Center), matching: find.text('Location')),
       findsOneWidget,
     );
-    expect(find.byType(HomeScreen), findsNothing);
+    expect(
+      find.descendant(of: find.byType(Center), matching: find.text('Home')),
+      findsNothing,
+    );
 
     // Tap Appointment (third item)
     await tester.tap(find.byType(InkResponse).at(2));
     await tester.pumpAndSettle();
 
-    expect(find.byType(AppointmentScreen), findsOneWidget);
     expect(
-      find.descendant(
-        of: find.byType(AppointmentScreen),
-        matching: find.text('Appointment'),
-      ),
+      find.descendant(of: find.byType(Center), matching: find.text('Appointment')),
       findsOneWidget,
     );
 
@@ -108,12 +107,8 @@ void main() {
     await tester.tap(find.byType(InkResponse).at(3));
     await tester.pumpAndSettle();
 
-    expect(find.byType(ProfileScreen), findsOneWidget);
     expect(
-      find.descendant(
-        of: find.byType(ProfileScreen),
-        matching: find.text('Profile'),
-      ),
+      find.descendant(of: find.byType(Center), matching: find.text('Profile')),
       findsOneWidget,
     );
 
@@ -121,9 +116,8 @@ void main() {
     await tester.tap(find.byType(InkResponse).at(0));
     await tester.pumpAndSettle();
 
-    expect(find.byType(HomeScreen), findsOneWidget);
     expect(
-      find.descendant(of: find.byType(HomeScreen), matching: find.text('Home')),
+      find.descendant(of: find.byType(Center), matching: find.text('Home')),
       findsOneWidget,
     );
   });

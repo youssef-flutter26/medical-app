@@ -35,6 +35,7 @@ class MyApp extends StatelessWidget {
       path: AppLocalization.translationsPath,
       fallbackLocale: AppLocalization.fallbackLocale,
       startLocale: AppLocalization.startLocale,
+      saveLocale: false,
       child: AppScreenUtilScope(
         child: Builder(
           builder: (context) {
@@ -52,7 +53,7 @@ class MyApp extends StatelessWidget {
               localizationsDelegates: context.localizationDelegates,
               supportedLocales: context.supportedLocales,
               locale: locale,
-              initialRoute: Routes.mainLayout,
+              initialRoute: Routes.splash,
               onGenerateRoute: getIt<AppRouter>().generateRoute,
               builder: (context, child) {
                 return Directionality(

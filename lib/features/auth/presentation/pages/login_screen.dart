@@ -1,9 +1,8 @@
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:medical_app/core/localization/app_localization.dart';
 
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/localization/locale_keys.dart';
@@ -114,57 +113,29 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: IntrinsicHeight(
                         child: Column(
                           children: [
-                            Align(
-                              alignment: AlignmentDirectional.topEnd,
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 16.w,
-                                  vertical: 4.h,
-                                ),
-                                child: TextButton.icon(
-                                  onPressed: () {
-                                    final isArabic =
-                                        context.locale.languageCode == 'ar';
-                                    context.setLocale(
-                                      isArabic
-                                          ? AppLocalization.english
-                                          : AppLocalization.arabic,
-                                    );
-                                  },
-                                  icon: Icon(
-                                    Icons.language,
-                                    size: 18.sp,
-                                    color: AppColors.darkTeal,
-                                  ),
-                                  label: Text(
-                                    context.locale.languageCode == 'ar'
-                                        ? 'English'
-                                        : 'العربية',
-                                    style: AppTextStyles.withColor(
-                                      AppTextStyles.inter12W500,
-                                      AppColors.darkTeal,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
                             SizedBox(
                               width: double.infinity,
-                              height: 140.h,
+                              height: 160.h,
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
+                                  SizedBox(height: 24.h),
                                   SvgPicture.asset(
                                     AppAssets.iconsLogo,
                                     width: 48.w,
                                     height: 90.h,
                                   ),
                                   SizedBox(height: 12.h),
-                                  Text(
-                                    LocaleKeys.healthPal.tr(),
-                                    style: AppTextStyles.withColor(
-                                      AppTextStyles.inter14W400,
-                                      AppColors.gray500,
+                                  Directionality(
+                                    textDirection: TextDirection.ltr,
+                                    child: Text(
+                                      LocaleKeys.healthPal.tr(),
+                                      textDirection: TextDirection.ltr,
+                                      textAlign: TextAlign.center,
+                                      style: AppTextStyles.withColor(
+                                        AppTextStyles.inter14W400,
+                                        AppColors.gray500,
+                                      ),
                                     ),
                                   ),
                                 ],

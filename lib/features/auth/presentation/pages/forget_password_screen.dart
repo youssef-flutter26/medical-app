@@ -1,4 +1,4 @@
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -152,11 +152,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               height: 70.h,
                             ),
                             SizedBox(height: 8.h),
-                            Text(
-                              LocaleKeys.healthPal.tr(),
-                              style: AppTextStyles.withColor(
-                                AppTextStyles.inter14W400,
-                                AppColors.gray500,
+                            Directionality(
+                              textDirection: TextDirection.ltr,
+                              child: Text(
+                                LocaleKeys.healthPal.tr(),
+                                textDirection: TextDirection.ltr,
+                                textAlign: TextAlign.center,
+                                style: AppTextStyles.withColor(
+                                  AppTextStyles.inter14W400,
+                                  AppColors.gray500,
+                                ),
                               ),
                             ),
                             SizedBox(height: 24.h),
