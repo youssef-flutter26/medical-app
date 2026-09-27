@@ -1,4 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:medical_app/core/localization/locale_keys.dart';
 
 import '../../../../core/error/failure.dart' hide AuthFailure;
 import '../../../../core/error/result.dart';
@@ -82,7 +84,7 @@ class AuthCubit extends Cubit<AuthState> {
     switch (nameResult) {
       case SuccessAPI(data: final isTaken):
         if (isTaken) {
-          emit(const AuthFailure('This name is already taken.'));
+          emit(AuthFailure(LocaleKeys.nameAlreadyTaken.tr()));
           return;
         }
 
@@ -121,9 +123,7 @@ class AuthCubit extends Cubit<AuthState> {
 
     switch (result) {
       case SuccessAPI():
-        emit(
-          const VerificationEmailSent('Verification email sent successfully.'),
-        );
+        emit(VerificationEmailSent(LocaleKeys.verificationEmailSent.tr()));
 
       case ErrorAPI(failure: final failure):
         emit(AuthFailure(failure.userMessage));

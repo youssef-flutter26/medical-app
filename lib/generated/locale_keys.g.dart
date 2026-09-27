@@ -30,8 +30,6 @@ abstract class LocaleKeys {
       'onboardingMeetDoctorsDescription';
   static const onboardingConnectSpecialistsTitle =
       'onboardingConnectSpecialistsTitle';
-  static const onboardingConnectSpecialistsDescription =
-      'onboardingConnectSpecialistsDescription';
   static const onboardingSpecialistsTitle = 'onboardingSpecialistsTitle';
   static const onboardingSpecialistsDescription =
       'onboardingSpecialistsDescription';
@@ -57,8 +55,14 @@ abstract class LocaleKeys {
   static const yourName = 'yourName';
   static const or = 'or';
   static const continueWithGoogle = 'continueWithGoogle';
+  static const signInWithGoogle = 'signInWithGoogle';
+  static const SignInWithGoogle = 'signInWithGoogle';
   static const continueWithFacebook = 'continueWithFacebook';
+  static const signInWithFacebook = 'signInWithFacebook';
+  static const SignInWithFacebook = 'signInWithFacebook';
   static const doYouHaveAnAccount = 'doYouHaveAnAccount';
+  static const alreadyHaveAnAccount = 'alreadyHaveAnAccount';
+  static const DontHaveAnAccountYet = 'dontHaveAnAccount';
   static const signIn = 'signIn';
   static const nickname = 'nickname';
   static const nameExample = 'nameExample';
@@ -67,8 +71,29 @@ abstract class LocaleKeys {
   static const save = 'save';
   static const congratulations = 'congratulations';
   static const accountReady = 'accountReady';
+  static const accountReadyShort = 'accountReadyShort';
   static const hopeYouAreDoingFine = 'hopeYouAreDoingFine';
   static const welcomeBack = 'welcomeBack';
+  static const HiWelcomeBack = 'welcomeBack';
+  static const HopeYouAreDoingFine = 'hopeYouAreDoingFine';
   static const dontHaveAnAccount = 'dontHaveAnAccount';
   static const signUp = 'signUp';
+  static const checkYourEmail = 'checkYourEmail';
+  static const passwordResetLinkSent = 'passwordResetLinkSent';
+  static const ok = 'ok';
+  static const enterEmailForResetLink = 'enterEmailForResetLink';
+  static const sendResetLink = 'sendResetLink';
+  static const pleaseVerifyEmail = 'pleaseVerifyEmail';
+  static const fillYourProfile = 'fillYourProfile';
+  static const name = 'name';
+  static const email = 'email';
+  static const male = 'male';
+  static const female = 'female';
+  static const nameAlreadyTaken = 'nameAlreadyTaken';
+  static const verificationEmailSent = 'verificationEmailSent';
+  static const pleaseCheckInternet = 'pleaseCheckInternet';
+  static const contentNotFound = 'contentNotFound';
+  static const serverIssues = 'serverIssues';
+  static const serverError = 'serverError';
+  static const unexpectedFormat = 'unexpectedFormat';
 }

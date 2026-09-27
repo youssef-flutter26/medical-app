@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -119,47 +120,38 @@ class _RegisterScreenBodyState extends State<RegisterScreenBody> {
                     height: 66.h,
                   ),
                 ),
-
                 SizedBox(height: 16.h),
-
                 const CustomHealthPal(),
-
                 SizedBox(height: 25.h),
-
-                Text('Create Account', style: AppTextStyles.inter20W600),
-
-                SizedBox(height: 16.h),
-
                 Text(
-                  'We are here to help you!',
+                  LocaleKeys.createAccount.tr(),
+                  style: AppTextStyles.inter20W600,
+                ),
+                SizedBox(height: 16.h),
+                Text(
+                  LocaleKeys.weAreHereToHelpYou.tr(),
                   style: AppTextStyles.inter14W400.copyWith(
                     color: AppColors.gray500,
                   ),
                 ),
-
                 SizedBox(height: 24.h),
-
                 AuthTextField(
                   controller: nameController,
-                  hintText: 'Your Name',
+                  hintText: LocaleKeys.yourName.tr(),
                   prefixIcon: SvgPicture.asset(AppAssets.iconsUser),
                   validator: ValidatorApp.validateName,
                 ),
-
                 SizedBox(height: 12.h),
-
                 AuthTextField(
                   controller: emailController,
-                  hintText: 'Your Email',
+                  hintText: LocaleKeys.yourEmail.tr(),
                   prefixIcon: SvgPicture.asset(AppAssets.iconsEmail),
                   validator: ValidatorApp.validateEmail,
                 ),
-
                 SizedBox(height: 12.h),
-
                 AuthTextField(
                   controller: passwordController,
-                  hintText: 'Password',
+                  hintText: LocaleKeys.password.tr(),
                   prefixIcon: SvgPicture.asset(AppAssets.iconsPassword),
                   obscureText: obscurePassword,
                   validator: ValidatorApp.validatePassword,
@@ -176,43 +168,34 @@ class _RegisterScreenBodyState extends State<RegisterScreenBody> {
                     });
                   },
                 ),
-
                 SizedBox(height: 24.h),
-
                 isLoading
                     ? const CircularProgressIndicator()
                     : AppButton(
-                        text: 'Create Account',
+                        text: LocaleKeys.createAccount.tr(),
                         backgroundColor: Colors.black,
                         onPressed: () {
                           _register(context);
                         },
                       ),
-
                 SizedBox(height: 24.h),
-
                 const OrWidget(),
-
                 SocialAuthButtons(
                   icon: AppAssets.iconsGoogle,
-                  text: LocaleKeys.SignInWithGoogle,
+                  text: LocaleKeys.signInWithGoogle.tr(),
                   onPressed: isLoading
                       ? () {}
                       : () {
                           _loginWithGoogle(context);
                         },
                 ),
-
                 SizedBox(height: 16.h),
-
                 SocialAuthButtons(
                   icon: AppAssets.iconsFacebook,
-                  text: LocaleKeys.SignInWithFacebook,
+                  text: LocaleKeys.signInWithFacebook.tr(),
                   onPressed: () {},
                 ),
-
                 SizedBox(height: 12.h),
-
                 const HaveAnAccountWidget(),
               ],
             ),

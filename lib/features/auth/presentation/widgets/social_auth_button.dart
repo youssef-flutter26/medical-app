@@ -27,7 +27,7 @@ class SocialAuthButtons extends StatelessWidget {
           backgroundColor: AppColors.white,
           foregroundColor: AppColors.gray700,
           padding: EdgeInsets.zero,
-          side: BorderSide(color: AppColors.gray400.withOpacity(0.45)),
+          side: BorderSide(color: AppColors.gray400.withValues(alpha: 0.45)),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5.r),
           ),

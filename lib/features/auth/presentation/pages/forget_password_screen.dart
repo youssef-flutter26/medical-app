@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -51,6 +52,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isRtl = context.locale.languageCode == 'ar';
+
     return BlocProvider(
       create: (_) => getIt<AuthCubit>(),
       child: BlocConsumer<AuthCubit, AuthState>(
@@ -65,12 +68,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     borderRadius: BorderRadius.circular(20.r),
                   ),
                   title: Text(
-                    'Check Your Email',
+                    LocaleKeys.checkYourEmail.tr(),
                     style: AppTextStyles.inter16W500,
                   ),
                   content: Text(
-                    'We sent a password reset link to your email address. '
-                    'Open the link from your email to create a new password.',
+                    LocaleKeys.passwordResetLinkSent.tr(),
                     style: AppTextStyles.inter14W400.copyWith(
                       color: AppColors.gray500,
                     ),
@@ -82,7 +84,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         Navigator.pop(context);
                       },
                       child: Text(
-                        'OK',
+                        LocaleKeys.ok.tr(),
                         style: AppTextStyles.inter12W500.copyWith(
                           color: AppColors.primary600,
                         ),
@@ -125,7 +127,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         child: Column(
                           children: [
                             Align(
-                              alignment: Alignment.centerLeft,
+                              alignment: AlignmentDirectional.centerStart,
                               child: IconButton(
                                 onPressed: isLoading
                                     ? null
@@ -133,48 +135,43 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                         Navigator.pop(context);
                                       },
                                 padding: EdgeInsets.zero,
-                                icon: Icon(
-                                  Icons.arrow_back,
-                                  size: 22.sp,
-                                  color: AppColors.gray700,
+                                icon: Transform.flip(
+                                  flipX: isRtl,
+                                  child: Icon(
+                                    Icons.arrow_back,
+                                    size: 22.sp,
+                                    color: AppColors.gray700,
+                                  ),
                                 ),
                               ),
                             ),
-
                             SizedBox(height: 20.h),
-
                             SvgPicture.asset(
                               AppAssets.iconsLogo,
                               width: 52.w,
                               height: 70.h,
                             ),
-
                             SizedBox(height: 8.h),
-
                             Text(
-                              LocaleKeys.healthPal,
+                              LocaleKeys.healthPal.tr(),
                               style: AppTextStyles.withColor(
                                 AppTextStyles.inter14W400,
                                 AppColors.gray500,
                               ),
                             ),
-
                             SizedBox(height: 24.h),
-
                             Text(
-                              'Forgot Password?',
+                              LocaleKeys.forgotPassword.tr(),
                               textAlign: TextAlign.center,
                               style: AppTextStyles.inter16W500.copyWith(
                                 color: AppColors.gray700,
                               ),
                             ),
-
                             SizedBox(height: 8.h),
-
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 30.w),
                               child: Text(
-                                'Enter your Email, we will send you a password reset link.',
+                                LocaleKeys.enterEmailForResetLink.tr(),
                                 textAlign: TextAlign.center,
                                 style: AppTextStyles.inter10W400.copyWith(
                                   color: AppColors.gray500,
@@ -182,20 +179,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                 ),
                               ),
                             ),
-
                             SizedBox(height: 24.h),
-
                             AuthTextField(
                               controller: _emailController,
-                              hintText: LocaleKeys.yourEmail,
+                              hintText: LocaleKeys.yourEmail.tr(),
                               prefixIcon: SvgPicture.asset(
                                 AppAssets.iconsEmail,
                               ),
                               validator: ValidatorApp.validateEmail,
                             ),
-
                             SizedBox(height: 20.h),
-
                             SizedBox(
                               width: double.infinity,
                               height: 40.h,
@@ -226,7 +219,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                         ),
                                       )
                                     : Text(
-                                        'Send Reset Link',
+                                        LocaleKeys.sendResetLink.tr(),
                                         style: AppTextStyles.withColor(
                                           AppTextStyles.inter12W500,
                                           AppColors.white,
@@ -234,7 +227,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                       ),
                               ),
                             ),
-
                             SizedBox(height: 30.h),
                           ],
                         ),

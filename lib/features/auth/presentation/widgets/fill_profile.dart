@@ -1,7 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medical_app/core/di/service_locator.dart';
+import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/core/validators/validator_app.dart';
@@ -37,9 +39,7 @@ class _FillProfileState extends State<FillProfile> {
     super.initState();
 
     nameController = TextEditingController(text: widget.name);
-
     emailController = TextEditingController(text: widget.email);
-
     nickNameController = TextEditingController();
     genderController = TextEditingController();
     birthDateController = TextEditingController();
@@ -65,7 +65,6 @@ class _FillProfileState extends State<FillProfile> {
     });
 
     final authCubit = getIt<AuthCubit>();
-
     final isVerified = await authCubit.isEmailVerified();
 
     if (!mounted) {
@@ -78,10 +77,8 @@ class _FillProfileState extends State<FillProfile> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Please verify your email address before saving your profile.',
-          ),
+        SnackBar(
+          content: Text(LocaleKeys.pleaseVerifyEmail.tr()),
           backgroundColor: Colors.red,
         ),
       );
@@ -154,22 +151,18 @@ class _FillProfileState extends State<FillProfile> {
                     ),
                   ),
                 ),
-
                 SizedBox(height: 24.h),
-
                 Text(
-                  'Congratulations!',
+                  LocaleKeys.congratulations.tr(),
                   style: TextStyle(
                     fontSize: 20.sp,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                   ),
                 ),
-
                 SizedBox(height: 12.h),
-
                 Text(
-                  'Your account is ready to use.',
+                  LocaleKeys.accountReadyShort.tr(),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12.sp,
@@ -177,9 +170,7 @@ class _FillProfileState extends State<FillProfile> {
                     height: 1.4,
                   ),
                 ),
-
                 SizedBox(height: 24.h),
-
                 const CircularProgressIndicator(
                   color: Colors.black,
                   strokeWidth: 3,
@@ -206,6 +197,8 @@ class _FillProfileState extends State<FillProfile> {
 
   @override
   Widget build(BuildContext context) {
+    final isRtl = context.locale.languageCode == 'ar';
+
     return BlocProvider(
       create: (_) => getIt<AuthCubit>(),
       child: BlocListener<AuthCubit, AuthState>(
@@ -229,10 +222,13 @@ class _FillProfileState extends State<FillProfile> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              icon: const Icon(Icons.arrow_back),
+              icon: Transform.flip(
+                flipX: isRtl,
+                child: const Icon(Icons.arrow_back),
+              ),
             ),
             title: Text(
-              'Fill Your Profile',
+              LocaleKeys.fillYourProfile.tr(),
               style: AppTextStyles.inter20W600.copyWith(color: Colors.black),
             ),
           ),
@@ -244,7 +240,6 @@ class _FillProfileState extends State<FillProfile> {
                 child: Column(
                   children: [
                     SizedBox(height: 24.h),
-
                     Center(
                       child: Stack(
                         children: [
@@ -257,9 +252,9 @@ class _FillProfileState extends State<FillProfile> {
                               color: Colors.grey[400],
                             ),
                           ),
-                          Positioned(
+                          PositionedDirectional(
                             bottom: 0,
-                            right: 0,
+                            end: 0,
                             child: Container(
                               padding: EdgeInsets.all(8.r),
                               decoration: BoxDecoration(
@@ -276,56 +271,46 @@ class _FillProfileState extends State<FillProfile> {
                         ],
                       ),
                     ),
-
                     SizedBox(height: 26.h),
-
                     AuthTextField(
                       controller: nameController,
-                      hintText: 'Name',
+                      hintText: LocaleKeys.yourName.tr(),
                       validator: ValidatorApp.validateName,
                     ),
-
                     SizedBox(height: 16.h),
-
                     AuthTextField(
                       controller: nickNameController,
-                      hintText: 'Nickname',
+                      hintText: LocaleKeys.nickname.tr(),
                       validator: ValidatorApp.validateNickname,
                     ),
-
                     SizedBox(height: 16.h),
-
                     AuthTextField(
                       controller: emailController,
-                      hintText: 'Email',
+                      hintText: LocaleKeys.yourEmail.tr(),
                       validator: ValidatorApp.validateEmail,
                     ),
-
                     SizedBox(height: 16.h),
-
                     AuthTextField(
                       controller: birthDateController,
-                      hintText: 'Birth of date',
+                      hintText: LocaleKeys.dateOfBirth.tr(),
                       validator: ValidatorApp.validateBirthDate,
                     ),
-
                     SizedBox(height: 16.h),
-
                     AuthTextField(
                       controller: genderController,
-                      hintText: 'Gender',
+                      hintText: LocaleKeys.gender.tr(),
                       suffixIcon: GenderType(
                         genderController: genderController,
                       ),
                       validator: ValidatorApp.validateGender,
                     ),
-
                     SizedBox(height: 32.h),
-
                     isSaving
                         ? const CircularProgressIndicator()
-                        : AppButton(text: 'Save', onPressed: _saveProfile),
-
+                        : AppButton(
+                            text: LocaleKeys.save.tr(),
+                            onPressed: _saveProfile,
+                          ),
                     SizedBox(height: 24.h),
                   ],
                 ),

@@ -1,4 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:medical_app/core/localization/locale_keys.dart';
 
 class GenderType extends StatelessWidget {
   const GenderType({super.key, required this.genderController});
@@ -22,17 +24,17 @@ class GenderType extends StatelessWidget {
                 children: [
                   ListTile(
                     leading: const Icon(Icons.male, color: Colors.blue),
-                    title: const Text('Male'),
+                    title: Text(LocaleKeys.male.tr()),
                     onTap: () {
-                      genderController.text = 'Male';
+                      genderController.text = LocaleKeys.male.tr();
                       Navigator.pop(context);
                     },
                   ),
                   ListTile(
                     leading: const Icon(Icons.female, color: Colors.pink),
-                    title: const Text('Female'),
+                    title: Text(LocaleKeys.female.tr()),
                     onTap: () {
-                      genderController.text = 'Female';
+                      genderController.text = LocaleKeys.female.tr();
                       Navigator.pop(context);
                     },
                   ),
@@ -42,8 +44,7 @@ class GenderType extends StatelessWidget {
           },
         );
       },
-
-      child: Icon(Icons.keyboard_arrow_down),
+      child: const Icon(Icons.keyboard_arrow_down),
     );
   }
 }

@@ -1,3 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
+import '../localization/locale_keys.dart';
+
 sealed class Failure {
   const Failure(this.message);
   final String message;
@@ -28,12 +31,11 @@ class AuthFailure extends Failure {
 
 extension FailureMessage on Failure {
   String get userMessage => switch (this) {
-    NetworkFailure() => 'Please check your internet connection',
-    ServerFailure(statusCode: 404) => 'Content not found',
-    ServerFailure(statusCode: 500) =>
-      'Server is having issues, try again later',
-    ServerFailure() => 'Something went wrong on the server',
-    ParsingFailure() => 'Unexpected response format',
+    NetworkFailure() => LocaleKeys.pleaseCheckInternet.tr(),
+    ServerFailure(statusCode: 404) => LocaleKeys.contentNotFound.tr(),
+    ServerFailure(statusCode: 500) => LocaleKeys.serverIssues.tr(),
+    ServerFailure() => LocaleKeys.serverError.tr(),
+    ParsingFailure() => LocaleKeys.unexpectedFormat.tr(),
     AuthFailure() => message,
     UnknownFailure() => message,
   };

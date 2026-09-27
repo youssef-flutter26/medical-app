@@ -34,11 +34,15 @@ class MyApp extends StatelessWidget {
       supportedLocales: AppLocalization.supportedLocales,
       path: AppLocalization.translationsPath,
       fallbackLocale: AppLocalization.fallbackLocale,
+      startLocale: AppLocalization.startLocale,
       child: AppScreenUtilScope(
         child: Builder(
           builder: (context) {
             final locale = context.locale;
-            const textDirection = ui.TextDirection.ltr;
+            final isArabic = locale.languageCode == 'ar';
+            final textDirection = isArabic
+                ? ui.TextDirection.rtl
+                : ui.TextDirection.ltr;
 
             return MaterialApp(
               key: ValueKey(locale.languageCode),

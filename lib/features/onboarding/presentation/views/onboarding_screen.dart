@@ -1,9 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:medical_app/core/localization/app_localization.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
+import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
 import 'package:medical_app/features/onboarding/data/models/onboarding_page_model.dart';
 import 'package:medical_app/features/onboarding/presentation/widgets/onboarding_bottom_section.dart';
@@ -89,6 +91,37 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       backgroundColor: AppColors.white,
       body: Column(
         children: [
+          SafeArea(
+            bottom: false,
+            child: Align(
+              alignment: AlignmentDirectional.topEnd,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+                child: TextButton.icon(
+                  onPressed: () {
+                    final isArabic = context.locale.languageCode == 'ar';
+                    context.setLocale(
+                      isArabic
+                          ? AppLocalization.english
+                          : AppLocalization.arabic,
+                    );
+                  },
+                  icon: Icon(
+                    Icons.language,
+                    size: 18.sp,
+                    color: AppColors.gray500,
+                  ),
+                  label: Text(
+                    context.locale.languageCode == 'ar' ? 'English' : 'العربية',
+                    style: AppTextStyles.withColor(
+                      AppTextStyles.inter12W500,
+                      AppColors.gray500,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
           Expanded(
             child: PageView.builder(
               controller: _pageController,
@@ -114,9 +147,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               },
             ),
           ),
-
           SizedBox(height: 16.h),
-
           OnboardingBottomSection(
             pageCount: pages.length,
             currentIndex: _currentIndex,

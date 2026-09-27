@@ -1,7 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:medical_app/core/localization/app_localization.dart';
 
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/localization/locale_keys.dart';
@@ -85,7 +87,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
               );
             } else {
-              // هنا Route الصفحة الرئيسية في التطبيق
               Navigator.pushNamedAndRemoveUntil(
                 context,
                 Routes.register,
@@ -113,21 +114,54 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: IntrinsicHeight(
                         child: Column(
                           children: [
+                            Align(
+                              alignment: AlignmentDirectional.topEnd,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16.w,
+                                  vertical: 4.h,
+                                ),
+                                child: TextButton.icon(
+                                  onPressed: () {
+                                    final isArabic =
+                                        context.locale.languageCode == 'ar';
+                                    context.setLocale(
+                                      isArabic
+                                          ? AppLocalization.english
+                                          : AppLocalization.arabic,
+                                    );
+                                  },
+                                  icon: Icon(
+                                    Icons.language,
+                                    size: 18.sp,
+                                    color: AppColors.darkTeal,
+                                  ),
+                                  label: Text(
+                                    context.locale.languageCode == 'ar'
+                                        ? 'English'
+                                        : 'العربية',
+                                    style: AppTextStyles.withColor(
+                                      AppTextStyles.inter12W500,
+                                      AppColors.darkTeal,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
                             SizedBox(
                               width: double.infinity,
-                              height: 160.h,
+                              height: 140.h,
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  SizedBox(height: 24.h),
                                   SvgPicture.asset(
                                     AppAssets.iconsLogo,
                                     width: 48.w,
-                                    height: 100.h,
+                                    height: 90.h,
                                   ),
                                   SizedBox(height: 12.h),
                                   Text(
-                                    LocaleKeys.healthPal,
+                                    LocaleKeys.healthPal.tr(),
                                     style: AppTextStyles.withColor(
                                       AppTextStyles.inter14W400,
                                       AppColors.gray500,
@@ -136,7 +170,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ],
                               ),
                             ),
-
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 24.w),
                               child: Form(
@@ -144,44 +177,37 @@ class _LoginScreenState extends State<LoginScreen> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    SizedBox(height: 25.h),
-
+                                    SizedBox(height: 15.h),
                                     Text(
-                                      LocaleKeys.HiWelcomeBack,
+                                      LocaleKeys.welcomeBack.tr(),
                                       textAlign: TextAlign.center,
                                       style: AppTextStyles.withColor(
                                         AppTextStyles.inter16W500,
                                         AppColors.darkTeal,
                                       ),
                                     ),
-
                                     SizedBox(height: 6.h),
-
                                     Text(
-                                      LocaleKeys.HopeYouAreDoingFine,
+                                      LocaleKeys.hopeYouAreDoingFine.tr(),
                                       textAlign: TextAlign.center,
                                       style: AppTextStyles.withColor(
                                         AppTextStyles.inter10W400,
                                         AppColors.gray500,
                                       ),
                                     ),
-
                                     SizedBox(height: 30.h),
-
                                     AuthTextField(
                                       controller: _emailController,
-                                      hintText: LocaleKeys.yourEmail,
+                                      hintText: LocaleKeys.yourEmail.tr(),
                                       prefixIcon: SvgPicture.asset(
                                         AppAssets.iconsEmail,
                                       ),
                                       validator: ValidatorApp.validateEmail,
                                     ),
-
                                     SizedBox(height: 18.h),
-
                                     AuthTextField(
                                       controller: _passwordController,
-                                      hintText: LocaleKeys.password,
+                                      hintText: LocaleKeys.password.tr(),
                                       prefixIcon: SvgPicture.asset(
                                         AppAssets.iconsPassword,
                                       ),
@@ -200,9 +226,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         });
                                       },
                                     ),
-
                                     SizedBox(height: 30.h),
-
                                     SizedBox(
                                       width: double.infinity,
                                       height: 40.h,
@@ -236,7 +260,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                                     ),
                                               )
                                             : Text(
-                                                LocaleKeys.signIn,
+                                                LocaleKeys.signIn.tr(),
                                                 style: AppTextStyles.withColor(
                                                   AppTextStyles.inter12W500,
                                                   AppColors.white,
@@ -244,15 +268,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                               ),
                                       ),
                                     ),
-
-                                    SizedBox(height: 50.h),
-
+                                    SizedBox(height: 40.h),
                                     Row(
                                       children: [
                                         Expanded(
                                           child: Divider(
-                                            color: AppColors.gray400
-                                                .withOpacity(0.35),
+                                            color: AppColors.gray400.withValues(
+                                              alpha: 0.35,
+                                            ),
                                           ),
                                         ),
                                         Padding(
@@ -260,7 +283,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                             horizontal: 14.w,
                                           ),
                                           child: Text(
-                                            LocaleKeys.or,
+                                            LocaleKeys.or.tr(),
                                             style: AppTextStyles.withColor(
                                               AppTextStyles.inter10W400,
                                               AppColors.gray500,
@@ -269,22 +292,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                         ),
                                         Expanded(
                                           child: Divider(
-                                            color: AppColors.gray400
-                                                .withOpacity(0.35),
+                                            color: AppColors.gray400.withValues(
+                                              alpha: 0.35,
+                                            ),
                                           ),
                                         ),
                                       ],
                                     ),
-
-                                    SizedBox(height: 50.h),
-
+                                    SizedBox(height: 40.h),
                                     SizedBox(
                                       width: double.infinity,
                                       child: Column(
                                         children: [
                                           _SocialButton(
                                             icon: AppAssets.iconsGoogle,
-                                            text: LocaleKeys.SignInWithGoogle,
+                                            text: LocaleKeys.signInWithGoogle
+                                                .tr(),
                                             onPressed: isLoading
                                                 ? null
                                                 : () {
@@ -296,15 +319,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                           SizedBox(height: 16.h),
                                           _SocialButton(
                                             icon: AppAssets.iconsFacebook,
-                                            text: LocaleKeys.SignInWithFacebook,
+                                            text: LocaleKeys.signInWithFacebook
+                                                .tr(),
                                             onPressed: () {},
                                           ),
                                         ],
                                       ),
                                     ),
-
                                     SizedBox(height: 22.h),
-
                                     TextButton(
                                       onPressed: () {
                                         Navigator.pushNamed(
@@ -319,16 +341,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                             MaterialTapTargetSize.shrinkWrap,
                                       ),
                                       child: Text(
-                                        LocaleKeys.forgotPassword,
+                                        LocaleKeys.forgotPassword.tr(),
                                         style: AppTextStyles.withColor(
                                           AppTextStyles.inter10W500,
                                           AppColors.primary600,
                                         ),
                                       ),
                                     ),
-
                                     SizedBox(height: 26.h),
-
                                     TextButton(
                                       onPressed: () {
                                         Navigator.pushNamed(
@@ -344,14 +364,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                                       child: RichText(
                                         text: TextSpan(
-                                          text: LocaleKeys.DontHaveAnAccountYet,
+                                          text: LocaleKeys.dontHaveAnAccount
+                                              .tr(),
                                           style: AppTextStyles.withColor(
                                             AppTextStyles.inter10W400,
                                             AppColors.gray500,
                                           ),
                                           children: [
                                             TextSpan(
-                                              text: ' ${LocaleKeys.signUp}',
+                                              text:
+                                                  ' ${LocaleKeys.signUp.tr()}',
                                               style: AppTextStyles.withColor(
                                                 AppTextStyles.inter10W500,
                                                 AppColors.primary600,
@@ -361,7 +383,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                         ),
                                       ),
                                     ),
-
                                     SizedBox(height: 20.h),
                                   ],
                                 ),
@@ -404,7 +425,7 @@ class _SocialButton extends StatelessWidget {
           backgroundColor: AppColors.white,
           foregroundColor: AppColors.gray700,
           padding: EdgeInsets.zero,
-          side: BorderSide(color: AppColors.gray400.withOpacity(0.45)),
+          side: BorderSide(color: AppColors.gray400.withValues(alpha: 0.45)),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5.r),
           ),
