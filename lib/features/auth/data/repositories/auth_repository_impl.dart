@@ -2,7 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../../core/error/app_exception.dart';
 import '../../../../core/error/failure.dart';
+import '../../../../core/error/firebase_failure.dart';
 import '../../../../core/error/result.dart';
+import '../../../../core/error/server_failure.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_data_source.dart';
@@ -37,7 +39,9 @@ class AuthRepositoryImpl implements AuthRepository {
     } on AuthException catch (e) {
       return ErrorAPI(_mapAuthException(e));
     } catch (_) {
-      return const ErrorAPI(UnknownFailure());
+      return ErrorAPI(
+        FirebaseFailure('An unexpected error occurred. Please try again.'),
+      );
     }
   }
 
@@ -66,13 +70,15 @@ class AuthRepositoryImpl implements AuthRepository {
     } on AuthException catch (e) {
       return ErrorAPI(_mapAuthException(e));
     } on NetworkException catch (_) {
-      return const ErrorAPI(NetworkFailure());
+      return ErrorAPI(FirebaseFailure('No internet connection.'));
     } on ServerException catch (e) {
-      return ErrorAPI(ServerFailure(statusCode: e.statusCode));
+      return ErrorAPI(ServerFailure(e.message));
     } on ParsingException catch (_) {
-      return const ErrorAPI(ParsingFailure());
+      return ErrorAPI(ServerFailure('Failed to parse response.'));
     } catch (_) {
-      return const ErrorAPI(UnknownFailure());
+      return ErrorAPI(
+        FirebaseFailure('An unexpected error occurred. Please try again.'),
+      );
     }
   }
 
@@ -102,7 +108,9 @@ class AuthRepositoryImpl implements AuthRepository {
     } on AuthException catch (e) {
       return ErrorAPI(_mapAuthException(e));
     } catch (_) {
-      return const ErrorAPI(UnknownFailure());
+      return ErrorAPI(
+        FirebaseFailure('An unexpected error occurred. Please try again.'),
+      );
     }
   }
 
@@ -115,7 +123,9 @@ class AuthRepositoryImpl implements AuthRepository {
     } on AuthException catch (e) {
       return ErrorAPI(_mapAuthException(e));
     } catch (_) {
-      return const ErrorAPI(UnknownFailure());
+      return ErrorAPI(
+        FirebaseFailure('An unexpected error occurred. Please try again.'),
+      );
     }
   }
 
@@ -128,7 +138,9 @@ class AuthRepositoryImpl implements AuthRepository {
     } on AuthException catch (e) {
       return ErrorAPI(_mapAuthException(e));
     } catch (_) {
-      return const ErrorAPI(UnknownFailure());
+      return ErrorAPI(
+        FirebaseFailure('An unexpected error occurred. Please try again.'),
+      );
     }
   }
 
@@ -141,7 +153,9 @@ class AuthRepositoryImpl implements AuthRepository {
     } on AuthException catch (e) {
       return ErrorAPI(_mapAuthException(e));
     } catch (_) {
-      return const ErrorAPI(UnknownFailure());
+      return ErrorAPI(
+        FirebaseFailure('An unexpected error occurred. Please try again.'),
+      );
     }
   }
 
@@ -152,13 +166,11 @@ class AuthRepositoryImpl implements AuthRepository {
 
       return const SuccessAPI(null);
     } on FirebaseAuthException catch (e) {
-      return ErrorAPI(
-        ServerFailure(
-          message: e.message ?? 'Failed to send password reset email.',
-        ),
-      );
+      return ErrorAPI(FirebaseFailure.fromException(e));
     } catch (e) {
-      return ErrorAPI(ServerFailure(message: e.toString()));
+      return ErrorAPI(
+        FirebaseFailure('An unexpected error occurred. Please try again.'),
+      );
     }
   }
 
@@ -174,7 +186,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final user = await remoteDataSource.getCurrentUser();
 
       if (user == null) {
-        return const ErrorAPI(AuthFailure('No authenticated user found.'));
+        return ErrorAPI(FirebaseFailure('No authenticated user found.'));
       }
 
       await user.reload();
@@ -182,12 +194,12 @@ class AuthRepositoryImpl implements AuthRepository {
       final refreshedUser = FirebaseAuth.instance.currentUser;
 
       if (refreshedUser == null) {
-        return const ErrorAPI(AuthFailure('No authenticated user found.'));
+        return ErrorAPI(FirebaseFailure('No authenticated user found.'));
       }
 
       if (!refreshedUser.emailVerified) {
-        return const ErrorAPI(
-          AuthFailure(
+        return ErrorAPI(
+          FirebaseFailure(
             'Please verify your email address before saving your profile.',
           ),
         );
@@ -208,7 +220,9 @@ class AuthRepositoryImpl implements AuthRepository {
     } on AuthException catch (e) {
       return ErrorAPI(_mapAuthException(e));
     } catch (_) {
-      return const ErrorAPI(UnknownFailure());
+      return ErrorAPI(
+        FirebaseFailure('An unexpected error occurred. Please try again.'),
+      );
     }
   }
 
@@ -221,12 +235,14 @@ class AuthRepositoryImpl implements AuthRepository {
     } on AuthException catch (e) {
       return ErrorAPI(_mapAuthException(e));
     } catch (_) {
-      return const ErrorAPI(UnknownFailure());
+      return ErrorAPI(
+        FirebaseFailure('An unexpected error occurred. Please try again.'),
+      );
     }
   }
 
   Failure _mapAuthException(AuthException exception) {
-    return AuthFailure(
+    return FirebaseFailure(
       exception.message.isNotEmpty
           ? exception.message
           : 'Authentication failed. Please try again.',

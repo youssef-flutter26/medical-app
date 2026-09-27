@@ -6,18 +6,25 @@ class CustomHealthPal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          'Health',
-          style: AppTextStyles.inter14W400.copyWith(color: Colors.black45),
-        ),
-        Text(
-          'Pal',
-          style: AppTextStyles.inter14W400.copyWith(color: Colors.black),
-        ),
-      ],
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        textDirection: TextDirection.ltr,
+        children: [
+          Text(
+            'Health',
+            textDirection: TextDirection.ltr,
+            style: AppTextStyles.inter14W400.copyWith(color: Colors.black45),
+          ),
+          Text(
+            'Pal',
+            textDirection: TextDirection.ltr,
+            style: AppTextStyles.inter14W400.copyWith(color: Colors.black),
+          ),
+        ],
+      ),
     );
   }
 }

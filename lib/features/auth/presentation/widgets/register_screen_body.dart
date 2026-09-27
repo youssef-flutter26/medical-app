@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -67,35 +68,25 @@ class _RegisterScreenBodyState extends State<RegisterScreenBody> {
     context.read<AuthCubit>().loginWithGoogleUser();
   }
 
-  void _goToFillProfile({required String name, required String email}) {
-    Navigator.pushNamed(
-      context,
-      Routes.fillProfile,
-      arguments: {'name': name, 'email': email},
-    );
-  }
-
-  void _goToHome() {
-    Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is SignupSuccess) {
-          _goToFillProfile(
-            name: nameController.text.trim(),
-            email: emailController.text.trim(),
-          );
-        } else if (state is GoogleLoginSuccess) {
-          if (state.isNewUser) {
-            _goToFillProfile(
-              name: state.user.name ?? '',
-              email: state.user.email,
+          if (FirebaseAuth.instance.currentUser != null) {
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              Routes.mainLayout,
+              (route) => false,
             );
-          } else {
-            _goToHome();
+          }
+        } else if (state is GoogleLoginSuccess) {
+          if (FirebaseAuth.instance.currentUser != null) {
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              Routes.mainLayout,
+              (route) => false,
+            );
           }
         } else if (state is AuthFailure) {
           ScaffoldMessenger.of(context).showSnackBar(

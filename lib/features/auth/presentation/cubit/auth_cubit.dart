@@ -2,7 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
 
-import '../../../../core/error/failure.dart' hide AuthFailure;
 import '../../../../core/error/result.dart';
 import '../../domain/usecases/check_email_verified.dart';
 import '../../domain/usecases/check_name_availability.dart';
@@ -48,7 +47,7 @@ class AuthCubit extends Cubit<AuthState> {
         emit(LoginSuccess(user));
 
       case ErrorAPI(failure: final failure):
-        emit(AuthFailure(failure.userMessage));
+        emit(AuthFailure(failure.message));
     }
   }
 
@@ -67,7 +66,7 @@ class AuthCubit extends Cubit<AuthState> {
         );
 
       case ErrorAPI(failure: final failure):
-        emit(AuthFailure(failure.userMessage));
+        emit(AuthFailure(failure.message));
     }
   }
 
@@ -89,7 +88,7 @@ class AuthCubit extends Cubit<AuthState> {
         }
 
       case ErrorAPI(failure: final failure):
-        emit(AuthFailure(failure.userMessage));
+        emit(AuthFailure(failure.message));
         return;
     }
 
@@ -100,7 +99,7 @@ class AuthCubit extends Cubit<AuthState> {
         emit(SignupSuccess(user));
 
       case ErrorAPI(failure: final failure):
-        emit(AuthFailure(failure.userMessage));
+        emit(AuthFailure(failure.message));
     }
   }
 
@@ -126,7 +125,7 @@ class AuthCubit extends Cubit<AuthState> {
         emit(VerificationEmailSent(LocaleKeys.verificationEmailSent.tr()));
 
       case ErrorAPI(failure: final failure):
-        emit(AuthFailure(failure.userMessage));
+        emit(AuthFailure(failure.message));
     }
   }
 
@@ -140,7 +139,7 @@ class AuthCubit extends Cubit<AuthState> {
         emit(const PasswordResetEmailSent());
 
       case ErrorAPI(failure: final failure):
-        emit(AuthFailure(failure.userMessage));
+        emit(AuthFailure(failure.message));
     }
   }
 
@@ -167,7 +166,7 @@ class AuthCubit extends Cubit<AuthState> {
         return true;
 
       case ErrorAPI(failure: final failure):
-        emit(AuthFailure(failure.userMessage));
+        emit(AuthFailure(failure.message));
         return false;
     }
   }

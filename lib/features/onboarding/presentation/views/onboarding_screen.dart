@@ -1,16 +1,16 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:medical_app/core/localization/app_localization.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
-import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
 import 'package:medical_app/features/onboarding/data/models/onboarding_page_model.dart';
 import 'package:medical_app/features/onboarding/presentation/widgets/onboarding_bottom_section.dart';
 import 'package:medical_app/features/onboarding/presentation/widgets/onboarding_image.dart';
 import 'package:medical_app/features/onboarding/presentation/widgets/onboarding_text_content.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key, this.onFinish});
@@ -74,13 +74,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _onFinish();
   }
 
-  void _onFinish() {
+  Future<void> _onFinish() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('hasSeenOnboarding', true);
+      await prefs.setBool('isOnboardingSeen', true);
+    } catch (_) {}
+
     if (widget.onFinish != null) {
       widget.onFinish!.call();
       return;
     }
 
-    Navigator.pushReplacementNamed(context, Routes.login);
+    if (!mounted) return;
+
+    User? currentUser;
+    try {
+      currentUser = FirebaseAuth.instance.currentUser;
+    } catch (_) {
+      currentUser = null;
+    }
+
+    if (currentUser != null) {
+      Navigator.pushReplacementNamed(context, Routes.mainLayout);
+    } else {
+      Navigator.pushReplacementNamed(context, Routes.login);
+    }
   }
 
   @override
@@ -91,37 +110,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       backgroundColor: AppColors.white,
       body: Column(
         children: [
-          SafeArea(
-            bottom: false,
-            child: Align(
-              alignment: AlignmentDirectional.topEnd,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
-                child: TextButton.icon(
-                  onPressed: () {
-                    final isArabic = context.locale.languageCode == 'ar';
-                    context.setLocale(
-                      isArabic
-                          ? AppLocalization.english
-                          : AppLocalization.arabic,
-                    );
-                  },
-                  icon: Icon(
-                    Icons.language,
-                    size: 18.sp,
-                    color: AppColors.gray500,
-                  ),
-                  label: Text(
-                    context.locale.languageCode == 'ar' ? 'English' : 'العربية',
-                    style: AppTextStyles.withColor(
-                      AppTextStyles.inter12W500,
-                      AppColors.gray500,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
           Expanded(
             child: PageView.builder(
               controller: _pageController,

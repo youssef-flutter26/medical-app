@@ -11,6 +11,15 @@ class AppAssets {
   static const String iconsLogo = 'assets/icons/Logo.svg';
   static const String iconsPassword = 'assets/icons/password.svg';
   static const String iconsUser = 'assets/icons/user.svg';
+  static const String iconsAppointment = 'assets/icons/calendar.svg';
+  static const String iconsCalendar = 'assets/icons/calendar.svg';
+  static const String iconsCalendar2 = 'assets/icons/calendar_2.svg';
+  static const String iconsHome = 'assets/icons/home.svg';
+  static const String iconsHome2 = 'assets/icons/home_2.svg';
+  static const String iconsLocation = 'assets/icons/Location.svg';
+  static const String iconsLocation2 = 'assets/icons/location_2.svg';
+  static const String iconsProfile = 'assets/icons/Profile.svg';
+  static const String iconsProfile2 = 'assets/icons/profile_2.svg';
   static const String imagesCheckCorrect = 'assets/images/check_correct.png';
   static const String imagesOnboarding1 = 'assets/images/onboarding_1.png';
   static const String imagesOnboarding2 = 'assets/images/onboarding_2.png';
