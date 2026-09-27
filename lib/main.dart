@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
               localizationsDelegates: context.localizationDelegates,
               supportedLocales: context.supportedLocales,
               locale: locale,
-              initialRoute: Routes.splash,
+              initialRoute: Routes.mainLayout,
               onGenerateRoute: getIt<AppRouter>().generateRoute,
               builder: (context, child) {
                 return Directionality(

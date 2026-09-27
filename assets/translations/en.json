@@ -82,5 +82,9 @@
   "contentNotFound": "Content not found",
   "serverIssues": "Server is having issues, try again later",
   "serverError": "Something went wrong on the server",
-  "unexpectedFormat": "Unexpected response format"
+  "unexpectedFormat": "Unexpected response format",
+  "home": "Home",
+  "location": "Location",
+  "appointment": "Appointment",
+  "profile": "Profile"
 }

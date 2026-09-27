@@ -82,5 +82,9 @@
   "contentNotFound": "المحتوى غير موجود",
   "serverIssues": "الخادم يواجه مشاكل، يرجى المحاولة لاحقاً",
   "serverError": "حدث خطأ في الخادم",
-  "unexpectedFormat": "صيغة استجابة غير متوقعة"
+  "unexpectedFormat": "صيغة استجابة غير متوقعة",
+  "home": "الرئيسية",
+  "location": "الموقع",
+  "appointment": "المواعيد",
+  "profile": "الملف الشخصي"
 }

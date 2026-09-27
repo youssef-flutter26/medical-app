@@ -94,4 +94,8 @@ abstract class LocaleKeys {
   static const serverIssues = 'serverIssues';
   static const serverError = 'serverError';
   static const unexpectedFormat = 'unexpectedFormat';
+  static const home = 'home';
+  static const location = 'location';
+  static const appointment = 'appointment';
+  static const profile = 'profile';
 }
