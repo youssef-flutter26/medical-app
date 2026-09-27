@@ -9,6 +9,7 @@ import 'package:medical_app/features/onboarding/data/models/onboarding_page_mode
 import 'package:medical_app/features/onboarding/presentation/widgets/onboarding_bottom_section.dart';
 import 'package:medical_app/features/onboarding/presentation/widgets/onboarding_image.dart';
 import 'package:medical_app/features/onboarding/presentation/widgets/onboarding_text_content.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key, this.onFinish});
@@ -72,11 +73,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _onFinish();
   }
 
-  void _onFinish() {
+  Future<void> _onFinish() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('hasSeenOnboarding', true);
+      await prefs.setBool('isOnboardingSeen', true);
+    } catch (_) {}
+
     if (widget.onFinish != null) {
       widget.onFinish!.call();
       return;
     }
+
+    if (!mounted) return;
 
     Navigator.pushReplacementNamed(context, Routes.login);
   }
