@@ -86,5 +86,20 @@
   "home": "الرئيسية",
   "location": "الموقع",
   "appointment": "المواعيد",
-  "profile": "الملف الشخصي"
+  "profile": "الملف الشخصي",
+  "searchDoctorHint": "ابحث عن طبيب، أدوية، مقالات...",
+  "lookingForSpecialistDoctors": "هل تبحث عن\nأطباء متخصصين؟",
+  "bannerSubtext": "احجز موعداً مع أفضل أطبائنا اليوم.",
+  "explore": "استكشف",
+  "categories": "الفئات",
+  "seeAll": "عرض الكل",
+  "dentistry": "طب الأسنان",
+  "cardiology": "أمراض القلب",
+  "pulmonology": "أمراض الرئة",
+  "general": "عام",
+  "neurology": "طب الأعصاب",
+  "gastro": "الجهاز الهضمي...",
+  "laboratory": "المختبر",
+  "vaccination": "التطعيم",
+  "nearbyMedicalCenters": "المراكز الطبية القريبة"
 }

@@ -1,19 +1,21 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 
 class HomeSearch extends StatelessWidget {
   const HomeSearch({
     super.key,
-    this.hintText = 'Search doctor, drugs, articles...',
+    this.hintText,
     this.controller,
     this.onChanged,
     this.onTap,
     this.onFilterTap,
   });
 
-  final String hintText;
+  final String? hintText;
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onTap;
@@ -21,6 +23,7 @@ class HomeSearch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveHint = hintText ?? LocaleKeys.searchDoctorHint.tr();
     return Container(
       height: 48.h,
       decoration: BoxDecoration(
@@ -46,7 +49,7 @@ class HomeSearch extends StatelessWidget {
                 AppColors.darkTeal,
               ),
               decoration: InputDecoration(
-                hintText: hintText,
+                hintText: effectiveHint,
                 hintStyle: AppTextStyles.withColor(
                   AppTextStyles.inter12W500,
                   AppColors.gray400,

@@ -42,7 +42,7 @@ class MedicalCenterItem extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: AppColors.darkTeal.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -68,8 +68,8 @@ class MedicalCenterItem extends StatelessWidget {
                         ),
                         gradient: const LinearGradient(
                           colors: [
-                            Color(0xFFDCECE9),
-                            Color(0xFFBEDDD7),
+                            AppColors.cardBgStart,
+                            AppColors.cardBgEnd,
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -79,7 +79,7 @@ class MedicalCenterItem extends StatelessWidget {
                         child: Icon(
                           Icons.local_hospital_rounded,
                           size: 38.r,
-                          color: const Color(0xFF2E7D6B).withValues(alpha: 0.6),
+                          color: AppColors.lightTeal.withValues(alpha: 0.6),
                         ),
                       ),
                     ),
@@ -100,7 +100,7 @@ class MedicalCenterItem extends StatelessWidget {
                               ? Icons.favorite_rounded
                               : Icons.favorite_border_rounded,
                           size: 16.r,
-                          color: isFavorite ? Colors.red : AppColors.gray500,
+                          color: isFavorite ? AppColors.red : AppColors.gray500,
                         ),
                       ),
                     ),
@@ -123,7 +123,7 @@ class MedicalCenterItem extends StatelessWidget {
                           Icon(
                             Icons.star_rounded,
                             size: 14.r,
-                            color: const Color(0xFFF59E0B),
+                            color: AppColors.amber,
                           ),
                           SizedBox(width: 3.w),
                           Text(

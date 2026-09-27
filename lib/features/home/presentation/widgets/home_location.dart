@@ -1,7 +1,11 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
+import 'package:medical_app/core/utils/app_assets.dart';
 
 class HomeLocation extends StatelessWidget {
   const HomeLocation({
@@ -30,34 +34,36 @@ class HomeLocation extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Location',
+                LocaleKeys.location.tr(),
                 style: AppTextStyles.withColor(
                   AppTextStyles.inter12W500,
                   AppColors.gray500,
                 ),
               ),
-              SizedBox(height: 2.h),
+              SizedBox(height: 4.h),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.location_on,
-                    size: 16.r,
-                    color: AppColors.primary600,
+                  SvgPicture.asset(
+                    AppAssets.iconsLocation2,
+                    width: 17.r,
+                    height: 21.r,
                   ),
                   SizedBox(width: 4.w),
                   Text(
                     location,
                     style: AppTextStyles.withColor(
-                      AppTextStyles.inter14W500,
+                      AppTextStyles.inter14W500.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                       AppColors.darkTeal,
                     ),
                   ),
                   SizedBox(width: 4.w),
-                  Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    size: 18.r,
-                    color: AppColors.gray500,
+                  SvgPicture.asset(
+                    AppAssets.iconsArrowDown,
+                    width: 14.r,
+                    height: 14.r,
                   ),
                 ],
               ),
@@ -68,33 +74,32 @@ class HomeLocation extends StatelessWidget {
           onTap: onNotificationPressed,
           borderRadius: BorderRadius.circular(20.r),
           child: Container(
-            width: 40.w,
-            height: 40.w,
-            decoration: BoxDecoration(
+            width: 40.r,
+            height: 40.r,
+            decoration: const BoxDecoration(
               color: AppColors.gray100,
               shape: BoxShape.circle,
             ),
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Icon(
-                  Icons.notifications_none_rounded,
-                  size: 22.r,
-                  color: AppColors.gray700,
+                SvgPicture.asset(
+                  AppAssets.iconsNotificationBing,
+                  width: 22.r,
+                  height: 22.r,
                 ),
-                if (hasNotification)
-                  Positioned(
-                    top: 10.h,
-                    right: 11.w,
-                    child: Container(
-                      width: 8.r,
-                      height: 8.r,
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
+                Positioned(
+                  top: 9.r,
+                  right: 10.r,
+                  child: Container(
+                    width: 7.r,
+                    height: 7.r,
+                    decoration: const BoxDecoration(
+                      color: AppColors.red,
+                      shape: BoxShape.circle,
                     ),
                   ),
+                ),
               ],
             ),
           ),

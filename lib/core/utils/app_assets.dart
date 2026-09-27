@@ -2,24 +2,26 @@
 class AppAssets {
   AppAssets._();
 
+  static const String iconsArrowDown = 'assets/icons/arrow-down.svg';
   static const String iconsBackIcon = 'assets/icons/back-icon.svg';
+  static const String iconsCalendar = 'assets/icons/calendar.svg';
+  static const String iconsCalendar2 = 'assets/icons/calendar_2.svg';
   static const String iconsDate = 'assets/icons/date.svg';
   static const String iconsEdit = 'assets/icons/edit.svg';
   static const String iconsEmail = 'assets/icons/email.svg';
   static const String iconsFacebook = 'assets/icons/Facebook.svg';
   static const String iconsGoogle = 'assets/icons/Google.svg';
-  static const String iconsLogo = 'assets/icons/Logo.svg';
-  static const String iconsPassword = 'assets/icons/password.svg';
-  static const String iconsUser = 'assets/icons/user.svg';
-  static const String iconsAppointment = 'assets/icons/calendar.svg';
-  static const String iconsCalendar = 'assets/icons/calendar.svg';
-  static const String iconsCalendar2 = 'assets/icons/calendar_2.svg';
   static const String iconsHome = 'assets/icons/home.svg';
   static const String iconsHome2 = 'assets/icons/home_2.svg';
   static const String iconsLocation = 'assets/icons/Location.svg';
   static const String iconsLocation2 = 'assets/icons/location_2.svg';
+  static const String iconsLogo = 'assets/icons/Logo.svg';
+  static const String iconsNotificationBing = 'assets/icons/notification-bing.svg';
+  static const String iconsNotification = 'assets/icons/notification-bing.svg';
+  static const String iconsPassword = 'assets/icons/password.svg';
   static const String iconsProfile = 'assets/icons/Profile.svg';
   static const String iconsProfile2 = 'assets/icons/profile_2.svg';
+  static const String iconsUser = 'assets/icons/user.svg';
   static const String imagesCheckCorrect = 'assets/images/check_correct.png';
   static const String imagesOnboarding1 = 'assets/images/onboarding_1.png';
   static const String imagesOnboarding2 = 'assets/images/onboarding_2.png';

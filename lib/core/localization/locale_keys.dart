@@ -98,4 +98,19 @@ abstract class LocaleKeys {
   static const location = 'location';
   static const appointment = 'appointment';
   static const profile = 'profile';
+  static const searchDoctorHint = 'searchDoctorHint';
+  static const lookingForSpecialistDoctors = 'lookingForSpecialistDoctors';
+  static const bannerSubtext = 'bannerSubtext';
+  static const explore = 'explore';
+  static const categories = 'categories';
+  static const seeAll = 'seeAll';
+  static const dentistry = 'dentistry';
+  static const cardiology = 'cardiology';
+  static const pulmonology = 'pulmonology';
+  static const general = 'general';
+  static const neurology = 'neurology';
+  static const gastro = 'gastro';
+  static const laboratory = 'laboratory';
+  static const vaccination = 'vaccination';
+  static const nearbyMedicalCenters = 'nearbyMedicalCenters';
 }

@@ -1,31 +1,37 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 
 class HomeBanner extends StatelessWidget {
   const HomeBanner({
     super.key,
-    this.title = 'Looking for\nSpecialist Doctors?',
-    this.subtitle = 'Schedule an appointment with our top doctors.',
-    this.buttonText = 'Explore',
+    this.title,
+    this.subtitle,
+    this.buttonText,
     this.onButtonPressed,
   });
 
-  final String title;
-  final String subtitle;
-  final String buttonText;
+  final String? title;
+  final String? subtitle;
+  final String? buttonText;
   final VoidCallback? onButtonPressed;
 
   @override
   Widget build(BuildContext context) {
+    final effectiveTitle = title ?? LocaleKeys.lookingForSpecialistDoctors.tr();
+    final effectiveSubtitle = subtitle ?? LocaleKeys.bannerSubtext.tr();
+    final effectiveButtonText = buttonText ?? LocaleKeys.explore.tr();
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
-            Color(0xFFE8F3F1),
-            Color(0xFFD6EDE9),
+            AppColors.bannerBgStart,
+            AppColors.bannerBgEnd,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -44,7 +50,7 @@ class HomeBanner extends StatelessWidget {
               height: 120.r,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.35),
+                color: AppColors.white.withValues(alpha: 0.35),
               ),
             ),
           ),
@@ -56,7 +62,7 @@ class HomeBanner extends StatelessWidget {
               height: 60.r,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.25),
+                color: AppColors.white.withValues(alpha: 0.25),
               ),
             ),
           ),
@@ -69,7 +75,7 @@ class HomeBanner extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      title,
+                      effectiveTitle,
                       style: AppTextStyles.withColor(
                         AppTextStyles.inter16W500.copyWith(
                           fontWeight: FontWeight.w700,
@@ -80,7 +86,7 @@ class HomeBanner extends StatelessWidget {
                     ),
                     SizedBox(height: 6.h),
                     Text(
-                      subtitle,
+                      effectiveSubtitle,
                       style: AppTextStyles.withColor(
                         AppTextStyles.inter10W400,
                         AppColors.gray600,
@@ -104,7 +110,7 @@ class HomeBanner extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        buttonText,
+                        effectiveButtonText,
                         style: AppTextStyles.withColor(
                           AppTextStyles.inter10W500.copyWith(
                             fontWeight: FontWeight.w600,
@@ -136,7 +142,7 @@ class HomeBanner extends StatelessWidget {
                     child: Icon(
                       Icons.medical_services_rounded,
                       size: 38.r,
-                      color: const Color(0xFF2E7D6B),
+                      color: AppColors.lightTeal,
                     ),
                   ),
                 ),

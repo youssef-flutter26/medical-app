@@ -86,5 +86,20 @@
   "home": "Home",
   "location": "Location",
   "appointment": "Appointment",
-  "profile": "Profile"
+  "profile": "Profile",
+  "searchDoctorHint": "Search doctor, drugs, articles...",
+  "lookingForSpecialistDoctors": "Looking for\nSpecialist Doctors?",
+  "bannerSubtext": "Schedule an appointment with our top doctors.",
+  "explore": "Explore",
+  "categories": "Categories",
+  "seeAll": "See All",
+  "dentistry": "Dentistry",
+  "cardiology": "Cardiology",
+  "pulmonology": "Pulmonology",
+  "general": "General",
+  "neurology": "Neurology",
+  "gastro": "Gastro...",
+  "laboratory": "Laboratory",
+  "vaccination": "Vaccination",
+  "nearbyMedicalCenters": "Nearby Medical Centers"
 }

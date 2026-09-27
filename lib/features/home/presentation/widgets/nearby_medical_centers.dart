@@ -1,5 +1,7 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/features/home/presentation/widgets/medical_center_item.dart';
@@ -67,7 +69,7 @@ class NearbyMedicalCenters extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Nearby Medical Centers',
+              LocaleKeys.nearbyMedicalCenters.tr(),
               style: AppTextStyles.withColor(
                 AppTextStyles.inter16W500.copyWith(
                   fontWeight: FontWeight.w600,
@@ -81,7 +83,7 @@ class NearbyMedicalCenters extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
                 child: Text(
-                  'See All',
+                  LocaleKeys.seeAll.tr(),
                   style: AppTextStyles.withColor(
                     AppTextStyles.inter12W500,
                     AppColors.primary600,

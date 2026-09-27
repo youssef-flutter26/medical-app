@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
@@ -9,16 +10,64 @@ import 'package:medical_app/features/home/presentation/widgets/home_location.dar
 import 'package:medical_app/features/home/presentation/widgets/home_search.dart';
 import 'package:medical_app/features/home/presentation/widgets/medical_center_item.dart';
 import 'package:medical_app/features/home/presentation/widgets/nearby_medical_centers.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class HomeTestAssetLoader extends AssetLoader {
+  const HomeTestAssetLoader();
+
+  @override
+  Future<Map<String, dynamic>> load(String path, Locale locale) async {
+    return {
+      "location": "Location",
+      "searchDoctorHint": "Search doctor, drugs, articles...",
+      "lookingForSpecialistDoctors": "Looking for\nSpecialist Doctors?",
+      "bannerSubtext": "Schedule an appointment with our top doctors.",
+      "explore": "Explore",
+      "categories": "Categories",
+      "seeAll": "See All",
+      "dentistry": "Dentistry",
+      "cardiology": "Cardiology",
+      "pulmonology": "Pulmonology",
+      "general": "General",
+      "neurology": "Neurology",
+      "gastro": "Gastro...",
+      "laboratory": "Laboratory",
+      "vaccination": "Vaccination",
+      "nearbyMedicalCenters": "Nearby Medical Centers",
+    };
+  }
+}
 
 Widget createHomeScreenTestWidget() {
-  return const AppScreenUtilScope(
-    child: MaterialApp(
-      home: HomeScreen(),
+  return EasyLocalization(
+    supportedLocales: const [Locale('en')],
+    path: 'assets/translations',
+    assetLoader: const HomeTestAssetLoader(),
+    fallbackLocale: const Locale('en'),
+    startLocale: const Locale('en'),
+    child: const AppScreenUtilScope(
+      child: Builder(
+        builder: _buildMaterialApp,
+      ),
     ),
   );
 }
 
+Widget _buildMaterialApp(BuildContext context) {
+  return MaterialApp(
+    localizationsDelegates: context.localizationDelegates,
+    supportedLocales: context.supportedLocales,
+    locale: context.locale,
+    home: const HomeScreen(),
+  );
+}
+
 void main() {
+  setUpAll(() async {
+    SharedPreferences.setMockInitialValues({});
+    await EasyLocalization.ensureInitialized();
+  });
+
   testWidgets('HomeScreen renders all sections in the correct order', (
     WidgetTester tester,
   ) async {
