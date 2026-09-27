@@ -59,9 +59,16 @@ class _SplashScreenState extends State<SplashScreen> {
       currentUser = null;
     }
 
+    debugPrint(
+      'STARTUP CHECK: hasSeenOnboarding=$hasSeenOnboarding, '
+      'currentUser=${currentUser != null ? "AUTHENTICATED (${currentUser.uid}, ${currentUser.email})" : "NULL (Unauthenticated)"}',
+    );
+
     if (currentUser != null) {
+      debugPrint('STARTUP ROUTING -> Routes.mainLayout');
       Navigator.pushReplacementNamed(context, Routes.mainLayout);
     } else {
+      debugPrint('STARTUP ROUTING -> Routes.login');
       Navigator.pushReplacementNamed(context, Routes.login);
     }
   }

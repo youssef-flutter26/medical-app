@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
@@ -87,7 +88,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
     if (!mounted) return;
 
-    Navigator.pushReplacementNamed(context, Routes.login);
+    User? currentUser;
+    try {
+      currentUser = FirebaseAuth.instance.currentUser;
+    } catch (_) {
+      currentUser = null;
+    }
+
+    if (currentUser != null) {
+      Navigator.pushReplacementNamed(context, Routes.mainLayout);
+    } else {
+      Navigator.pushReplacementNamed(context, Routes.login);
+    }
   }
 
   @override
