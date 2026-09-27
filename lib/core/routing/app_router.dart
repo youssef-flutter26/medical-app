@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:medical_app/core/common/main_layout.dart';
+import 'package:medical_app/core/common/pages/main_layout.dart';
 import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/features/auth/presentation/pages/forget_password_screen.dart';
 import 'package:medical_app/features/auth/presentation/pages/login_screen.dart';

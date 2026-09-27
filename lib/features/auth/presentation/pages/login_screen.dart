@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -75,20 +76,21 @@ class _LoginScreenState extends State<LoginScreen> {
             ).showSnackBar(SnackBar(content: Text(message)));
           }
 
-          if (state is GoogleLoginSuccess) {
-            if (state.isNewUser) {
-              Navigator.pushNamed(
-                context,
-                Routes.fillProfile,
-                arguments: {
-                  'name': state.user.name ?? '',
-                  'email': state.user.email,
-                },
-              );
-            } else {
+          if (state is LoginSuccess) {
+            if (FirebaseAuth.instance.currentUser != null) {
               Navigator.pushNamedAndRemoveUntil(
                 context,
-                Routes.register,
+                Routes.mainLayout,
+                (route) => false,
+              );
+            }
+          }
+
+          if (state is GoogleLoginSuccess) {
+            if (FirebaseAuth.instance.currentUser != null) {
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                Routes.mainLayout,
                 (route) => false,
               );
             }

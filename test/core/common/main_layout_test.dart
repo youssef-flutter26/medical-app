@@ -2,8 +2,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:medical_app/core/common/main_layout.dart';
+import 'package:medical_app/core/common/pages/main_layout.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
+import 'package:medical_app/core/utils/app_assets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TestAssetLoader extends AssetLoader {
@@ -122,7 +123,7 @@ void main() {
     );
   });
 
-  testWidgets('MainLayout uses AppColors.gray600 for selected icon', (
+  testWidgets('MainLayout uses 48px gray100 circle and -2 assets for selected icon', (
     tester,
   ) async {
     await tester.pumpWidget(createMainLayoutTestWidget());
@@ -133,18 +134,30 @@ void main() {
     );
 
     expect(bottomNavBar.selectedItemColor, AppColors.gray600);
-    expect(bottomNavBar.selectedIconTheme?.color, AppColors.gray600);
     expect(bottomNavBar.unselectedItemColor, AppColors.gray400);
-    expect(bottomNavBar.unselectedIconTheme?.color, AppColors.gray400);
-    expect(AppColors.gray600, const Color(0xFF4B5563));
+    expect(AppColors.gray100, const Color(0xFFF3F4F6));
 
-    // Check that all active icons use gray600 colorFilter and unselected use gray400
+    final expectedActiveAssets = [
+      AppAssets.iconsHome2,
+      AppAssets.iconsLocation2,
+      AppAssets.iconsCalendar2,
+      AppAssets.iconsProfile2,
+    ];
+
     for (int i = 0; i < bottomNavBar.items.length; i++) {
-      final activeSvg = bottomNavBar.items[i].activeIcon as SvgPicture;
-      expect(
-        activeSvg.colorFilter,
-        const ColorFilter.mode(AppColors.gray600, BlendMode.srcIn),
-      );
+      final activeContainer = bottomNavBar.items[i].activeIcon as Container;
+      expect(activeContainer.constraints?.minWidth, 48.0);
+      expect(activeContainer.constraints?.minHeight, 48.0);
+
+      final decoration = activeContainer.decoration as BoxDecoration;
+      expect(decoration.shape, BoxShape.circle);
+      expect(decoration.color, AppColors.gray100);
+      expect(decoration.border, isNull);
+
+      final activeSvg = activeContainer.child as SvgPicture;
+      expect(activeSvg.colorFilter, isNull);
+      final assetBytesLoader = activeSvg.bytesLoader as SvgAssetLoader;
+      expect(assetBytesLoader.assetName, expectedActiveAssets[i]);
 
       final unselectedSvg = bottomNavBar.items[i].icon as SvgPicture;
       expect(

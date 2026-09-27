@@ -4,10 +4,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
-// import 'package:medical_app/features/appointment/presentation/screens/appointment_screen.dart';
-// import 'package:medical_app/features/home/presentation/screens/home_screen.dart';
-// import 'package:medical_app/features/location/presentation/screens/location_screen.dart';
-// import 'package:medical_app/features/profile/presentation/screens/profile_screen.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -58,11 +54,16 @@ class _MainLayoutState extends State<MainLayout> {
                 BlendMode.srcIn,
               ),
             ),
-            activeIcon: SvgPicture.asset(
-              AppAssets.iconsHome,
-              colorFilter: const ColorFilter.mode(
-                AppColors.gray600,
-                BlendMode.srcIn,
+            activeIcon: Container(
+              width: 48,
+              height: 48,
+              decoration: const BoxDecoration(
+                color: AppColors.gray100,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: SvgPicture.asset(
+                AppAssets.iconsHome2,
               ),
             ),
             label: LocaleKeys.home.tr(),
@@ -75,28 +76,38 @@ class _MainLayoutState extends State<MainLayout> {
                 BlendMode.srcIn,
               ),
             ),
-            activeIcon: SvgPicture.asset(
-              AppAssets.iconsLocation,
-              colorFilter: const ColorFilter.mode(
-                AppColors.gray600,
-                BlendMode.srcIn,
+            activeIcon: Container(
+              width: 48,
+              height: 48,
+              decoration: const BoxDecoration(
+                color: AppColors.gray100,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: SvgPicture.asset(
+                AppAssets.iconsLocation2,
               ),
             ),
             label: LocaleKeys.location.tr(),
           ),
           BottomNavigationBarItem(
             icon: SvgPicture.asset(
-              AppAssets.iconsAppointment,
+              AppAssets.iconsCalendar,
               colorFilter: const ColorFilter.mode(
                 AppColors.gray400,
                 BlendMode.srcIn,
               ),
             ),
-            activeIcon: SvgPicture.asset(
-              AppAssets.iconsAppointment,
-              colorFilter: const ColorFilter.mode(
-                AppColors.gray600,
-                BlendMode.srcIn,
+            activeIcon: Container(
+              width: 48,
+              height: 48,
+              decoration: const BoxDecoration(
+                color: AppColors.gray100,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: SvgPicture.asset(
+                AppAssets.iconsCalendar2,
               ),
             ),
             label: LocaleKeys.appointment.tr(),
@@ -109,11 +120,16 @@ class _MainLayoutState extends State<MainLayout> {
                 BlendMode.srcIn,
               ),
             ),
-            activeIcon: SvgPicture.asset(
-              AppAssets.iconsProfile,
-              colorFilter: const ColorFilter.mode(
-                AppColors.gray600,
-                BlendMode.srcIn,
+            activeIcon: Container(
+              width: 48,
+              height: 48,
+              decoration: const BoxDecoration(
+                color: AppColors.gray100,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: SvgPicture.asset(
+                AppAssets.iconsProfile2,
               ),
             ),
             label: LocaleKeys.profile.tr(),
