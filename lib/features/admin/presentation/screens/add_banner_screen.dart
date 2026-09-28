@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:medical_app/core/common/widgets/app_button.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 
@@ -14,6 +13,8 @@ class AddBannerScreen extends StatefulWidget {
 class _AddBannerScreenState extends State<AddBannerScreen> {
   late final TextEditingController _titleController;
   late final TextEditingController _descriptionController;
+  bool _isImagePressed = false;
+  bool _isButtonPressed = false;
 
   @override
   void initState() {
@@ -36,6 +37,7 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.gray700),
           onPressed: () => Navigator.pop(context),
@@ -52,7 +54,23 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Title',
+                'Banner Details',
+                style: AppTextStyles.withColor(
+                  AppTextStyles.inter20W600,
+                  AppColors.darkTeal,
+                ),
+              ),
+              SizedBox(height: 6.h),
+              Text(
+                'Add the information that will appear on the Home banner.',
+                style: AppTextStyles.withColor(
+                  AppTextStyles.inter14W400,
+                  AppColors.gray500,
+                ),
+              ),
+              SizedBox(height: 24.h),
+              Text(
+                'Banner Title',
                 style: AppTextStyles.withColor(
                   AppTextStyles.inter14W500,
                   AppColors.gray700,
@@ -74,12 +92,20 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
                   filled: true,
                   fillColor: AppColors.gray100,
                   contentPadding: EdgeInsets.symmetric(
-                    horizontal: 14.w,
+                    horizontal: 16.w,
                     vertical: 14.h,
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.r),
-                    borderSide: BorderSide.none,
+                    borderSide: BorderSide(
+                      color: AppColors.gray400.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide: BorderSide(
+                      color: AppColors.gray400.withValues(alpha: 0.2),
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.r),
@@ -115,12 +141,20 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
                   filled: true,
                   fillColor: AppColors.gray100,
                   contentPadding: EdgeInsets.symmetric(
-                    horizontal: 14.w,
+                    horizontal: 16.w,
                     vertical: 14.h,
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.r),
-                    borderSide: BorderSide.none,
+                    borderSide: BorderSide(
+                      color: AppColors.gray400.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide: BorderSide(
+                      color: AppColors.gray400.withValues(alpha: 0.2),
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.r),
@@ -140,38 +174,81 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
                 ),
               ),
               SizedBox(height: 8.h),
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: AppColors.gray100,
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(
-                    color: AppColors.gray400.withValues(alpha: 0.4),
+              AnimatedScale(
+                scale: _isImagePressed ? 0.985 : 1.0,
+                duration: const Duration(milliseconds: 120),
+                curve: Curves.easeOut,
+                child: Container(
+                  width: double.infinity,
+                  height: 164.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.gray100,
+                    borderRadius: BorderRadius.circular(16.r),
+                    border: Border.all(
+                      color: AppColors.gray400.withValues(alpha: 0.35),
+                      width: 1.2,
+                    ),
                   ),
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(12.r),
-                    onTap: () {
-                      // UI interaction placeholder
-                    },
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 28.h),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16.r),
+                      onHighlightChanged: (isHighlighted) {
+                        setState(() {
+                          _isImagePressed = isHighlighted;
+                        });
+                      },
+                      onTap: () {
+                        // Visual interaction placeholder
+                      },
+                      splashColor: AppColors.lightTeal.withValues(alpha: 0.1),
+                      highlightColor: Colors.transparent,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.add_photo_alternate_outlined,
-                            size: 38.sp,
-                            color: AppColors.lightTeal,
+                          Container(
+                            width: 54.r,
+                            height: 54.r,
+                            decoration: BoxDecoration(
+                              color: AppColors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.darkTeal.withValues(alpha: 0.06),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            alignment: Alignment.center,
+                            child: Icon(
+                              Icons.add_photo_alternate_rounded,
+                              size: 28.r,
+                              color: AppColors.lightTeal,
+                            ),
                           ),
-                          SizedBox(height: 10.h),
+                          SizedBox(height: 12.h),
                           Text(
                             'Choose Image',
                             style: AppTextStyles.withColor(
-                              AppTextStyles.inter14W500,
-                              AppColors.lightTeal,
+                              AppTextStyles.inter16W500,
+                              AppColors.darkTeal,
+                            ),
+                          ),
+                          SizedBox(height: 4.h),
+                          Text(
+                            'Upload a banner image',
+                            style: AppTextStyles.withColor(
+                              AppTextStyles.inter12W500,
+                              AppColors.gray500,
+                            ),
+                          ),
+                          SizedBox(height: 2.h),
+                          Text(
+                            'PNG, JPG or WEBP (up to 5MB)',
+                            style: AppTextStyles.withColor(
+                              AppTextStyles.inter10W400,
+                              AppColors.gray400,
                             ),
                           ),
                         ],
@@ -181,11 +258,61 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
                 ),
               ),
               SizedBox(height: 36.h),
-              AppButton(
-                text: 'Add Banner',
-                onPressed: () {
-                  // UI interaction placeholder
-                },
+              AnimatedScale(
+                scale: _isButtonPressed ? 0.97 : 1.0,
+                duration: const Duration(milliseconds: 120),
+                curve: Curves.easeOut,
+                child: Container(
+                  width: double.infinity,
+                  height: 52.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.darkTeal,
+                    borderRadius: BorderRadius.circular(26.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.darkTeal.withValues(
+                          alpha: _isButtonPressed ? 0.15 : 0.28,
+                        ),
+                        blurRadius: _isButtonPressed ? 6 : 14,
+                        offset: Offset(0, _isButtonPressed ? 2 : 5),
+                      ),
+                    ],
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onHighlightChanged: (isHighlighted) {
+                        setState(() {
+                          _isButtonPressed = isHighlighted;
+                        });
+                      },
+                      onTap: () {
+                        // UI interaction placeholder
+                      },
+                      borderRadius: BorderRadius.circular(26.r),
+                      splashColor: AppColors.white.withValues(alpha: 0.15),
+                      highlightColor: Colors.transparent,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.add_circle_outline_rounded,
+                            color: AppColors.white,
+                            size: 20.r,
+                          ),
+                          SizedBox(width: 8.w),
+                          Text(
+                            'Add Banner',
+                            style: AppTextStyles.withColor(
+                              AppTextStyles.inter16W500,
+                              AppColors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
