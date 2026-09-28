@@ -3,6 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:medical_app/core/routing/app_router.dart';
+import 'package:medical_app/features/admin/data/datasources/admin_remote_data_source.dart';
+import 'package:medical_app/features/admin/data/datasources/admin_remote_data_source_impl.dart';
+import 'package:medical_app/features/admin/data/repositories/admin_repository_impl.dart';
+import 'package:medical_app/features/admin/domain/repositories/admin_repository.dart';
+import 'package:medical_app/features/admin/domain/usecases/add_banner.dart';
 import 'package:medical_app/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:medical_app/features/auth/data/datasources/auth_remote_data_source_impl.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
@@ -41,6 +46,10 @@ void setupServiceLocator() {
     () => UserRemoteDataSourceImpl(getIt<FirebaseFirestore>()),
   );
 
+  getIt.registerLazySingleton<AdminRemoteDataSource>(
+    () => AdminRemoteDataSourceImpl(getIt<FirebaseFirestore>()),
+  );
+
   // Repository
   getIt.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(
@@ -49,7 +58,14 @@ void setupServiceLocator() {
     ),
   );
 
+  getIt.registerLazySingleton<AdminRepository>(
+    () => AdminRepositoryImpl(getIt<AdminRemoteDataSource>()),
+  );
+
   // Use Cases
+  getIt.registerLazySingleton<AddBanner>(
+    () => AddBanner(getIt<AdminRepository>()),
+  );
   getIt.registerLazySingleton<Login>(() => Login(getIt<AuthRepository>()));
 
   getIt.registerLazySingleton<LoginWithGoogle>(

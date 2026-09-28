@@ -120,4 +120,26 @@ abstract final class ValidatorApp {
     }
     return null;
   }
+
+  static String? validateTitle(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.titleCannotBeEmpty.tr();
+    }
+    return null;
+  }
+
+  static String? validateDescription(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.descriptionCannotBeEmpty.tr();
+    }
+    return null;
+  }
+
+  static String? validateImageUrl(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.imageUrlCannotBeEmpty.tr();
+    }
+    return null;
+  }
 }
+

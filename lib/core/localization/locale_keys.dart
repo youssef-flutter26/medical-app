@@ -143,4 +143,12 @@ abstract class LocaleKeys {
   static const chooseImage = 'chooseImage';
   static const uploadBannerImage = 'uploadBannerImage';
   static const imageFormatsHint = 'imageFormatsHint';
+  static const imageUrl = 'imageUrl';
+  static const enterImageUrl = 'enterImageUrl';
+  static const titleCannotBeEmpty = 'titleCannotBeEmpty';
+  static const descriptionCannotBeEmpty = 'descriptionCannotBeEmpty';
+  static const imageUrlCannotBeEmpty = 'imageUrlCannotBeEmpty';
+  static const bannerAddedSuccessfully = 'bannerAddedSuccessfully';
+  static const failedToAddBanner = 'failedToAddBanner';
 }
+
