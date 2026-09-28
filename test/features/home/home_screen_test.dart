@@ -113,7 +113,7 @@ void main() {
     expect(find.text('Nearby Medical Centers'), findsOneWidget);
     expect(find.byType(MedicalCenterItem), findsNWidgets(2));
     expect(find.text('Sunrise Health Clinic'), findsOneWidget);
-    expect(find.text('Golden Cardio...'), findsOneWidget);
+    expect(find.text('Golden Cardiology Center'), findsOneWidget);
   });
 
   testWidgets(
@@ -206,15 +206,24 @@ void main() {
     expect(find.text('Meet Doctors Online'), findsOneWidget);
     expect(find.text('Book an appointment with your doctor'), findsOneWidget);
 
-    // No separate Image widget
-    expect(find.byType(Image), findsNothing);
+    // No separate Image widget inside HomeBanner
+    expect(
+      find.descendant(
+        of: find.byType(HomeBanner),
+        matching: find.byType(Image),
+      ),
+      findsNothing,
+    );
 
-    // Applied as background DecorationImage
-    final containerFinder = find.byWidgetPredicate(
-      (widget) =>
-          widget is Container &&
-          widget.decoration is BoxDecoration &&
-          (widget.decoration as BoxDecoration).image != null,
+    // Applied as background DecorationImage inside HomeBanner
+    final containerFinder = find.descendant(
+      of: find.byType(HomeBanner),
+      matching: find.byWidgetPredicate(
+        (widget) =>
+            widget is Container &&
+            widget.decoration is BoxDecoration &&
+            (widget.decoration as BoxDecoration).image != null,
+      ),
     );
     expect(containerFinder, findsOneWidget);
 

@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
+import 'package:medical_app/core/utils/app_assets.dart';
 
 class MedicalCenterItem extends StatelessWidget {
   const MedicalCenterItem({
     super.key,
     required this.name,
-    required this.category,
+    this.category = '',
     required this.address,
     required this.rating,
     required this.reviewCount,
     required this.distance,
+    this.duration,
+    this.type,
+    this.imagePath,
     this.imageUrl,
     this.isFavorite = false,
     this.onTap,
@@ -24,20 +29,83 @@ class MedicalCenterItem extends StatelessWidget {
   final double rating;
   final int reviewCount;
   final String distance;
+  final String? duration;
+  final String? type;
+  final String? imagePath;
   final String? imageUrl;
   final bool isFavorite;
   final VoidCallback? onTap;
   final VoidCallback? onFavoriteTap;
 
+  String get displayDistance {
+    if (duration != null && duration!.isNotEmpty && !distance.contains('/')) {
+      return '$distance/$duration';
+    }
+    return distance;
+  }
+
+  String get displayType {
+    if (type != null && type!.isNotEmpty) {
+      return type!;
+    }
+    if (category.toLowerCase().contains('hospital')) {
+      return 'Hospital';
+    }
+    return 'Clinic';
+  }
+
+  Widget _buildImage() {
+    DecorationImage? decorationImage;
+    if (imagePath != null && imagePath!.isNotEmpty) {
+      decorationImage = DecorationImage(
+        image: AssetImage(imagePath!),
+        fit: BoxFit.cover,
+      );
+    } else if (imageUrl != null && imageUrl!.isNotEmpty) {
+      decorationImage = DecorationImage(
+        image: NetworkImage(imageUrl!),
+        fit: BoxFit.cover,
+      );
+    }
+
+    return Container(
+      width: 232.w,
+      height: 121.h,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
+        gradient: decorationImage == null
+            ? const LinearGradient(
+                colors: [
+                  AppColors.cardBgStart,
+                  AppColors.cardBgEnd,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
+            : null,
+        image: decorationImage,
+      ),
+      child: decorationImage == null
+          ? Center(
+              child: Icon(
+                Icons.local_hospital_rounded,
+                size: 38.r,
+                color: AppColors.lightTeal.withValues(alpha: 0.6),
+              ),
+            )
+          : null,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 220.w,
+      width: 232.w,
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: AppColors.gray400.withValues(alpha: 0.2),
+          color: AppColors.gray100,
           width: 1,
         ),
         boxShadow: [
@@ -52,37 +120,15 @@ class MedicalCenterItem extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(16.r),
+          borderRadius: BorderRadius.circular(12.r),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // Image / Header area
-              Expanded(
-                child: Stack(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(16.r),
-                        ),
-                        gradient: const LinearGradient(
-                          colors: [
-                            AppColors.cardBgStart,
-                            AppColors.cardBgEnd,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          Icons.local_hospital_rounded,
-                          size: 38.r,
-                          color: AppColors.lightTeal.withValues(alpha: 0.6),
-                        ),
-                      ),
-                    ),
+              // Image with heart icon
+              Stack(
+                children: [
+                  _buildImage(),
                   Positioned(
                     top: 8.h,
                     right: 8.w,
@@ -90,9 +136,9 @@ class MedicalCenterItem extends StatelessWidget {
                       onTap: onFavoriteTap,
                       borderRadius: BorderRadius.circular(16.r),
                       child: Container(
-                        padding: EdgeInsets.all(6.r),
+                        padding: EdgeInsets.all(5.r),
                         decoration: BoxDecoration(
-                          color: AppColors.white.withValues(alpha: 0.9),
+                          color: Colors.black.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -100,106 +146,166 @@ class MedicalCenterItem extends StatelessWidget {
                               ? Icons.favorite_rounded
                               : Icons.favorite_border_rounded,
                           size: 16.r,
-                          color: isFavorite ? AppColors.red : AppColors.gray500,
+                          color: isFavorite ? AppColors.red : AppColors.white,
                         ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 8.h,
-                    left: 8.w,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 8.w,
-                        vertical: 3.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.darkTeal.withValues(alpha: 0.85),
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.star_rounded,
-                            size: 14.r,
-                            color: AppColors.amber,
-                          ),
-                          SizedBox(width: 3.w),
-                          Text(
-                            rating.toStringAsFixed(1),
-                            style: AppTextStyles.withColor(
-                              AppTextStyles.inter10W500.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
-                              AppColors.white,
-                            ),
-                          ),
-                        ],
                       ),
                     ),
                   ),
                 ],
               ),
-            ),
-            // Body info
-              Padding(
-                padding: EdgeInsets.all(10.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.withColor(
-                        AppTextStyles.inter14W500.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                        AppColors.darkTeal,
-                      ),
-                    ),
-                    SizedBox(height: 3.h),
-                    Text(
-                      category,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.withColor(
-                        AppTextStyles.inter10W400,
-                        AppColors.gray500,
-                      ),
-                    ),
-                    SizedBox(height: 6.h),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.location_on_outlined,
-                          size: 13.r,
-                          color: AppColors.gray400,
-                        ),
-                        SizedBox(width: 3.w),
-                        Expanded(
-                          child: Text(
-                            address,
+              // Card content
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Title
+                          Text(
+                            name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.withColor(
-                              AppTextStyles.inter10W400,
-                              AppColors.gray500,
+                            style: AppTextStyles.inter14W500.copyWith(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.darkTeal,
                             ),
                           ),
-                        ),
-                        Text(
-                          distance,
-                          style: AppTextStyles.withColor(
-                            AppTextStyles.inter10W500,
-                            AppColors.primary600,
+                          SizedBox(height: 4.h),
+                          // Address
+                          Row(
+                            children: [
+                              SvgPicture.asset(
+                                AppAssets.iconsLocation2,
+                                width: 12.w,
+                                height: 12.h,
+                                colorFilter: const ColorFilter.mode(
+                                  AppColors.gray500,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                              SizedBox(width: 4.w),
+                              Expanded(
+                                child: Text(
+                                  address,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTextStyles.inter12W400.copyWith(
+                                    fontSize: 11.sp,
+                                    color: AppColors.gray500,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          SizedBox(height: 4.h),
+                          // Rating & Reviews
+                          Row(
+                            children: [
+                              Text(
+                                rating.toStringAsFixed(1),
+                                style: AppTextStyles.inter12W500.copyWith(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.darkTeal,
+                                ),
+                              ),
+                              SizedBox(width: 4.w),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: List.generate(
+                                  5,
+                                  (index) => Icon(
+                                    Icons.star_rounded,
+                                    size: 12.r,
+                                    color: AppColors.amber,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 3.w),
+                              Flexible(
+                                child: Text(
+                                  '($reviewCount Reviews)',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTextStyles.inter12W400.copyWith(
+                                    fontSize: 10.sp,
+                                    color: AppColors.gray500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Divider
+                          Divider(
+                            height: 1.h,
+                            thickness: 1,
+                            color: AppColors.gray100,
+                          ),
+                          SizedBox(height: 6.h),
+                          // Footer: Routing & Hospital type
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Flexible(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    SvgPicture.asset(
+                                      'assets/icons/routing.svg',
+                                      width: 13.w,
+                                      height: 13.h,
+                                    ),
+                                    SizedBox(width: 4.w),
+                                    Flexible(
+                                      child: Text(
+                                        displayDistance,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: AppTextStyles.inter10W400.copyWith(
+                                          fontSize: 10.sp,
+                                          color: AppColors.gray500,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(width: 6.w),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/icons/hospital.svg',
+                                    width: 13.w,
+                                    height: 13.h,
+                                  ),
+                                  SizedBox(width: 4.w),
+                                  Text(
+                                    displayType,
+                                    style: AppTextStyles.inter10W400.copyWith(
+                                      fontSize: 10.sp,
+                                      color: AppColors.gray500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

@@ -59,19 +59,27 @@ class HomeBanner extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-        image: hasBackgroundImage
-            ? DecorationImage(
-                image: AssetImage(imagePath!),
-                fit: BoxFit.cover,
-                scale: 1.15,
-                alignment: Alignment.centerRight,
-              )
-            : null,
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16.r),
         child: Stack(
           children: [
+            // 0. Main Banner Background Image (zoomed via Transform.scale)
+            if (hasBackgroundImage)
+              Positioned.fill(
+                child: Transform.scale(
+                  scale: 1.15,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage(imagePath!),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
             // 1. _1 blur/background layer (top-left)
             Positioned(
               top: 0,
@@ -83,8 +91,6 @@ class HomeBanner extends StatelessWidget {
                 fit: BoxFit.contain,
               ),
             ),
-
-            // 2. _2 blur/background layer (bottom-left)
             Positioned(
               bottom: 0,
               left: 70.w,
@@ -96,7 +102,6 @@ class HomeBanner extends StatelessWidget {
               ),
             ),
 
-            // 3. Fallback decorative circles when no background image
             if (!hasBackgroundImage) ...[
               Positioned(
                 right: -10.w,
@@ -124,7 +129,6 @@ class HomeBanner extends StatelessWidget {
               ),
             ],
 
-            // 4. Content (Title + Description + Optional Action Button)
             Padding(
               padding: EdgeInsets.only(
                 left: 16.w,
@@ -215,7 +219,6 @@ class HomeBanner extends StatelessWidget {
               ),
             ),
 
-            // 5. Banner Dots Indicator
             if (showDots && bannerCount > 1)
               Positioned(
                 bottom: 8.h,
@@ -252,7 +255,6 @@ class HomeBanner extends StatelessWidget {
                 ),
               ),
 
-            // 6. Admin Edit Button
             if (isAdmin && onEdit != null)
               Positioned(
                 top: 8.h,
