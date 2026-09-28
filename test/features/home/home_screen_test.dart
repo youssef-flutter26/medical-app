@@ -11,6 +11,7 @@ import 'package:medical_app/features/home/domain/usecases/get_banners_stream.dar
 import 'package:medical_app/features/home/presentation/pages/home_screen.dart';
 import 'package:medical_app/features/home/presentation/widgets/category_item.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_banner.dart';
+import 'package:medical_app/features/home/presentation/widgets/home_banner_slider.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_categories.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_location.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_search.dart';
@@ -302,6 +303,91 @@ void main() {
     await tester.tap(find.byKey(const Key('banner_edit_button')));
     await tester.pumpAndSettle();
     expect(editTapped, isTrue);
+  });
+
+  testWidgets(
+      'HomeBanner converts literal \\n in title and description to actual newlines',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      EasyLocalization(
+        supportedLocales: const [Locale('en')],
+        path: 'assets/translations',
+        assetLoader: const HomeTestAssetLoader(),
+        fallbackLocale: const Locale('en'),
+        startLocale: const Locale('en'),
+        child: const AppScreenUtilScope(
+          child: MaterialApp(
+            home: Scaffold(
+              body: HomeBanner(
+                title: r'Looking for\nSpecialist Doctors?',
+                subtitle: r'Book with\ntop doctors.',
+                imagePath: 'assets/images/banner1.png',
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text("Looking for\nSpecialist Doctors?"), findsOneWidget);
+    expect(find.text("Book with\ntop doctors."), findsOneWidget);
+  });
+
+  testWidgets(
+      'HomeBannerSlider auto-plays banners smoothly at interval and loops',
+      (WidgetTester tester) async {
+    final banners = [
+      const BannerEntity(
+        id: '1',
+        title: 'Banner 1',
+        description: 'Desc 1',
+        imagePath: 'assets/images/banner1.png',
+      ),
+      const BannerEntity(
+        id: '2',
+        title: 'Banner 2',
+        description: 'Desc 2',
+        imagePath: 'assets/images/banner2.png',
+      ),
+    ];
+
+    await tester.pumpWidget(
+      EasyLocalization(
+        supportedLocales: const [Locale('en')],
+        path: 'assets/translations',
+        assetLoader: const HomeTestAssetLoader(),
+        fallbackLocale: const Locale('en'),
+        startLocale: const Locale('en'),
+        child: AppScreenUtilScope(
+          child: MaterialApp(
+            home: Scaffold(
+              body: HomeBannerSlider(
+                banners: banners,
+                autoPlayInterval: const Duration(seconds: 4),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Banner 1'), findsOneWidget);
+
+    // Advance 4 seconds and pump animation
+    await tester.pump(const Duration(seconds: 4));
+    await tester.pumpAndSettle();
+
+    // Banner 2 should now be visible
+    expect(find.text('Banner 2'), findsOneWidget);
+
+    // Advance another 4 seconds to verify looping
+    await tester.pump(const Duration(seconds: 4));
+    await tester.pumpAndSettle();
+
+    // Loops back to Banner 1
+    expect(find.text('Banner 1'), findsOneWidget);
   });
 }
 

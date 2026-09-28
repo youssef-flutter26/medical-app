@@ -37,8 +37,10 @@ class HomeBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveTitle = title ?? LocaleKeys.lookingForSpecialistDoctors.tr();
-    final effectiveSubtitle = subtitle ?? LocaleKeys.bannerSubtext.tr();
+    final effectiveTitle = (title ?? LocaleKeys.lookingForSpecialistDoctors.tr())
+        .replaceAll(r'\n', '\n');
+    final effectiveSubtitle = (subtitle ?? LocaleKeys.bannerSubtext.tr())
+        .replaceAll(r'\n', '\n');
     final hasBackgroundImage = imagePath != null && imagePath!.isNotEmpty;
 
     return Container(
@@ -61,6 +63,8 @@ class HomeBanner extends StatelessWidget {
             ? DecorationImage(
                 image: AssetImage(imagePath!),
                 fit: BoxFit.cover,
+                scale: 1.15,
+                alignment: Alignment.centerRight,
               )
             : null,
       ),
@@ -124,7 +128,7 @@ class HomeBanner extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(
                 left: 16.w,
-                top: 12.h,
+                top: 31.h,
                 right: 16.w,
                 bottom: 22.h,
               ),
@@ -146,7 +150,7 @@ class HomeBanner extends StatelessWidget {
                             style: AppTextStyles.withColor(
                               AppTextStyles.inter18W700.copyWith(
                                 fontSize: 18.sp,
-                                height: 1.2,
+                                height: 1.5,
                               ),
                               AppColors.white,
                             ),
