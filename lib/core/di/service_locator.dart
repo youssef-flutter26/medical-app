@@ -9,6 +9,7 @@ import 'package:medical_app/features/home/data/repositories/home_repository_impl
 import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
 import 'package:medical_app/features/home/domain/usecases/add_banner.dart';
 import 'package:medical_app/features/home/domain/usecases/get_banners_stream.dart';
+import 'package:medical_app/features/home/domain/usecases/update_banner.dart';
 import 'package:medical_app/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:medical_app/features/auth/data/datasources/auth_remote_data_source_impl.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
@@ -66,6 +67,9 @@ void setupServiceLocator() {
   // Use Cases
   getIt.registerLazySingleton<AddBanner>(
     () => AddBanner(getIt<HomeRepository>()),
+  );
+  getIt.registerLazySingleton<UpdateBanner>(
+    () => UpdateBanner(getIt<HomeRepository>()),
   );
   getIt.registerLazySingleton<GetBannersStream>(
     () => GetBannersStream(getIt<HomeRepository>()),

@@ -3,28 +3,22 @@ import 'package:medical_app/core/error/firebase_failure.dart';
 import 'package:medical_app/core/error/result.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
 import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
-import 'package:medical_app/features/home/domain/usecases/add_banner.dart';
+import 'package:medical_app/features/home/domain/usecases/update_banner.dart';
 
 class FakeHomeRepository implements HomeRepository {
   bool shouldSucceed = true;
-  BannerEntity? lastAddedBanner;
+  BannerEntity? lastUpdatedBanner;
 
   @override
   Stream<List<BannerEntity>> getBannersStream() => const Stream.empty();
 
   @override
-  Future<Result<void>> addBanner(BannerEntity banner) async {
-    lastAddedBanner = banner;
-    if (shouldSucceed) {
-      return const SuccessAPI(null);
-    } else {
-      return ErrorAPI(FirebaseFailure('Failed to add banner'));
-    }
-  }
+  Future<Result<void>> addBanner(BannerEntity banner) async =>
+      const SuccessAPI(null);
 
   @override
   Future<Result<void>> updateBanner(BannerEntity banner) async {
-    lastAddedBanner = banner;
+    lastUpdatedBanner = banner;
     if (shouldSucceed) {
       return const SuccessAPI(null);
     } else {
@@ -35,32 +29,35 @@ class FakeHomeRepository implements HomeRepository {
 
 void main() {
   late FakeHomeRepository repository;
-  late AddBanner usecase;
+  late UpdateBanner usecase;
 
   setUp(() {
     repository = FakeHomeRepository();
-    usecase = AddBanner(repository);
+    usecase = UpdateBanner(repository);
   });
 
-  test('AddBanner returns SuccessAPI on success', () async {
+  test('UpdateBanner returns SuccessAPI on success', () async {
     const banner = BannerEntity(
-      title: 'Summer Promo',
-      description: 'Book today',
-      imagePath: 'assets/images/banner1.png',
+      id: 'doc123',
+      title: 'Updated Promo',
+      description: 'Updated description',
+      imagePath: 'assets/images/banner2.png',
     );
 
     final result = await usecase(banner);
 
     expect(result, isA<SuccessAPI<void>>());
-    expect(repository.lastAddedBanner?.title, 'Summer Promo');
-    expect(repository.lastAddedBanner?.description, 'Book today');
-    expect(repository.lastAddedBanner?.imagePath, 'assets/images/banner1.png');
+    expect(repository.lastUpdatedBanner?.id, 'doc123');
+    expect(repository.lastUpdatedBanner?.title, 'Updated Promo');
+    expect(repository.lastUpdatedBanner?.description, 'Updated description');
+    expect(repository.lastUpdatedBanner?.imagePath, 'assets/images/banner2.png');
   });
 
-  test('AddBanner returns ErrorAPI on failure', () async {
+  test('UpdateBanner returns ErrorAPI on failure', () async {
     repository.shouldSucceed = false;
 
     const banner = BannerEntity(
+      id: 'doc123',
       title: 'Error Promo',
       description: 'Will fail',
       imagePath: 'assets/images/fail.png',

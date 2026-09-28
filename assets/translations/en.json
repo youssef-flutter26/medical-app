@@ -141,5 +141,10 @@
   "imageUrlCannotBeEmpty": "Image URL cannot be empty",
   "imageNameCannotBeEmpty": "Image name cannot be empty",
   "bannerAddedSuccessfully": "Banner added successfully",
-  "failedToAddBanner": "Failed to add banner"
+  "failedToAddBanner": "Failed to add banner",
+  "editBanner": "Edit Banner",
+  "updateBanner": "Update Banner",
+  "editBannerInformation": "Modify the information for this banner.",
+  "bannerUpdatedSuccessfully": "Banner updated successfully",
+  "failedToUpdateBanner": "Failed to update banner"
 }

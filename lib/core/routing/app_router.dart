@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:medical_app/core/common/pages/main_layout.dart';
 import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_banner_screen.dart';
+import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_category_screen.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_data_screen.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_doctor_screen.dart';
@@ -76,8 +77,11 @@ class AppRouter {
         );
 
       case Routes.addBanner:
+        final initialBanner = settings.arguments is BannerEntity
+            ? settings.arguments as BannerEntity
+            : null;
         return MaterialPageRoute(
-          builder: (_) => const AddBannerScreen(),
+          builder: (_) => AddBannerScreen(initialBanner: initialBanner),
           settings: settings,
         );
 

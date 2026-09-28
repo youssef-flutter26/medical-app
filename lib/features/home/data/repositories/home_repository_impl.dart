@@ -37,4 +37,15 @@ class HomeRepositoryImpl implements HomeRepository {
       return ErrorAPI(FirebaseFailure.fromException(e));
     }
   }
+
+  @override
+  Future<Result<void>> updateBanner(BannerEntity banner) async {
+    try {
+      final model = BannerModel.fromEntity(banner);
+      await remoteDataSource.updateBanner(model);
+      return const SuccessAPI(null);
+    } catch (e) {
+      return ErrorAPI(FirebaseFailure.fromException(e));
+    }
+  }
 }

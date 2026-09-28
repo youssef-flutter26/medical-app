@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medical_app/core/di/service_locator.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_banner_screen.dart';
 import 'package:medical_app/features/admin/presentation/widgets/admin_fab.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
 import 'package:medical_app/features/auth/data/models/user_model.dart';
@@ -12,6 +13,7 @@ import 'package:medical_app/features/home/data/datasources/home_remote_data_sour
 import 'package:medical_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:medical_app/features/home/domain/usecases/get_banners_stream.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_banner.dart';
+import 'package:medical_app/features/home/presentation/widgets/home_banner_slider.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_categories.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_location.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_search.dart';
@@ -77,7 +79,7 @@ class HomeScreen extends StatelessWidget {
     final remoteDataSource = _userRemoteDataSource;
 
     if (firebaseAuth == null) {
-      return _buildScaffold(context, showAdminFab: false);
+      return _buildScaffold(context, showAdminFab: false, isAdmin: false);
     }
 
     return StreamBuilder<User?>(
@@ -86,21 +88,29 @@ class HomeScreen extends StatelessWidget {
         final currentUser = authSnapshot.data ?? firebaseAuth.currentUser;
 
         if (currentUser == null || remoteDataSource == null) {
-          return _buildScaffold(context, showAdminFab: false);
+          return _buildScaffold(context, showAdminFab: false, isAdmin: false);
         }
 
         return StreamBuilder<UserModel?>(
           stream: remoteDataSource.getUserStream(currentUser.uid),
           builder: (context, userSnapshot) {
             final isAdmin = userSnapshot.data?.role == 'admin';
-            return _buildScaffold(context, showAdminFab: isAdmin);
+            return _buildScaffold(
+              context,
+              showAdminFab: isAdmin,
+              isAdmin: isAdmin,
+            );
           },
         );
       },
     );
   }
 
-  Widget _buildScaffold(BuildContext context, {required bool showAdminFab}) {
+  Widget _buildScaffold(
+    BuildContext context, {
+    required bool showAdminFab,
+    bool isAdmin = false,
+  }) {
     return Scaffold(
       backgroundColor: AppColors.white,
       floatingActionButton: showAdminFab ? const AdminFab() : null,
@@ -123,40 +133,17 @@ class HomeScreen extends StatelessWidget {
                     return const HomeBanner();
                   }
 
-                  if (banners.length == 1) {
-                    final banner = banners.first;
-                    return HomeBanner(
-                      title: banner.title.isNotEmpty ? banner.title : null,
-                      subtitle: banner.description.isNotEmpty
-                          ? banner.description
-                          : null,
-                      imagePath: banner.imagePath.isNotEmpty
-                          ? banner.imagePath
-                          : null,
-                    );
-                  }
-
-                  return SizedBox(
-                    height: 156.h,
-                    child: PageView.builder(
-                      itemCount: banners.length,
-                      itemBuilder: (context, index) {
-                        final banner = banners[index];
-                        return Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 2.w),
-                          child: HomeBanner(
-                            title:
-                                banner.title.isNotEmpty ? banner.title : null,
-                            subtitle: banner.description.isNotEmpty
-                                ? banner.description
-                                : null,
-                            imagePath: banner.imagePath.isNotEmpty
-                                ? banner.imagePath
-                                : null,
-                          ),
-                        );
-                      },
-                    ),
+                  return HomeBannerSlider(
+                    banners: banners,
+                    isAdmin: isAdmin,
+                    onEditBanner: (banner) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => AddBannerScreen(initialBanner: banner),
+                        ),
+                      );
+                    },
                   );
                 },
               ),

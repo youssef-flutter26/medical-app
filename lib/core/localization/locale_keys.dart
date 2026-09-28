@@ -153,6 +153,11 @@ abstract class LocaleKeys {
   static const imageNameCannotBeEmpty = 'imageNameCannotBeEmpty';
   static const bannerAddedSuccessfully = 'bannerAddedSuccessfully';
   static const failedToAddBanner = 'failedToAddBanner';
+  static const editBanner = 'editBanner';
+  static const updateBanner = 'updateBanner';
+  static const editBannerInformation = 'editBannerInformation';
+  static const bannerUpdatedSuccessfully = 'bannerUpdatedSuccessfully';
+  static const failedToUpdateBanner = 'failedToUpdateBanner';
 }
 
 

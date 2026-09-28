@@ -13,6 +13,7 @@ import 'package:medical_app/features/admin/presentation/widgets/banner_title_fie
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
 import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
 import 'package:medical_app/features/home/domain/usecases/add_banner.dart';
+import 'package:medical_app/features/home/domain/usecases/update_banner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TestAdminAssetLoader extends AssetLoader {
@@ -36,6 +37,11 @@ class TestAdminAssetLoader extends AssetLoader {
       "imageNameCannotBeEmpty": "Image name cannot be empty",
       "bannerAddedSuccessfully": "Banner added successfully",
       "failedToAddBanner": "Failed to add banner",
+      "editBanner": "Edit Banner",
+      "updateBanner": "Update Banner",
+      "editBannerInformation": "Modify the information for this banner.",
+      "bannerUpdatedSuccessfully": "Banner updated successfully",
+      "failedToUpdateBanner": "Failed to update banner",
     };
   }
 }
@@ -43,9 +49,13 @@ class TestAdminAssetLoader extends AssetLoader {
 class FakeAdminRepository implements HomeRepository {
   bool shouldSucceed = true;
   final List<BannerEntity> savedBanners = [];
+  final List<BannerEntity> updatedBanners = [];
 
   BannerEntity? get savedBanner =>
       savedBanners.isNotEmpty ? savedBanners.last : null;
+
+  BannerEntity? get updatedBanner =>
+      updatedBanners.isNotEmpty ? updatedBanners.last : null;
 
   @override
   Stream<List<BannerEntity>> getBannersStream() => const Stream.empty();
@@ -59,10 +69,22 @@ class FakeAdminRepository implements HomeRepository {
       return ErrorAPI(FirebaseFailure('Failed to add banner'));
     }
   }
+
+  @override
+  Future<Result<void>> updateBanner(BannerEntity banner) async {
+    updatedBanners.add(banner);
+    if (shouldSucceed) {
+      return const SuccessAPI(null);
+    } else {
+      return ErrorAPI(FirebaseFailure('Failed to update banner'));
+    }
+  }
 }
 
 Widget createAddBannerScreenTestWidget({
-  required AddBanner addBanner,
+  AddBanner? addBanner,
+  UpdateBanner? updateBanner,
+  BannerEntity? initialBanner,
   bool pushRoute = false,
 }) {
   return EasyLocalization(
@@ -79,7 +101,11 @@ Widget createAddBannerScreenTestWidget({
               localizationsDelegates: context.localizationDelegates,
               supportedLocales: context.supportedLocales,
               locale: context.locale,
-              home: AddBannerScreen(addBanner: addBanner),
+              home: AddBannerScreen(
+                addBanner: addBanner,
+                updateBanner: updateBanner,
+                initialBanner: initialBanner,
+              ),
             );
           }
 
@@ -94,7 +120,11 @@ Widget createAddBannerScreenTestWidget({
                     Navigator.push(
                       innerContext,
                       MaterialPageRoute(
-                        builder: (_) => AddBannerScreen(addBanner: addBanner),
+                        builder: (_) => AddBannerScreen(
+                          addBanner: addBanner,
+                          updateBanner: updateBanner,
+                          initialBanner: initialBanner,
+                        ),
                       ),
                     );
                   },
@@ -280,5 +310,99 @@ void main() {
     expect(find.byType(AddBannerScreen), findsOneWidget);
     // Verify error message is shown
     expect(find.text('Failed to add banner'), findsOneWidget);
+  });
+
+  testWidgets(
+      'Edit mode pre-fills fields with existing banner data and strips assets/images/ prefix',
+      (WidgetTester tester) async {
+    const existingBanner = BannerEntity(
+      id: 'doc-999',
+      title: 'Current Banner Title',
+      description: 'Current Banner Description',
+      imagePath: 'assets/images/banner1.png',
+    );
+
+    final repo = FakeAdminRepository();
+    final updateUseCase = UpdateBanner(repo);
+
+    await tester.pumpWidget(
+      createAddBannerScreenTestWidget(
+        initialBanner: existingBanner,
+        updateBanner: updateUseCase,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Verify fields are pre-filled
+    expect(find.text('Current Banner Title'), findsOneWidget);
+    expect(find.text('Current Banner Description'), findsOneWidget);
+    expect(find.text('banner1.png'), findsOneWidget);
+
+    // Verify Edit Banner title and Update Banner button
+    expect(find.text('Edit Banner'), findsWidgets);
+    expect(find.text('Update Banner'), findsOneWidget);
+  });
+
+  testWidgets(
+      'Edit mode updates the same document ID in Firestore and navigates back with success message',
+      (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 3.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    const existingBanner = BannerEntity(
+      id: 'banner-doc-id-456',
+      title: 'Old Title',
+      description: 'Old Description',
+      imagePath: 'assets/images/banner1.png',
+    );
+
+    final repo = FakeAdminRepository();
+    final updateUseCase = UpdateBanner(repo);
+
+    await tester.pumpWidget(
+      createAddBannerScreenTestWidget(
+        initialBanner: existingBanner,
+        updateBanner: updateUseCase,
+        pushRoute: true,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Open screen
+    await tester.tap(find.text('Open Add Banner'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AddBannerScreen), findsOneWidget);
+
+    final textFields = find.byType(TextFormField);
+    expect(textFields, findsNWidgets(3));
+
+    // Modify fields
+    await tester.enterText(textFields.at(0), 'Updated Title');
+    await tester.enterText(textFields.at(1), 'Updated Description');
+    await tester.enterText(textFields.at(2), 'banner2.png');
+
+    // Tap Update button
+    await tester.tap(find.byKey(const Key('add_banner_submit_button')));
+    await tester.pumpAndSettle();
+
+    // Verify updateBanner was called with same document ID
+    expect(repo.updatedBanner, isNotNull);
+    expect(repo.updatedBanner?.id, 'banner-doc-id-456');
+    expect(repo.updatedBanner?.title, 'Updated Title');
+    expect(repo.updatedBanner?.description, 'Updated Description');
+    expect(repo.updatedBanner?.imagePath, 'assets/images/banner2.png');
+
+    // Verify no new banner was created
+    expect(repo.savedBanners, isEmpty);
+
+    // Verify navigated back to previous screen and showed success snackbar
+    expect(find.byType(AddBannerScreen), findsNothing);
+    expect(find.text('Open Add Banner'), findsOneWidget);
+    expect(find.text('Banner updated successfully'), findsOneWidget);
   });
 }

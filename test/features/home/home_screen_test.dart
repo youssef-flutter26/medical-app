@@ -1,8 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:medical_app/core/error/result.dart';
 import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
 import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
 import 'package:medical_app/features/home/domain/usecases/get_banners_stream.dart';
@@ -113,7 +115,8 @@ void main() {
     expect(find.text('Golden Cardio...'), findsOneWidget);
   });
 
-  testWidgets('HomeBanner displays banner image using Image.asset', (
+  testWidgets(
+      'HomeBanner displays banner image as background using DecorationImage', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
@@ -141,11 +144,32 @@ void main() {
     expect(find.text('Meet Doctors Online'), findsOneWidget);
     expect(find.text('Book an appointment with your doctor'), findsOneWidget);
 
-    final imageFinder = find.byType(Image);
-    expect(imageFinder, findsOneWidget);
-    final imageWidget = tester.widget<Image>(imageFinder);
-    expect(imageWidget.image, isA<AssetImage>());
-    expect((imageWidget.image as AssetImage).assetName, 'assets/images/banner1.png');
+    // Image must NOT be a separate Image.asset widget
+    expect(find.byType(Image), findsNothing);
+
+    // Image must be applied as background DecorationImage
+    final containerFinder = find.byWidgetPredicate(
+      (widget) =>
+          widget is Container &&
+          widget.decoration is BoxDecoration &&
+          (widget.decoration as BoxDecoration).image != null,
+    );
+    expect(containerFinder, findsOneWidget);
+
+    final containerWidget = tester.widget<Container>(containerFinder);
+    final decoration = containerWidget.decoration as BoxDecoration;
+    expect(decoration.image?.image, isA<AssetImage>());
+    expect(
+      (decoration.image!.image as AssetImage).assetName,
+      'assets/images/banner1.png',
+    );
+    expect(decoration.image?.fit, BoxFit.cover);
+
+    // Verify _1 and _2 blur background layers are present
+    expect(find.byType(SvgPicture), findsNWidgets(2));
+
+    // Verify page indicator dots
+    expect(find.byType(AnimatedSmoothIndicator), findsOneWidget);
   });
 
   testWidgets('HomeScreen renders banners dynamically from GetBannersStream', (
@@ -180,10 +204,104 @@ void main() {
 
     expect(find.text('Meet Doctors Online'), findsOneWidget);
     expect(find.text('Book an appointment with your doctor'), findsOneWidget);
-    final imageFinder = find.byType(Image);
-    expect(imageFinder, findsOneWidget);
-    final imageWidget = tester.widget<Image>(imageFinder);
-    expect((imageWidget.image as AssetImage).assetName, 'assets/images/banner1.png');
+
+    // No separate Image widget
+    expect(find.byType(Image), findsNothing);
+
+    // Applied as background DecorationImage
+    final containerFinder = find.byWidgetPredicate(
+      (widget) =>
+          widget is Container &&
+          widget.decoration is BoxDecoration &&
+          (widget.decoration as BoxDecoration).image != null,
+    );
+    expect(containerFinder, findsOneWidget);
+
+    final containerWidget = tester.widget<Container>(containerFinder);
+    final decoration = containerWidget.decoration as BoxDecoration;
+    expect(decoration.image?.image, isA<AssetImage>());
+    expect(
+      (decoration.image!.image as AssetImage).assetName,
+      'assets/images/banner1.png',
+    );
+    expect(decoration.image?.fit, BoxFit.cover);
+
+    // Verify _1 and _2 blur background layers are present inside HomeBanner
+    expect(
+      find.descendant(
+        of: find.byType(HomeBanner),
+        matching: find.byType(SvgPicture),
+      ),
+      findsNWidgets(2),
+    );
+  });
+
+  testWidgets(
+      'HomeBanner displays edit pencil icon for Admin and hides it for normal users',
+      (WidgetTester tester) async {
+    bool editTapped = false;
+
+    // 1. Normal user (isAdmin = false)
+    await tester.pumpWidget(
+      EasyLocalization(
+        supportedLocales: const [Locale('en')],
+        path: 'assets/translations',
+        assetLoader: const HomeTestAssetLoader(),
+        fallbackLocale: const Locale('en'),
+        startLocale: const Locale('en'),
+        child: const AppScreenUtilScope(
+          child: MaterialApp(
+            home: Scaffold(
+              body: HomeBanner(
+                title: 'User Banner',
+                subtitle: 'User Description',
+                imagePath: 'assets/images/banner1.png',
+                isAdmin: false,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Normal users must NOT see edit controls
+    expect(find.byKey(const Key('banner_edit_button')), findsNothing);
+
+    // 2. Admin user (isAdmin = true with onEdit callback)
+    await tester.pumpWidget(
+      EasyLocalization(
+        supportedLocales: const [Locale('en')],
+        path: 'assets/translations',
+        assetLoader: const HomeTestAssetLoader(),
+        fallbackLocale: const Locale('en'),
+        startLocale: const Locale('en'),
+        child: AppScreenUtilScope(
+          child: MaterialApp(
+            home: Scaffold(
+              body: HomeBanner(
+                title: 'Admin Banner',
+                subtitle: 'Admin Description',
+                imagePath: 'assets/images/banner1.png',
+                isAdmin: true,
+                onEdit: () {
+                  editTapped = true;
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Admin MUST see the edit pencil icon
+    expect(find.byKey(const Key('banner_edit_button')), findsOneWidget);
+
+    // Tapping triggers onEdit
+    await tester.tap(find.byKey(const Key('banner_edit_button')));
+    await tester.pumpAndSettle();
+    expect(editTapped, isTrue);
   });
 }
 
@@ -197,6 +315,10 @@ class _FakeHomeRepository implements HomeRepository {
 
   @override
   Future<Result<void>> addBanner(BannerEntity banner) async =>
+      const SuccessAPI(null);
+
+  @override
+  Future<Result<void>> updateBanner(BannerEntity banner) async =>
       const SuccessAPI(null);
 }
 

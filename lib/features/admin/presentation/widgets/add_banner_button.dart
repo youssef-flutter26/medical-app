@@ -8,11 +8,15 @@ import 'package:medical_app/core/theme/app_text_styles.dart';
 class AddBannerButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final bool isLoading;
+  final String? text;
+  final IconData? icon;
 
   const AddBannerButton({
     super.key,
     required this.onPressed,
     this.isLoading = false,
+    this.text,
+    this.icon,
   });
 
   @override
@@ -77,13 +81,13 @@ class _AddBannerButtonState extends State<AddBannerButton> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          Icons.add_circle_outline_rounded,
+                          widget.icon ?? Icons.add_circle_outline_rounded,
                           color: AppColors.white,
                           size: 20.r,
                         ),
                         SizedBox(width: 8.w),
                         Text(
-                          LocaleKeys.addBanner.tr(),
+                          widget.text ?? LocaleKeys.addBanner.tr(),
                           style: AppTextStyles.withColor(
                             AppTextStyles.inter16W500,
                             AppColors.white,

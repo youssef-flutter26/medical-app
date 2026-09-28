@@ -21,4 +21,20 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   Future<void> addBanner(BannerModel banner) async {
     await firestore.collection('banners').add(banner.toFirestore());
   }
+
+  @override
+  Future<void> updateBanner(BannerModel banner) async {
+    if (banner.id == null || banner.id!.isEmpty) {
+      throw ArgumentError('Banner ID cannot be null or empty when updating');
+    }
+    final data = <String, dynamic>{
+      'title': banner.title,
+      'description': banner.description,
+      'imagePath': banner.imagePath,
+    };
+    if (banner.createdAt != null) {
+      data['createdAt'] = Timestamp.fromDate(banner.createdAt!);
+    }
+    await firestore.collection('banners').doc(banner.id).update(data);
+  }
 }

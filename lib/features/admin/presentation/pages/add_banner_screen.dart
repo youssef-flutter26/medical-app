@@ -9,6 +9,7 @@ import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/core/validators/validator_app.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
 import 'package:medical_app/features/home/domain/usecases/add_banner.dart';
+import 'package:medical_app/features/home/domain/usecases/update_banner.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_banner_button.dart';
 import 'package:medical_app/features/admin/presentation/widgets/banner_description_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/banner_header_section.dart';
@@ -16,9 +17,16 @@ import 'package:medical_app/features/admin/presentation/widgets/banner_image_nam
 import 'package:medical_app/features/admin/presentation/widgets/banner_title_field.dart';
 
 class AddBannerScreen extends StatefulWidget {
+  final BannerEntity? initialBanner;
   final AddBanner? addBanner;
+  final UpdateBanner? updateBanner;
 
-  const AddBannerScreen({super.key, this.addBanner});
+  const AddBannerScreen({
+    super.key,
+    this.initialBanner,
+    this.addBanner,
+    this.updateBanner,
+  });
 
   @override
   State<AddBannerScreen> createState() => _AddBannerScreenState();
@@ -29,17 +37,34 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
   late final TextEditingController _titleController;
   late final TextEditingController _descriptionController;
   late final TextEditingController _imageNameController;
-  late final AddBanner _addBannerUseCase;
+  late final AddBanner? _addBannerUseCase;
+  late final UpdateBanner? _updateBannerUseCase;
   bool _isLoading = false;
   AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
+
+  bool get isEditMode => widget.initialBanner != null;
 
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController();
-    _descriptionController = TextEditingController();
-    _imageNameController = TextEditingController();
-    _addBannerUseCase = widget.addBanner ?? getIt<AddBanner>();
+    final banner = widget.initialBanner;
+    _titleController = TextEditingController(text: banner?.title ?? '');
+    _descriptionController =
+        TextEditingController(text: banner?.description ?? '');
+
+    String initialImageName = '';
+    if (banner != null && banner.imagePath.isNotEmpty) {
+      final path = banner.imagePath;
+      initialImageName = path.startsWith('assets/images/')
+          ? path.substring('assets/images/'.length)
+          : path;
+    }
+    _imageNameController = TextEditingController(text: initialImageName);
+
+    _addBannerUseCase = widget.addBanner ??
+        (getIt.isRegistered<AddBanner>() ? getIt<AddBanner>() : null);
+    _updateBannerUseCase = widget.updateBanner ??
+        (getIt.isRegistered<UpdateBanner>() ? getIt<UpdateBanner>() : null);
   }
 
   @override
@@ -70,13 +95,38 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
         : trimmedName;
     final imagePath = 'assets/images/$cleanName';
 
-    final result = await _addBannerUseCase(
-      BannerEntity(
-        title: _titleController.text.trim(),
-        description: _descriptionController.text.trim(),
-        imagePath: imagePath,
-      ),
-    );
+    final Result<void> result;
+    if (isEditMode) {
+      final updateUseCase = _updateBannerUseCase ??
+          (getIt.isRegistered<UpdateBanner>() ? getIt<UpdateBanner>() : null);
+      if (updateUseCase == null) {
+        setState(() => _isLoading = false);
+        return;
+      }
+      result = await updateUseCase(
+        BannerEntity(
+          id: widget.initialBanner!.id,
+          title: _titleController.text.trim(),
+          description: _descriptionController.text.trim(),
+          imagePath: imagePath,
+          createdAt: widget.initialBanner!.createdAt,
+        ),
+      );
+    } else {
+      final addUseCase = _addBannerUseCase ??
+          (getIt.isRegistered<AddBanner>() ? getIt<AddBanner>() : null);
+      if (addUseCase == null) {
+        setState(() => _isLoading = false);
+        return;
+      }
+      result = await addUseCase(
+        BannerEntity(
+          title: _titleController.text.trim(),
+          description: _descriptionController.text.trim(),
+          imagePath: imagePath,
+        ),
+      );
+    }
 
     if (!mounted) return;
 
@@ -88,7 +138,11 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
       case SuccessAPI():
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(LocaleKeys.bannerAddedSuccessfully.tr()),
+            content: Text(
+              isEditMode
+                  ? LocaleKeys.bannerUpdatedSuccessfully.tr()
+                  : LocaleKeys.bannerAddedSuccessfully.tr(),
+            ),
             backgroundColor: AppColors.lightTeal,
           ),
         );
@@ -96,7 +150,11 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
       case ErrorAPI():
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(LocaleKeys.failedToAddBanner.tr()),
+            content: Text(
+              isEditMode
+                  ? LocaleKeys.failedToUpdateBanner.tr()
+                  : LocaleKeys.failedToAddBanner.tr(),
+            ),
             backgroundColor: AppColors.red,
           ),
         );
@@ -116,7 +174,7 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          LocaleKeys.addBanner.tr(),
+          isEditMode ? LocaleKeys.editBanner.tr() : LocaleKeys.addBanner.tr(),
           style: AppTextStyles.inter16W500,
         ),
       ),
@@ -129,7 +187,12 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const BannerHeaderSection(),
+                BannerHeaderSection(
+                  title: isEditMode ? LocaleKeys.editBanner.tr() : null,
+                  subtitle: isEditMode
+                      ? LocaleKeys.editBannerInformation.tr()
+                      : null,
+                ),
                 SizedBox(height: 24.h),
                 BannerTitleField(
                   controller: _titleController,
@@ -148,6 +211,12 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
                 SizedBox(height: 36.h),
                 AddBannerButton(
                   isLoading: _isLoading,
+                  text: isEditMode
+                      ? LocaleKeys.updateBanner.tr()
+                      : LocaleKeys.addBanner.tr(),
+                  icon: isEditMode
+                      ? Icons.check_circle_outline_rounded
+                      : Icons.add_circle_outline_rounded,
                   onPressed: _saveBanner,
                 ),
               ],
