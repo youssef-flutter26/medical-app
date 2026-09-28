@@ -102,5 +102,8 @@
   "gastro": "Gastro...",
   "laboratory": "Laboratory",
   "vaccination": "Vaccination",
-  "nearbyMedicalCenters": "Nearby Medical Centers"
+  "nearbyMedicalCenters": "Nearby Medical Centers",
+  "logOut": "Log out",
+  "logOutConfirmation": "Are you sure you want to log out?",
+  "cancel": "Cancel"
 }

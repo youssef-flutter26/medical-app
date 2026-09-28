@@ -102,5 +102,8 @@
   "gastro": "الجهاز الهضمي...",
   "laboratory": "المختبر",
   "vaccination": "التطعيم",
-  "nearbyMedicalCenters": "المراكز الطبية القريبة"
+  "nearbyMedicalCenters": "المراكز الطبية القريبة",
+  "logOut": "تسجيل الخروج",
+  "logOutConfirmation": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+  "cancel": "إلغاء"
 }

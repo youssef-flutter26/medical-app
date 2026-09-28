@@ -114,4 +114,7 @@ abstract class LocaleKeys {
   static const laboratory = 'laboratory';
   static const vaccination = 'vaccination';
   static const nearbyMedicalCenters = 'nearbyMedicalCenters';
+  static const logOut = 'logOut';
+  static const logOutConfirmation = 'logOutConfirmation';
+  static const cancel = 'cancel';
 }

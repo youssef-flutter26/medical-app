@@ -11,6 +11,7 @@ import 'package:medical_app/features/auth/presentation/pages/login_screen.dart';
 import 'package:medical_app/features/auth/presentation/pages/register_screen .dart';
 import 'package:medical_app/features/auth/presentation/widgets/fill_profile.dart';
 import 'package:medical_app/features/onboarding/presentation/views/onboarding_screen.dart';
+import 'package:medical_app/features/profile/presentation/screens/profile_screen.dart';
 import 'package:medical_app/features/splash/presentation/views/splash_screen.dart';
 
 class AppRouter {
@@ -95,6 +96,12 @@ class AppRouter {
       case Routes.addDoctor:
         return MaterialPageRoute(
           builder: (_) => const AddDoctorScreen(),
+          settings: settings,
+        );
+
+      case Routes.profile:
+        return MaterialPageRoute(
+          builder: (_) => const ProfileScreen(),
           settings: settings,
         );
 
