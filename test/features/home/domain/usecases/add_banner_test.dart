@@ -1,13 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medical_app/core/error/firebase_failure.dart';
 import 'package:medical_app/core/error/result.dart';
-import 'package:medical_app/features/admin/domain/entities/banner_entity.dart';
-import 'package:medical_app/features/admin/domain/repositories/admin_repository.dart';
-import 'package:medical_app/features/admin/domain/usecases/add_banner.dart';
+import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
+import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
+import 'package:medical_app/features/home/domain/usecases/add_banner.dart';
 
-class FakeAdminRepository implements AdminRepository {
+class FakeHomeRepository implements HomeRepository {
   bool shouldSucceed = true;
   BannerEntity? lastAddedBanner;
+
+  @override
+  Stream<List<BannerEntity>> getBannersStream() => const Stream.empty();
 
   @override
   Future<Result<void>> addBanner(BannerEntity banner) async {
@@ -21,11 +24,11 @@ class FakeAdminRepository implements AdminRepository {
 }
 
 void main() {
-  late FakeAdminRepository repository;
+  late FakeHomeRepository repository;
   late AddBanner usecase;
 
   setUp(() {
-    repository = FakeAdminRepository();
+    repository = FakeHomeRepository();
     usecase = AddBanner(repository);
   });
 

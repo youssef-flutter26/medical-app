@@ -4,15 +4,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:medical_app/core/error/firebase_failure.dart';
 import 'package:medical_app/core/error/result.dart';
 import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
-import 'package:medical_app/features/admin/domain/entities/banner_entity.dart';
-import 'package:medical_app/features/admin/domain/repositories/admin_repository.dart';
-import 'package:medical_app/features/admin/domain/usecases/add_banner.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_banner_screen.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_banner_button.dart';
 import 'package:medical_app/features/admin/presentation/widgets/banner_description_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/banner_header_section.dart';
 import 'package:medical_app/features/admin/presentation/widgets/banner_image_name_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/banner_title_field.dart';
+import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
+import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
+import 'package:medical_app/features/home/domain/usecases/add_banner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TestAdminAssetLoader extends AssetLoader {
@@ -40,12 +40,15 @@ class TestAdminAssetLoader extends AssetLoader {
   }
 }
 
-class FakeAdminRepository implements AdminRepository {
+class FakeAdminRepository implements HomeRepository {
   bool shouldSucceed = true;
   final List<BannerEntity> savedBanners = [];
 
   BannerEntity? get savedBanner =>
       savedBanners.isNotEmpty ? savedBanners.last : null;
+
+  @override
+  Stream<List<BannerEntity>> getBannersStream() => const Stream.empty();
 
   @override
   Future<Result<void>> addBanner(BannerEntity banner) async {

@@ -1,7 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:medical_app/core/error/result.dart';
 import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
+import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
+import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
+import 'package:medical_app/features/home/domain/usecases/get_banners_stream.dart';
 import 'package:medical_app/features/home/presentation/pages/home_screen.dart';
 import 'package:medical_app/features/home/presentation/widgets/category_item.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_banner.dart';
@@ -143,5 +147,56 @@ void main() {
     expect(imageWidget.image, isA<AssetImage>());
     expect((imageWidget.image as AssetImage).assetName, 'assets/images/banner1.png');
   });
+
+  testWidgets('HomeScreen renders banners dynamically from GetBannersStream', (
+    WidgetTester tester,
+  ) async {
+    final banners = [
+      const BannerEntity(
+        id: '1',
+        title: 'Meet Doctors Online',
+        description: 'Book an appointment with your doctor',
+        imagePath: 'assets/images/banner1.png',
+      ),
+    ];
+    final fakeRepo = _FakeHomeRepository(Stream.value(banners));
+    final getBannersStream = GetBannersStream(fakeRepo);
+
+    await tester.pumpWidget(
+      EasyLocalization(
+        supportedLocales: const [Locale('en')],
+        path: 'assets/translations',
+        assetLoader: const HomeTestAssetLoader(),
+        fallbackLocale: const Locale('en'),
+        startLocale: const Locale('en'),
+        child: AppScreenUtilScope(
+          child: MaterialApp(
+            home: HomeScreen(getBannersStream: getBannersStream),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Meet Doctors Online'), findsOneWidget);
+    expect(find.text('Book an appointment with your doctor'), findsOneWidget);
+    final imageFinder = find.byType(Image);
+    expect(imageFinder, findsOneWidget);
+    final imageWidget = tester.widget<Image>(imageFinder);
+    expect((imageWidget.image as AssetImage).assetName, 'assets/images/banner1.png');
+  });
+}
+
+class _FakeHomeRepository implements HomeRepository {
+  final Stream<List<BannerEntity>> _stream;
+
+  _FakeHomeRepository(this._stream);
+
+  @override
+  Stream<List<BannerEntity>> getBannersStream() => _stream;
+
+  @override
+  Future<Result<void>> addBanner(BannerEntity banner) async =>
+      const SuccessAPI(null);
 }
 

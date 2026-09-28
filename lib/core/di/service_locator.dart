@@ -3,11 +3,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:medical_app/core/routing/app_router.dart';
-import 'package:medical_app/features/admin/data/datasources/admin_remote_data_source.dart';
-import 'package:medical_app/features/admin/data/datasources/admin_remote_data_source_impl.dart';
-import 'package:medical_app/features/admin/data/repositories/admin_repository_impl.dart';
-import 'package:medical_app/features/admin/domain/repositories/admin_repository.dart';
-import 'package:medical_app/features/admin/domain/usecases/add_banner.dart';
+import 'package:medical_app/features/home/data/datasources/home_remote_data_source.dart';
+import 'package:medical_app/features/home/data/datasources/home_remote_data_source_impl.dart';
+import 'package:medical_app/features/home/data/repositories/home_repository_impl.dart';
+import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
+import 'package:medical_app/features/home/domain/usecases/add_banner.dart';
+import 'package:medical_app/features/home/domain/usecases/get_banners_stream.dart';
 import 'package:medical_app/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:medical_app/features/auth/data/datasources/auth_remote_data_source_impl.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
@@ -46,8 +47,8 @@ void setupServiceLocator() {
     () => UserRemoteDataSourceImpl(getIt<FirebaseFirestore>()),
   );
 
-  getIt.registerLazySingleton<AdminRemoteDataSource>(
-    () => AdminRemoteDataSourceImpl(getIt<FirebaseFirestore>()),
+  getIt.registerLazySingleton<HomeRemoteDataSource>(
+    () => HomeRemoteDataSourceImpl(getIt<FirebaseFirestore>()),
   );
 
   // Repository
@@ -58,13 +59,16 @@ void setupServiceLocator() {
     ),
   );
 
-  getIt.registerLazySingleton<AdminRepository>(
-    () => AdminRepositoryImpl(getIt<AdminRemoteDataSource>()),
+  getIt.registerLazySingleton<HomeRepository>(
+    () => HomeRepositoryImpl(getIt<HomeRemoteDataSource>()),
   );
 
   // Use Cases
   getIt.registerLazySingleton<AddBanner>(
-    () => AddBanner(getIt<AdminRepository>()),
+    () => AddBanner(getIt<HomeRepository>()),
+  );
+  getIt.registerLazySingleton<GetBannersStream>(
+    () => GetBannersStream(getIt<HomeRepository>()),
   );
   getIt.registerLazySingleton<Login>(() => Login(getIt<AuthRepository>()));
 

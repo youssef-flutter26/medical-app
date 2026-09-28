@@ -4,9 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medical_app/core/di/service_locator.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
+import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
 import 'package:medical_app/features/admin/presentation/widgets/admin_fab.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
 import 'package:medical_app/features/auth/data/models/user_model.dart';
+import 'package:medical_app/features/home/data/datasources/home_remote_data_source_impl.dart';
+import 'package:medical_app/features/home/data/repositories/home_repository_impl.dart';
+import 'package:medical_app/features/home/domain/usecases/get_banners_stream.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_banner.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_categories.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_location.dart';
@@ -17,12 +21,14 @@ class HomeScreen extends StatelessWidget {
   final FirebaseAuth? auth;
   final UserRemoteDataSource? userRemoteDataSource;
   final FirebaseFirestore? firestore;
+  final GetBannersStream? getBannersStream;
 
   const HomeScreen({
     super.key,
     this.auth,
     this.userRemoteDataSource,
     this.firestore,
+    this.getBannersStream,
   });
 
   FirebaseAuth? get _auth {
@@ -47,12 +53,19 @@ class HomeScreen extends StatelessWidget {
     }
   }
 
-  FirebaseFirestore? get _firestore {
-    if (firestore != null) return firestore;
+  GetBannersStream? get _getBannersStream {
+    if (getBannersStream != null) return getBannersStream;
     try {
-      return getIt.isRegistered<FirebaseFirestore>()
-          ? getIt<FirebaseFirestore>()
-          : FirebaseFirestore.instance;
+      if (getIt.isRegistered<GetBannersStream>()) {
+        return getIt<GetBannersStream>();
+      }
+      if (firestore != null || getIt.isRegistered<FirebaseFirestore>()) {
+        final fs = firestore ?? getIt<FirebaseFirestore>();
+        return GetBannersStream(
+          HomeRepositoryImpl(HomeRemoteDataSourceImpl(fs)),
+        );
+      }
+      return null;
     } catch (_) {
       return null;
     }
@@ -101,37 +114,45 @@ class HomeScreen extends StatelessWidget {
               SizedBox(height: 18.h),
               const HomeSearch(),
               SizedBox(height: 20.h),
-              StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                stream: _firestore?.collection('banners').snapshots(),
+              StreamBuilder<List<BannerEntity>>(
+                stream: _getBannersStream?.call() ??
+                    Stream.value(const <BannerEntity>[]),
                 builder: (context, bannerSnapshot) {
-                  final docs = bannerSnapshot.data?.docs;
-                  if (docs == null || docs.isEmpty) {
+                  final banners = bannerSnapshot.data;
+                  if (banners == null || banners.isEmpty) {
                     return const HomeBanner();
                   }
 
-                  if (docs.length == 1) {
-                    final data = docs.first.data();
+                  if (banners.length == 1) {
+                    final banner = banners.first;
                     return HomeBanner(
-                      title: data['title'] as String?,
-                      subtitle: data['description'] as String?,
-                      imagePath: (data['imagePath'] as String?) ??
-                          (data['imageUrl'] as String?),
+                      title: banner.title.isNotEmpty ? banner.title : null,
+                      subtitle: banner.description.isNotEmpty
+                          ? banner.description
+                          : null,
+                      imagePath: banner.imagePath.isNotEmpty
+                          ? banner.imagePath
+                          : null,
                     );
                   }
 
                   return SizedBox(
                     height: 156.h,
                     child: PageView.builder(
-                      itemCount: docs.length,
+                      itemCount: banners.length,
                       itemBuilder: (context, index) {
-                        final data = docs[index].data();
+                        final banner = banners[index];
                         return Padding(
                           padding: EdgeInsets.symmetric(horizontal: 2.w),
                           child: HomeBanner(
-                            title: data['title'] as String?,
-                            subtitle: data['description'] as String?,
-                            imagePath: (data['imagePath'] as String?) ??
-                                (data['imageUrl'] as String?),
+                            title:
+                                banner.title.isNotEmpty ? banner.title : null,
+                            subtitle: banner.description.isNotEmpty
+                                ? banner.description
+                                : null,
+                            imagePath: banner.imagePath.isNotEmpty
+                                ? banner.imagePath
+                                : null,
                           ),
                         );
                       },
