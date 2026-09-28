@@ -11,6 +11,7 @@ import 'package:medical_app/features/admin/presentation/widgets/banner_header_se
 import 'package:medical_app/features/admin/presentation/widgets/banner_image_name_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/banner_title_field.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
+import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
 import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
 import 'package:medical_app/features/home/domain/usecases/add_banner.dart';
 import 'package:medical_app/features/home/domain/usecases/update_banner.dart';
@@ -59,6 +60,15 @@ class FakeAdminRepository implements HomeRepository {
 
   @override
   Stream<List<BannerEntity>> getBannersStream() => const Stream.empty();
+
+  @override
+  Stream<List<MedicalCenterEntity>> getMedicalCentersStream() =>
+      const Stream.empty();
+
+  @override
+  Future<Result<void>> addMedicalCenter(MedicalCenterEntity center) async {
+    return const SuccessAPI(null);
+  }
 
   @override
   Future<Result<void>> addBanner(BannerEntity banner) async {

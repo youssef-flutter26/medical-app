@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:medical_app/features/home/data/models/banner_model.dart';
+import 'package:medical_app/features/home/data/models/medical_center_model.dart';
 import 'home_remote_data_source.dart';
 
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
@@ -36,5 +37,19 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       data['createdAt'] = Timestamp.fromDate(banner.createdAt!);
     }
     await firestore.collection('banners').doc(banner.id).update(data);
+  }
+
+  @override
+  Stream<List<MedicalCenterModel>> getMedicalCentersStream() {
+    return firestore.collection('medical_centers').snapshots().map(
+      (snapshot) => snapshot.docs
+          .map((doc) => MedicalCenterModel.fromFirestore(doc.data(), doc.id))
+          .toList(),
+    );
+  }
+
+  @override
+  Future<void> addMedicalCenter(MedicalCenterModel center) async {
+    await firestore.collection('medical_centers').add(center.toFirestore());
   }
 }

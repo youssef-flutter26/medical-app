@@ -158,6 +158,32 @@ abstract class LocaleKeys {
   static const editBannerInformation = 'editBannerInformation';
   static const bannerUpdatedSuccessfully = 'bannerUpdatedSuccessfully';
   static const failedToUpdateBanner = 'failedToUpdateBanner';
+  static const medicalCenterName = 'medicalCenterName';
+  static const enterMedicalCenterName = 'enterMedicalCenterName';
+  static const address = 'address';
+  static const enterAddress = 'enterAddress';
+  static const rating = 'rating';
+  static const enterRating = 'enterRating';
+  static const reviewsCount = 'reviewsCount';
+  static const enterReviewsCount = 'enterReviewsCount';
+  static const distance = 'distance';
+  static const enterDistance = 'enterDistance';
+  static const duration = 'duration';
+  static const enterDuration = 'enterDuration';
+  static const type = 'type';
+  static const hospital = 'hospital';
+  static const clinic = 'clinic';
+  static const medicalCenterDetails = 'medicalCenterDetails';
+  static const addMedicalCenterInformation = 'addMedicalCenterInformation';
+  static const medicalCenterAddedSuccessfully = 'medicalCenterAddedSuccessfully';
+  static const failedToAddMedicalCenter = 'failedToAddMedicalCenter';
+  static const addressCannotBeEmpty = 'addressCannotBeEmpty';
+  static const ratingCannotBeEmpty = 'ratingCannotBeEmpty';
+  static const invalidRating = 'invalidRating';
+  static const reviewsCountCannotBeEmpty = 'reviewsCountCannotBeEmpty';
+  static const invalidReviewsCount = 'invalidReviewsCount';
+  static const distanceCannotBeEmpty = 'distanceCannotBeEmpty';
+  static const durationCannotBeEmpty = 'durationCannotBeEmpty';
 }
 
 

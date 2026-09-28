@@ -148,6 +148,56 @@ abstract final class ValidatorApp {
     }
     return null;
   }
+
+  static String? validateMedicalCenterName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.nameCannotBeEmpty.tr();
+    }
+    return null;
+  }
+
+  static String? validateAddress(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.addressCannotBeEmpty.tr();
+    }
+    return null;
+  }
+
+  static String? validateRating(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.ratingCannotBeEmpty.tr();
+    }
+    final rating = double.tryParse(value.trim());
+    if (rating == null || rating < 0.0 || rating > 5.0) {
+      return LocaleKeys.invalidRating.tr();
+    }
+    return null;
+  }
+
+  static String? validateReviewsCount(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.reviewsCountCannotBeEmpty.tr();
+    }
+    final count = int.tryParse(value.trim());
+    if (count == null || count < 0) {
+      return LocaleKeys.invalidReviewsCount.tr();
+    }
+    return null;
+  }
+
+  static String? validateDistance(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.distanceCannotBeEmpty.tr();
+    }
+    return null;
+  }
+
+  static String? validateDuration(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.durationCannotBeEmpty.tr();
+    }
+    return null;
+  }
 }
 
 

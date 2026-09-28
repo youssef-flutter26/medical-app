@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medical_app/core/di/service_locator.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
+import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_banner_screen.dart';
 import 'package:medical_app/features/admin/presentation/widgets/admin_fab.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
@@ -12,6 +13,7 @@ import 'package:medical_app/features/auth/data/models/user_model.dart';
 import 'package:medical_app/features/home/data/datasources/home_remote_data_source_impl.dart';
 import 'package:medical_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:medical_app/features/home/domain/usecases/get_banners_stream.dart';
+import 'package:medical_app/features/home/domain/usecases/get_medical_centers_stream.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_banner.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_banner_slider.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_categories.dart';
@@ -24,6 +26,7 @@ class HomeScreen extends StatelessWidget {
   final UserRemoteDataSource? userRemoteDataSource;
   final FirebaseFirestore? firestore;
   final GetBannersStream? getBannersStream;
+  final GetMedicalCentersStream? getMedicalCentersStream;
 
   const HomeScreen({
     super.key,
@@ -31,6 +34,7 @@ class HomeScreen extends StatelessWidget {
     this.userRemoteDataSource,
     this.firestore,
     this.getBannersStream,
+    this.getMedicalCentersStream,
   });
 
   FirebaseAuth? get _auth {
@@ -64,6 +68,24 @@ class HomeScreen extends StatelessWidget {
       if (firestore != null || getIt.isRegistered<FirebaseFirestore>()) {
         final fs = firestore ?? getIt<FirebaseFirestore>();
         return GetBannersStream(
+          HomeRepositoryImpl(HomeRemoteDataSourceImpl(fs)),
+        );
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  GetMedicalCentersStream? get _getMedicalCentersStream {
+    if (getMedicalCentersStream != null) return getMedicalCentersStream;
+    try {
+      if (getIt.isRegistered<GetMedicalCentersStream>()) {
+        return getIt<GetMedicalCentersStream>();
+      }
+      if (firestore != null || getIt.isRegistered<FirebaseFirestore>()) {
+        final fs = firestore ?? getIt<FirebaseFirestore>();
+        return GetMedicalCentersStream(
           HomeRepositoryImpl(HomeRemoteDataSourceImpl(fs)),
         );
       }
@@ -150,7 +172,33 @@ class HomeScreen extends StatelessWidget {
               SizedBox(height: 22.h),
               const HomeCategories(),
               SizedBox(height: 24.h),
-              const NearbyMedicalCenters(),
+              StreamBuilder<List<MedicalCenterEntity>>(
+                stream: _getMedicalCentersStream?.call() ??
+                    Stream.value(const <MedicalCenterEntity>[]),
+                builder: (context, centerSnapshot) {
+                  final centers = centerSnapshot.data;
+                  if (centers == null || centers.isEmpty) {
+                    return const NearbyMedicalCenters();
+                  }
+                  return NearbyMedicalCenters(
+                    medicalCenters: centers
+                        .map(
+                          (c) => MedicalCenterData(
+                            name: c.name,
+                            category: c.type,
+                            address: c.address,
+                            rating: c.rating,
+                            reviewCount: c.reviewsCount,
+                            distance: c.distance,
+                            duration: c.duration,
+                            type: c.type,
+                            imagePath: c.imagePath,
+                          ),
+                        )
+                        .toList(),
+                  );
+                },
+              ),
               SizedBox(height: 24.h),
             ],
           ),

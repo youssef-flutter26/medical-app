@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:medical_app/core/error/firebase_failure.dart';
 import 'package:medical_app/core/error/result.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
+import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
 import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
 import 'package:medical_app/features/home/domain/usecases/add_banner.dart';
 
@@ -11,6 +12,15 @@ class FakeHomeRepository implements HomeRepository {
 
   @override
   Stream<List<BannerEntity>> getBannersStream() => const Stream.empty();
+
+  @override
+  Stream<List<MedicalCenterEntity>> getMedicalCentersStream() =>
+      const Stream.empty();
+
+  @override
+  Future<Result<void>> addMedicalCenter(MedicalCenterEntity center) async {
+    return const SuccessAPI(null);
+  }
 
   @override
   Future<Result<void>> addBanner(BannerEntity banner) async {

@@ -121,184 +121,175 @@ class MedicalCenterItem extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(12.r),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Image with heart icon
-              Stack(
-                children: [
-                  _buildImage(),
-                  Positioned(
-                    top: 8.h,
-                    right: 8.w,
-                    child: InkWell(
-                      onTap: onFavoriteTap,
-                      borderRadius: BorderRadius.circular(16.r),
-                      child: Container(
-                        padding: EdgeInsets.all(5.r),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.15),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          isFavorite
-                              ? Icons.favorite_rounded
-                              : Icons.favorite_border_rounded,
-                          size: 16.r,
-                          color: isFavorite ? AppColors.red : AppColors.white,
+          child: SingleChildScrollView(
+            physics: const NeverScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Image with heart icon
+                Stack(
+                  children: [
+                    _buildImage(),
+                    Positioned(
+                      top: 8.h,
+                      right: 8.w,
+                      child: InkWell(
+                        onTap: onFavoriteTap,
+                        borderRadius: BorderRadius.circular(16.r),
+                        child: Container(
+                          padding: EdgeInsets.all(5.r),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            isFavorite
+                                ? Icons.favorite_rounded
+                                : Icons.favorite_border_rounded,
+                            size: 16.r,
+                            color: isFavorite ? AppColors.red : AppColors.white,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              // Card content
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+                  ],
+                ),
+                // Card content
+                Padding(
+                  padding: EdgeInsets.fromLTRB(10.w, 6.h, 10.w, 8.h),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
+                      // Title
+                      Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.inter14W500.copyWith(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.darkTeal,
+                        ),
+                      ),
+                      SizedBox(height: 4.h),
+                      // Address
+                      Row(
                         children: [
-                          // Title
+                          SvgPicture.asset(
+                            AppAssets.iconsLocation2,
+                            width: 12.w,
+                            height: 12.h,
+                            colorFilter: const ColorFilter.mode(
+                              AppColors.gray500,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                          SizedBox(width: 4.w),
+                          Expanded(
+                            child: Text(
+                              address,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.inter12W400.copyWith(
+                                fontSize: 11.sp,
+                                color: AppColors.gray500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 4.h),
+                      // Rating & Reviews
+                      Row(
+                        children: [
                           Text(
-                            name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.inter14W500.copyWith(
-                              fontSize: 14.sp,
+                            rating.toStringAsFixed(1),
+                            style: AppTextStyles.inter12W500.copyWith(
+                              fontSize: 12.sp,
                               fontWeight: FontWeight.w700,
                               color: AppColors.darkTeal,
                             ),
                           ),
-                          SizedBox(height: 4.h),
-                          // Address
+                          SizedBox(width: 4.w),
                           Row(
-                            children: [
-                              SvgPicture.asset(
-                                AppAssets.iconsLocation2,
-                                width: 12.w,
-                                height: 12.h,
-                                colorFilter: const ColorFilter.mode(
-                                  AppColors.gray500,
-                                  BlendMode.srcIn,
-                                ),
+                            mainAxisSize: MainAxisSize.min,
+                            children: List.generate(
+                              5,
+                              (index) => Icon(
+                                Icons.star_rounded,
+                                size: 12.r,
+                                color: AppColors.amber,
                               ),
-                              SizedBox(width: 4.w),
-                              Expanded(
-                                child: Text(
-                                  address,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppTextStyles.inter12W400.copyWith(
-                                    fontSize: 11.sp,
-                                    color: AppColors.gray500,
-                                  ),
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
-                          SizedBox(height: 4.h),
-                          // Rating & Reviews
-                          Row(
-                            children: [
-                              Text(
-                                rating.toStringAsFixed(1),
-                                style: AppTextStyles.inter12W500.copyWith(
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.darkTeal,
-                                ),
+                          SizedBox(width: 3.w),
+                          Flexible(
+                            child: Text(
+                              '($reviewCount Reviews)',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.inter12W400.copyWith(
+                                fontSize: 10.sp,
+                                color: AppColors.gray500,
                               ),
-                              SizedBox(width: 4.w),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: List.generate(
-                                  5,
-                                  (index) => Icon(
-                                    Icons.star_rounded,
-                                    size: 12.r,
-                                    color: AppColors.amber,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: 3.w),
-                              Flexible(
-                                child: Text(
-                                  '($reviewCount Reviews)',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppTextStyles.inter12W400.copyWith(
-                                    fontSize: 10.sp,
-                                    color: AppColors.gray500,
-                                  ),
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ],
                       ),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
+                      SizedBox(height: 6.h),
+                      // Divider
+                      Divider(
+                        height: 1.h,
+                        thickness: 1,
+                        color: AppColors.gray100,
+                      ),
+                      SizedBox(height: 6.h),
+                      // Footer: Routing & Hospital type
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // Divider
-                          Divider(
-                            height: 1.h,
-                            thickness: 1,
-                            color: AppColors.gray100,
-                          ),
-                          SizedBox(height: 6.h),
-                          // Footer: Routing & Hospital type
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Flexible(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    SvgPicture.asset(
-                                      'assets/icons/routing.svg',
-                                      width: 13.w,
-                                      height: 13.h,
-                                    ),
-                                    SizedBox(width: 4.w),
-                                    Flexible(
-                                      child: Text(
-                                        displayDistance,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: AppTextStyles.inter10W400.copyWith(
-                                          fontSize: 10.sp,
-                                          color: AppColors.gray500,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                          Flexible(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/icons/routing.svg',
+                                  width: 13.w,
+                                  height: 13.h,
                                 ),
-                              ),
-                              SizedBox(width: 6.w),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  SvgPicture.asset(
-                                    'assets/icons/hospital.svg',
-                                    width: 13.w,
-                                    height: 13.h,
-                                  ),
-                                  SizedBox(width: 4.w),
-                                  Text(
-                                    displayType,
+                                SizedBox(width: 4.w),
+                                Flexible(
+                                  child: Text(
+                                    displayDistance,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                     style: AppTextStyles.inter10W400.copyWith(
                                       fontSize: 10.sp,
                                       color: AppColors.gray500,
                                     ),
                                   ),
-                                ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 6.w),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SvgPicture.asset(
+                                'assets/icons/hospital.svg',
+                                width: 13.w,
+                                height: 13.h,
+                              ),
+                              SizedBox(width: 4.w),
+                              Text(
+                                displayType,
+                                style: AppTextStyles.inter10W400.copyWith(
+                                  fontSize: 10.sp,
+                                  color: AppColors.gray500,
+                                ),
                               ),
                             ],
                           ),
@@ -307,8 +298,8 @@ class MedicalCenterItem extends StatelessWidget {
                     ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

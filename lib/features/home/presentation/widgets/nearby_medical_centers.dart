@@ -119,7 +119,7 @@ class NearbyMedicalCenters extends StatelessWidget {
         ),
         SizedBox(height: 12.h),
         SizedBox(
-          height: 325.h,
+          height: 218.h,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             clipBehavior: Clip.none,

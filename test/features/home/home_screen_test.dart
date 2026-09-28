@@ -6,6 +6,7 @@ import 'package:medical_app/core/error/result.dart';
 import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
+import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
 import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
 import 'package:medical_app/features/home/domain/usecases/get_banners_stream.dart';
 import 'package:medical_app/features/home/presentation/pages/home_screen.dart';
@@ -407,6 +408,14 @@ class _FakeHomeRepository implements HomeRepository {
 
   @override
   Stream<List<BannerEntity>> getBannersStream() => _stream;
+
+  @override
+  Stream<List<MedicalCenterEntity>> getMedicalCentersStream() =>
+      const Stream.empty();
+
+  @override
+  Future<Result<void>> addMedicalCenter(MedicalCenterEntity center) async =>
+      const SuccessAPI(null);
 
   @override
   Future<Result<void>> addBanner(BannerEntity banner) async =>

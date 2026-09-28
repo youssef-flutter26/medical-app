@@ -2,7 +2,9 @@ import 'package:medical_app/core/error/firebase_failure.dart';
 import 'package:medical_app/core/error/result.dart';
 import 'package:medical_app/features/home/data/datasources/home_remote_data_source.dart';
 import 'package:medical_app/features/home/data/models/banner_model.dart';
+import 'package:medical_app/features/home/data/models/medical_center_model.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
+import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
 import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
 
 class HomeRepositoryImpl implements HomeRepository {
@@ -43,6 +45,22 @@ class HomeRepositoryImpl implements HomeRepository {
     try {
       final model = BannerModel.fromEntity(banner);
       await remoteDataSource.updateBanner(model);
+      return const SuccessAPI(null);
+    } catch (e) {
+      return ErrorAPI(FirebaseFailure.fromException(e));
+    }
+  }
+
+  @override
+  Stream<List<MedicalCenterEntity>> getMedicalCentersStream() {
+    return remoteDataSource.getMedicalCentersStream();
+  }
+
+  @override
+  Future<Result<void>> addMedicalCenter(MedicalCenterEntity center) async {
+    try {
+      final model = MedicalCenterModel.fromEntity(center);
+      await remoteDataSource.addMedicalCenter(model);
       return const SuccessAPI(null);
     } catch (e) {
       return ErrorAPI(FirebaseFailure.fromException(e));
