@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 
 class AdminFab extends StatelessWidget {
@@ -12,7 +13,10 @@ class AdminFab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      onPressed: onPressed,
+      onPressed: onPressed ??
+          () {
+            Navigator.pushNamed(context, Routes.adminDataSelection);
+          },
       backgroundColor: AppColors.darkTeal,
       child: const Icon(
         Icons.add,

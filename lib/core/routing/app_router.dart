@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:medical_app/core/common/pages/main_layout.dart';
 import 'package:medical_app/core/routing/routes.dart';
+import 'package:medical_app/features/admin/presentation/screens/add_banner_screen.dart';
+import 'package:medical_app/features/admin/presentation/screens/add_category_screen.dart';
+import 'package:medical_app/features/admin/presentation/screens/add_data_screen.dart';
+import 'package:medical_app/features/admin/presentation/screens/add_doctor_screen.dart';
+import 'package:medical_app/features/admin/presentation/screens/add_medical_center_screen.dart';
 import 'package:medical_app/features/auth/presentation/pages/forget_password_screen.dart';
 import 'package:medical_app/features/auth/presentation/pages/login_screen.dart';
 import 'package:medical_app/features/auth/presentation/pages/register_screen .dart';
@@ -60,6 +65,36 @@ class AppRouter {
       case Routes.mainLayout:
         return MaterialPageRoute(
           builder: (_) => const MainLayout(),
+          settings: settings,
+        );
+
+      case Routes.adminDataSelection:
+        return MaterialPageRoute(
+          builder: (_) => const AddDataScreen(),
+          settings: settings,
+        );
+
+      case Routes.addBanner:
+        return MaterialPageRoute(
+          builder: (_) => const AddBannerScreen(),
+          settings: settings,
+        );
+
+      case Routes.addCategory:
+        return MaterialPageRoute(
+          builder: (_) => const AddCategoryScreen(),
+          settings: settings,
+        );
+
+      case Routes.addMedicalCenter:
+        return MaterialPageRoute(
+          builder: (_) => const AddMedicalCenterScreen(),
+          settings: settings,
+        );
+
+      case Routes.addDoctor:
+        return MaterialPageRoute(
+          builder: (_) => const AddDoctorScreen(),
           settings: settings,
         );
 
