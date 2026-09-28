@@ -4,4 +4,6 @@ abstract class UserRemoteDataSource {
   Future<void> saveUser(UserModel user);
 
   Future<UserModel?> getUser(String uid);
+
+  Stream<UserModel?> getUserStream(String uid);
 }

@@ -18,6 +18,14 @@ class AuthRepositoryImpl implements AuthRepository {
 
   AuthRepositoryImpl(this.remoteDataSource, this.userRemoteDataSource);
 
+  static const String _adminEmail = 'mrnon3432@gmail.com';
+  static const String _adminName = 'Admin';
+
+  bool _isAdminEmail(String? email) {
+    if (email == null) return false;
+    return email.trim().toLowerCase() == _adminEmail;
+  }
+
   @override
   Future<Result<UserEntity>> login({
     required String email,
@@ -29,11 +37,28 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
       );
 
+      final existingUser = await userRemoteDataSource.getUser(user.uid);
+      final isAdmin = _isAdminEmail(user.email ?? email);
+      final assignedRole = isAdmin ? 'admin' : (existingUser?.role ?? 'user');
+      final assignedName = isAdmin
+          ? (existingUser?.name?.trim().isNotEmpty == true
+              ? existingUser!.name!
+              : _adminName)
+          : (existingUser?.name ?? user.displayName);
+
       final userModel = UserModel.fromFirebase(
         id: user.uid,
         email: user.email ?? email,
-        name: user.displayName,
+        name: assignedName,
+        nickname: existingUser?.nickname,
+        birthDate: existingUser?.birthDate,
+        gender: existingUser?.gender,
+        role: assignedRole,
       );
+
+      if (existingUser == null || (isAdmin && existingUser.role != 'admin')) {
+        await userRemoteDataSource.saveUser(userModel);
+      }
 
       return SuccessAPI(userModel);
     } on AuthException catch (e) {
@@ -51,8 +76,31 @@ class AuthRepositoryImpl implements AuthRepository {
       final user = await remoteDataSource.loginWithGoogle();
 
       final existingUser = await userRemoteDataSource.getUser(user.uid);
+      final isAdmin = _isAdminEmail(user.email);
+      final assignedRole = isAdmin ? 'admin' : (existingUser?.role ?? 'user');
+      final assignedName = isAdmin
+          ? (existingUser?.name?.trim().isNotEmpty == true
+              ? existingUser!.name!
+              : _adminName)
+          : (existingUser?.name ?? user.displayName);
 
       if (existingUser != null) {
+        if (isAdmin && existingUser.role != 'admin') {
+          final updatedAdmin = UserModel.fromFirebase(
+            id: user.uid,
+            email: user.email ?? '',
+            name: assignedName,
+            nickname: existingUser.nickname,
+            birthDate: existingUser.birthDate,
+            gender: existingUser.gender,
+            role: 'admin',
+          );
+          await userRemoteDataSource.saveUser(updatedAdmin);
+          return SuccessAPI(
+            GoogleLoginResult(user: updatedAdmin, isNewUser: false),
+          );
+        }
+
         return SuccessAPI(
           GoogleLoginResult(user: existingUser, isNewUser: false),
         );
@@ -61,7 +109,8 @@ class AuthRepositoryImpl implements AuthRepository {
       final userModel = UserModel.fromFirebase(
         id: user.uid,
         email: user.email ?? '',
-        name: user.displayName,
+        name: assignedName,
+        role: assignedRole,
       );
 
       await userRemoteDataSource.saveUser(userModel);
@@ -95,15 +144,22 @@ class AuthRepositoryImpl implements AuthRepository {
         name: name,
       );
 
+      final isAdmin = _isAdminEmail(user.email ?? email);
+      final assignedRole = isAdmin ? 'admin' : 'user';
+      final assignedName = isAdmin
+          ? (name.trim().isNotEmpty ? name.trim() : _adminName)
+          : name;
+
       final userModel = UserModel.fromFirebase(
         id: user.uid,
         email: user.email ?? email,
-        name: name,
+        name: assignedName,
+        role: assignedRole,
       );
 
-      // IMPORTANT:
-      // Do NOT save the user to Firestore here.
-      // The user must verify the email first.
+      // Create users/{uid} document in Firestore immediately
+      await userRemoteDataSource.saveUser(userModel);
+
       return SuccessAPI(userModel);
     } on AuthException catch (e) {
       return ErrorAPI(_mapAuthException(e));
@@ -205,16 +261,36 @@ class AuthRepositoryImpl implements AuthRepository {
         );
       }
 
+      final existingUser = await userRemoteDataSource.getUser(refreshedUser.uid);
+      final isAdmin = _isAdminEmail(refreshedUser.email ?? email) ||
+          existingUser?.role == 'admin';
+      final role = isAdmin ? 'admin' : (existingUser?.role ?? 'user');
+      final assignedName = isAdmin && name.trim().isEmpty
+          ? _adminName
+          : (name.isNotEmpty
+              ? name
+              : (existingUser?.name ?? refreshedUser.displayName));
+
       final userModel = UserModel(
         id: refreshedUser.uid,
-        email: email,
-        name: name,
-        nickname: nickname.trim().isEmpty ? null : nickname.trim(),
-        birthDate: birthDate.trim().isEmpty ? null : birthDate.trim(),
-        gender: gender.trim().isEmpty ? null : gender.trim(),
+        email: email.isNotEmpty ? email : (refreshedUser.email ?? ''),
+        name: assignedName,
+        nickname:
+            nickname.trim().isEmpty ? existingUser?.nickname : nickname.trim(),
+        birthDate: birthDate.trim().isEmpty
+            ? existingUser?.birthDate
+            : birthDate.trim(),
+        gender: gender.trim().isEmpty ? existingUser?.gender : gender.trim(),
+        role: role,
       );
 
       await userRemoteDataSource.saveUser(userModel);
+
+      if (name.isNotEmpty && name != refreshedUser.displayName) {
+        try {
+          await refreshedUser.updateDisplayName(name);
+        } catch (_) {}
+      }
 
       return const SuccessAPI(null);
     } on AuthException catch (e) {
@@ -237,6 +313,18 @@ class AuthRepositoryImpl implements AuthRepository {
     } catch (_) {
       return ErrorAPI(
         FirebaseFailure('An unexpected error occurred. Please try again.'),
+      );
+    }
+  }
+
+  @override
+  Future<Result<UserEntity?>> getUserProfile(String uid) async {
+    try {
+      final user = await userRemoteDataSource.getUser(uid);
+      return SuccessAPI(user);
+    } catch (_) {
+      return ErrorAPI(
+        FirebaseFailure('Failed to load user profile.'),
       );
     }
   }

@@ -7,6 +7,7 @@ class UserEntity extends Equatable {
   final String? nickname;
   final String? birthDate;
   final String? gender;
+  final String role;
   final bool isNewUser;
 
   const UserEntity({
@@ -16,6 +17,7 @@ class UserEntity extends Equatable {
     this.nickname,
     this.birthDate,
     this.gender,
+    this.role = 'user',
     this.isNewUser = false,
   });
 
@@ -27,6 +29,7 @@ class UserEntity extends Equatable {
     nickname,
     birthDate,
     gender,
+    role,
     isNewUser,
   ];
 }

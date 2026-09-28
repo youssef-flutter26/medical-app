@@ -8,6 +8,7 @@ class UserModel extends UserEntity {
     super.nickname,
     super.birthDate,
     super.gender,
+    super.role = 'user',
     super.isNewUser,
   });
 
@@ -18,6 +19,7 @@ class UserModel extends UserEntity {
     String? nickname,
     String? birthDate,
     String? gender,
+    String role = 'user',
     bool isNewUser = false,
   }) {
     return UserModel(
@@ -27,18 +29,22 @@ class UserModel extends UserEntity {
       nickname: nickname,
       birthDate: birthDate,
       gender: gender,
+      role: role,
       isNewUser: isNewUser,
     );
   }
 
   factory UserModel.fromFirestore(Map<String, dynamic> data) {
     return UserModel(
-      id: data['uid'] as String,
-      email: data['email'] as String,
+      id: (data['uid'] ?? data['id'] ?? '') as String,
+      email: (data['email'] ?? '') as String,
       name: data['name'] as String?,
       nickname: data['nickname'] as String?,
       birthDate: data['birthDate'] as String?,
       gender: data['gender'] as String?,
+      role: (data['role'] as String?)?.trim().isNotEmpty == true
+          ? (data['role'] as String).trim()
+          : 'user',
       isNewUser: false,
     );
   }
@@ -47,10 +53,12 @@ class UserModel extends UserEntity {
     return {
       'uid': id,
       'email': email,
-      'name': name,
-      'nickname': nickname,
-      'birthDate': birthDate,
-      'gender': gender,
+      if (name != null) 'name': name,
+      if (name != null) 'nameLowercase': name!.trim().toLowerCase(),
+      if (nickname != null) 'nickname': nickname,
+      if (birthDate != null) 'birthDate': birthDate,
+      if (gender != null) 'gender': gender,
+      'role': role,
     };
   }
 }

@@ -5,22 +5,34 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
+import 'package:medical_app/features/auth/data/models/user_model.dart';
 
 class ProfileHeader extends StatelessWidget {
   final User? user;
+  final UserModel? userModel;
 
   const ProfileHeader({
     super.key,
     required this.user,
+    this.userModel,
   });
 
   @override
   Widget build(BuildContext context) {
-    final displayName = user?.displayName != null && user!.displayName!.isNotEmpty
-        ? user!.displayName!
-        : (user?.email?.split('@').first ?? LocaleKeys.user.tr());
-    final email = user?.email ?? '';
+    final String displayName =
+        (userModel?.name != null && userModel!.name!.trim().isNotEmpty)
+            ? userModel!.name!.trim()
+            : (user?.displayName != null && user!.displayName!.trim().isNotEmpty
+                ? user!.displayName!.trim()
+                : (userModel?.email.split('@').first ??
+                    user?.email?.split('@').first ??
+                    LocaleKeys.user.tr()));
+    final String email =
+        (userModel?.email != null && userModel!.email.trim().isNotEmpty)
+            ? userModel!.email.trim()
+            : (user?.email ?? '');
     final photoUrl = user?.photoURL;
+    final isAdmin = userModel?.role == 'admin';
 
     return Container(
       width: double.infinity,
@@ -74,6 +86,27 @@ class ProfileHeader extends StatelessWidget {
                 AppColors.gray500,
               ),
               textAlign: TextAlign.center,
+            ),
+          ],
+          if (isAdmin) ...[
+            SizedBox(height: 10.h),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+              decoration: BoxDecoration(
+                color: AppColors.darkTeal.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(
+                  color: AppColors.darkTeal.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                'Admin',
+                style: AppTextStyles.withColor(
+                  AppTextStyles.inter12W500,
+                  AppColors.darkTeal,
+                ),
+              ),
             ),
           ],
         ],

@@ -34,4 +34,6 @@ abstract class AuthRepository {
   Future<Result<void>> sendPasswordResetEmail({required String email});
 
   Future<Result<void>> logout();
+
+  Future<Result<UserEntity?>> getUserProfile(String uid);
 }
