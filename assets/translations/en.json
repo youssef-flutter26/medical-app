@@ -134,9 +134,12 @@
   "imageFormatsHint": "PNG, JPG or WEBP (up to 5MB)",
   "imageUrl": "Image URL",
   "enterImageUrl": "Enter image URL",
+  "imageName": "Image Name",
+  "enterImageName": "Enter image file name",
   "titleCannotBeEmpty": "Title cannot be empty",
   "descriptionCannotBeEmpty": "Description cannot be empty",
   "imageUrlCannotBeEmpty": "Image URL cannot be empty",
+  "imageNameCannotBeEmpty": "Image name cannot be empty",
   "bannerAddedSuccessfully": "Banner added successfully",
   "failedToAddBanner": "Failed to add banner"
 }

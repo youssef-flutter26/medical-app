@@ -33,7 +33,7 @@ void main() {
     const banner = BannerEntity(
       title: 'Summer Promo',
       description: 'Book today',
-      imageUrl: 'https://example.com/banner.jpg',
+      imagePath: 'assets/images/banner1.png',
     );
 
     final result = await usecase(banner);
@@ -41,7 +41,7 @@ void main() {
     expect(result, isA<SuccessAPI<void>>());
     expect(repository.lastAddedBanner?.title, 'Summer Promo');
     expect(repository.lastAddedBanner?.description, 'Book today');
-    expect(repository.lastAddedBanner?.imageUrl, 'https://example.com/banner.jpg');
+    expect(repository.lastAddedBanner?.imagePath, 'assets/images/banner1.png');
   });
 
   test('AddBanner returns ErrorAPI on failure', () async {
@@ -50,7 +50,7 @@ void main() {
     const banner = BannerEntity(
       title: 'Error Promo',
       description: 'Will fail',
-      imageUrl: 'https://example.com/fail.jpg',
+      imagePath: 'assets/images/fail.png',
     );
 
     final result = await usecase(banner);

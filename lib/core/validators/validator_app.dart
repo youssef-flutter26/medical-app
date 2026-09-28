@@ -141,5 +141,13 @@ abstract final class ValidatorApp {
     }
     return null;
   }
+
+  static String? validateImageName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.imageNameCannotBeEmpty.tr();
+    }
+    return null;
+  }
 }
+
 

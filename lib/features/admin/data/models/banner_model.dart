@@ -5,7 +5,7 @@ class BannerModel extends BannerEntity {
     super.id,
     required super.title,
     required super.description,
-    required super.imageUrl,
+    required super.imagePath,
   });
 
   factory BannerModel.fromFirestore(
@@ -16,7 +16,9 @@ class BannerModel extends BannerEntity {
       id: docId,
       title: json['title'] as String? ?? '',
       description: json['description'] as String? ?? '',
-      imageUrl: json['imageUrl'] as String? ?? '',
+      imagePath: (json['imagePath'] as String?) ??
+          (json['imageUrl'] as String?) ??
+          '',
     );
   }
 
@@ -24,7 +26,7 @@ class BannerModel extends BannerEntity {
     return {
       'title': title,
       'description': description,
-      'imageUrl': imageUrl,
+      'imagePath': imagePath,
     };
   }
 }

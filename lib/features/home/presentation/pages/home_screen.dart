@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -15,11 +16,13 @@ import 'package:medical_app/features/home/presentation/widgets/nearby_medical_ce
 class HomeScreen extends StatelessWidget {
   final FirebaseAuth? auth;
   final UserRemoteDataSource? userRemoteDataSource;
+  final FirebaseFirestore? firestore;
 
   const HomeScreen({
     super.key,
     this.auth,
     this.userRemoteDataSource,
+    this.firestore,
   });
 
   FirebaseAuth? get _auth {
@@ -39,6 +42,17 @@ class HomeScreen extends StatelessWidget {
       return getIt.isRegistered<UserRemoteDataSource>()
           ? getIt<UserRemoteDataSource>()
           : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  FirebaseFirestore? get _firestore {
+    if (firestore != null) return firestore;
+    try {
+      return getIt.isRegistered<FirebaseFirestore>()
+          ? getIt<FirebaseFirestore>()
+          : FirebaseFirestore.instance;
     } catch (_) {
       return null;
     }
@@ -87,7 +101,44 @@ class HomeScreen extends StatelessWidget {
               SizedBox(height: 18.h),
               const HomeSearch(),
               SizedBox(height: 20.h),
-              const HomeBanner(),
+              StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                stream: _firestore?.collection('banners').snapshots(),
+                builder: (context, bannerSnapshot) {
+                  final docs = bannerSnapshot.data?.docs;
+                  if (docs == null || docs.isEmpty) {
+                    return const HomeBanner();
+                  }
+
+                  if (docs.length == 1) {
+                    final data = docs.first.data();
+                    return HomeBanner(
+                      title: data['title'] as String?,
+                      subtitle: data['description'] as String?,
+                      imagePath: (data['imagePath'] as String?) ??
+                          (data['imageUrl'] as String?),
+                    );
+                  }
+
+                  return SizedBox(
+                    height: 156.h,
+                    child: PageView.builder(
+                      itemCount: docs.length,
+                      itemBuilder: (context, index) {
+                        final data = docs[index].data();
+                        return Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 2.w),
+                          child: HomeBanner(
+                            title: data['title'] as String?,
+                            subtitle: data['description'] as String?,
+                            imagePath: (data['imagePath'] as String?) ??
+                                (data['imageUrl'] as String?),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
               SizedBox(height: 22.h),
               const HomeCategories(),
               SizedBox(height: 24.h),

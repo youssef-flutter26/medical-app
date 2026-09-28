@@ -12,7 +12,7 @@ import 'package:medical_app/features/admin/domain/usecases/add_banner.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_banner_button.dart';
 import 'package:medical_app/features/admin/presentation/widgets/banner_description_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/banner_header_section.dart';
-import 'package:medical_app/features/admin/presentation/widgets/banner_image_url_field.dart';
+import 'package:medical_app/features/admin/presentation/widgets/banner_image_name_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/banner_title_field.dart';
 
 class AddBannerScreen extends StatefulWidget {
@@ -28,7 +28,7 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _titleController;
   late final TextEditingController _descriptionController;
-  late final TextEditingController _imageUrlController;
+  late final TextEditingController _imageNameController;
   late final AddBanner _addBannerUseCase;
   bool _isLoading = false;
   AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
@@ -38,7 +38,7 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
     super.initState();
     _titleController = TextEditingController();
     _descriptionController = TextEditingController();
-    _imageUrlController = TextEditingController();
+    _imageNameController = TextEditingController();
     _addBannerUseCase = widget.addBanner ?? getIt<AddBanner>();
   }
 
@@ -46,7 +46,7 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
-    _imageUrlController.dispose();
+    _imageNameController.dispose();
     super.dispose();
   }
 
@@ -64,11 +64,17 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
       _isLoading = true;
     });
 
+    final trimmedName = _imageNameController.text.trim();
+    final cleanName = trimmedName.startsWith('assets/images/')
+        ? trimmedName.substring('assets/images/'.length)
+        : trimmedName;
+    final imagePath = 'assets/images/$cleanName';
+
     final result = await _addBannerUseCase(
       BannerEntity(
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim(),
-        imageUrl: _imageUrlController.text.trim(),
+        imagePath: imagePath,
       ),
     );
 
@@ -135,9 +141,9 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
                   validator: ValidatorApp.validateDescription,
                 ),
                 SizedBox(height: 20.h),
-                BannerImageUrlField(
-                  controller: _imageUrlController,
-                  validator: ValidatorApp.validateImageUrl,
+                BannerImageNameField(
+                  controller: _imageNameController,
+                  validator: ValidatorApp.validateImageName,
                 ),
                 SizedBox(height: 36.h),
                 AddBannerButton(

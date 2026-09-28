@@ -5,11 +5,11 @@ import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 
-class BannerImageUrlField extends StatelessWidget {
+class BannerImageNameField extends StatelessWidget {
   final TextEditingController controller;
   final String? Function(String?)? validator;
 
-  const BannerImageUrlField({
+  const BannerImageNameField({
     super.key,
     required this.controller,
     this.validator,
@@ -21,7 +21,7 @@ class BannerImageUrlField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          LocaleKeys.imageUrl.tr(),
+          LocaleKeys.imageName.tr(),
           style: AppTextStyles.withColor(
             AppTextStyles.inter14W500,
             AppColors.gray700,
@@ -31,13 +31,12 @@ class BannerImageUrlField extends StatelessWidget {
         TextFormField(
           controller: controller,
           validator: validator,
-          keyboardType: TextInputType.url,
           style: AppTextStyles.withColor(
             AppTextStyles.inter14W400,
             AppColors.gray700,
           ),
           decoration: InputDecoration(
-            hintText: LocaleKeys.enterImageUrl.tr(),
+            hintText: LocaleKeys.enterImageName.tr(),
             hintStyle: AppTextStyles.withColor(
               AppTextStyles.inter14W400,
               AppColors.gray400,

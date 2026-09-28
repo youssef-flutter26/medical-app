@@ -16,7 +16,7 @@ class AdminRepositoryImpl implements AdminRepository {
       final model = BannerModel(
         title: banner.title,
         description: banner.description,
-        imageUrl: banner.imageUrl,
+        imagePath: banner.imagePath,
       );
       await remoteDataSource.addBanner(model);
       return const SuccessAPI(null);

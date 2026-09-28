@@ -108,4 +108,40 @@ void main() {
     expect(find.text('Sunrise Health Clinic'), findsOneWidget);
     expect(find.text('Golden Cardio...'), findsOneWidget);
   });
+
+  testWidgets('HomeBanner displays banner image using Image.asset', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      EasyLocalization(
+        supportedLocales: const [Locale('en')],
+        path: 'assets/translations',
+        assetLoader: const HomeTestAssetLoader(),
+        fallbackLocale: const Locale('en'),
+        startLocale: const Locale('en'),
+        child: const AppScreenUtilScope(
+          child: MaterialApp(
+            home: Scaffold(
+              body: HomeBanner(
+                title: 'Meet Doctors Online',
+                subtitle: 'Book an appointment with your doctor',
+                imagePath: 'assets/images/banner1.png',
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Meet Doctors Online'), findsOneWidget);
+    expect(find.text('Book an appointment with your doctor'), findsOneWidget);
+
+    final imageFinder = find.byType(Image);
+    expect(imageFinder, findsOneWidget);
+    final imageWidget = tester.widget<Image>(imageFinder);
+    expect(imageWidget.image, isA<AssetImage>());
+    expect((imageWidget.image as AssetImage).assetName, 'assets/images/banner1.png');
+  });
 }
+

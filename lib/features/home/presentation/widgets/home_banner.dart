@@ -11,12 +11,14 @@ class HomeBanner extends StatelessWidget {
     this.title,
     this.subtitle,
     this.buttonText,
+    this.imagePath,
     this.onButtonPressed,
   });
 
   final String? title;
   final String? subtitle;
   final String? buttonText;
+  final String? imagePath;
   final VoidCallback? onButtonPressed;
 
   @override
@@ -125,31 +127,46 @@ class HomeBanner extends StatelessWidget {
               Expanded(
                 flex: 4,
                 child: Center(
-                  child: Container(
-                    width: 72.r,
-                    height: 72.r,
-                    decoration: BoxDecoration(
-                      color: AppColors.white.withValues(alpha: 0.85),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.darkTeal.withValues(alpha: 0.08),
-                          blurRadius: 16,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.medical_services_rounded,
-                      size: 38.r,
-                      color: AppColors.lightTeal,
-                    ),
-                  ),
+                  child: imagePath != null && imagePath!.isNotEmpty
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(12.r),
+                          child: Image.asset(
+                            imagePath!,
+                            width: 80.r,
+                            height: 80.r,
+                            fit: BoxFit.contain,
+                            errorBuilder: (_, _, _) => _buildDefaultIcon(),
+                          ),
+                        )
+                      : _buildDefaultIcon(),
                 ),
               ),
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDefaultIcon() {
+    return Container(
+      width: 72.r,
+      height: 72.r,
+      decoration: BoxDecoration(
+        color: AppColors.white.withValues(alpha: 0.85),
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.darkTeal.withValues(alpha: 0.08),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Icon(
+        Icons.medical_services_rounded,
+        size: 38.r,
+        color: AppColors.lightTeal,
       ),
     );
   }

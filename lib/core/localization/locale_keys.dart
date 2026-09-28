@@ -145,10 +145,14 @@ abstract class LocaleKeys {
   static const imageFormatsHint = 'imageFormatsHint';
   static const imageUrl = 'imageUrl';
   static const enterImageUrl = 'enterImageUrl';
+  static const imageName = 'imageName';
+  static const enterImageName = 'enterImageName';
   static const titleCannotBeEmpty = 'titleCannotBeEmpty';
   static const descriptionCannotBeEmpty = 'descriptionCannotBeEmpty';
   static const imageUrlCannotBeEmpty = 'imageUrlCannotBeEmpty';
+  static const imageNameCannotBeEmpty = 'imageNameCannotBeEmpty';
   static const bannerAddedSuccessfully = 'bannerAddedSuccessfully';
   static const failedToAddBanner = 'failedToAddBanner';
 }
+
 

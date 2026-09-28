@@ -49,6 +49,7 @@ class _AddBannerButtonState extends State<AddBannerButton> {
         child: Material(
           color: Colors.transparent,
           child: InkWell(
+            key: const Key('add_banner_submit_button'),
             onHighlightChanged: isDisabled
                 ? null
                 : (isHighlighted) {
