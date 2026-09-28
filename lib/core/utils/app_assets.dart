@@ -21,6 +21,7 @@ class AppAssets {
   static const String iconsPassword = 'assets/icons/password.svg';
   static const String iconsProfile = 'assets/icons/Profile.svg';
   static const String iconsProfile2 = 'assets/icons/profile_2.svg';
+  static const String iconsSearchNormal = 'assets/icons/search-normal.svg';
   static const String iconsUser = 'assets/icons/user.svg';
   static const String imagesCheckCorrect = 'assets/images/check_correct.png';
   static const String imagesOnboarding1 = 'assets/images/onboarding_1.png';

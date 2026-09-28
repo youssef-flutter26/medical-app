@@ -19,7 +19,8 @@ class HomeTestAssetLoader extends AssetLoader {
   Future<Map<String, dynamic>> load(String path, Locale locale) async {
     return {
       "location": "Location",
-      "searchDoctorHint": "Search doctor, drugs, articles...",
+      "searchDoctor": "Search doctor...",
+      "searchDoctorHint": "Search doctor...",
       "lookingForSpecialistDoctors": "Looking for\nSpecialist Doctors?",
       "bannerSubtext": "Schedule an appointment with our top doctors.",
       "explore": "Explore",
@@ -81,7 +82,7 @@ void main() {
 
     // 2. Search section
     expect(find.byType(HomeSearch), findsOneWidget);
-    expect(find.text('Search doctor, drugs, articles...'), findsOneWidget);
+    expect(find.text('Search doctor...'), findsOneWidget);
 
     // 3. Banner section
     expect(find.byType(HomeBanner), findsOneWidget);

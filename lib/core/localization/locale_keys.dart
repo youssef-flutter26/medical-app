@@ -98,6 +98,7 @@ abstract class LocaleKeys {
   static const location = 'location';
   static const appointment = 'appointment';
   static const profile = 'profile';
+  static const searchDoctor = 'searchDoctor';
   static const searchDoctorHint = 'searchDoctorHint';
   static const lookingForSpecialistDoctors = 'lookingForSpecialistDoctors';
   static const bannerSubtext = 'bannerSubtext';
