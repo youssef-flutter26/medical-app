@@ -4,8 +4,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
-import 'package:medical_app/features/home/presentation/screens/home_screen.dart';
-import 'package:medical_app/features/profile/presentation/screens/profile_screen.dart';
+import 'package:medical_app/features/home/presentation/pages/home_screen.dart';
+import 'package:medical_app/features/profile/presentation/pages/profile_screen.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -21,8 +21,8 @@ class _MainLayoutState extends State<MainLayout> {
     const HomeScreen(),
     // LocationScreen(),
     // AppointmentScreen(),
-    Center(child: Text('location'.tr())),
-    Center(child: Text('appointment'.tr())),
+    Center(child: Text(LocaleKeys.location.tr())),
+    Center(child: Text(LocaleKeys.appointment.tr())),
     const ProfileScreen(),
   ];
 

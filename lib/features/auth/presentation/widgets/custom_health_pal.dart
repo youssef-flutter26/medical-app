@@ -1,4 +1,6 @@
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flutter/material.dart';
+import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 
 class CustomHealthPal extends StatelessWidget {
@@ -14,12 +16,12 @@ class CustomHealthPal extends StatelessWidget {
         textDirection: TextDirection.ltr,
         children: [
           Text(
-            'Health',
+            LocaleKeys.health.tr(),
             textDirection: TextDirection.ltr,
             style: AppTextStyles.inter14W400.copyWith(color: Colors.black45),
           ),
           Text(
-            'Pal',
+            LocaleKeys.pal.tr(),
             textDirection: TextDirection.ltr,
             style: AppTextStyles.inter14W400.copyWith(color: Colors.black),
           ),

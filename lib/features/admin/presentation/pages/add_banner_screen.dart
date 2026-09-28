@@ -1,5 +1,7 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 
@@ -42,8 +44,8 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
           icon: const Icon(Icons.arrow_back, color: AppColors.gray700),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Add Banner',
+        title: Text(
+          LocaleKeys.addBanner.tr(),
           style: AppTextStyles.inter16W500,
         ),
       ),
@@ -54,7 +56,7 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Banner Details',
+                LocaleKeys.bannerDetails.tr(),
                 style: AppTextStyles.withColor(
                   AppTextStyles.inter20W600,
                   AppColors.darkTeal,
@@ -62,7 +64,7 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
               ),
               SizedBox(height: 6.h),
               Text(
-                'Add the information that will appear on the Home banner.',
+                LocaleKeys.addBannerInformation.tr(),
                 style: AppTextStyles.withColor(
                   AppTextStyles.inter14W400,
                   AppColors.gray500,
@@ -70,7 +72,7 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
               ),
               SizedBox(height: 24.h),
               Text(
-                'Banner Title',
+                LocaleKeys.bannerTitle.tr(),
                 style: AppTextStyles.withColor(
                   AppTextStyles.inter14W500,
                   AppColors.gray700,
@@ -84,7 +86,7 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
                   AppColors.gray700,
                 ),
                 decoration: InputDecoration(
-                  hintText: 'Enter banner title',
+                  hintText: LocaleKeys.enterBannerTitle.tr(),
                   hintStyle: AppTextStyles.withColor(
                     AppTextStyles.inter14W400,
                     AppColors.gray400,
@@ -118,7 +120,7 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
               ),
               SizedBox(height: 20.h),
               Text(
-                'Description',
+                LocaleKeys.description.tr(),
                 style: AppTextStyles.withColor(
                   AppTextStyles.inter14W500,
                   AppColors.gray700,
@@ -133,7 +135,7 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
                   AppColors.gray700,
                 ),
                 decoration: InputDecoration(
-                  hintText: 'Enter banner description',
+                  hintText: LocaleKeys.enterBannerDescription.tr(),
                   hintStyle: AppTextStyles.withColor(
                     AppTextStyles.inter14W400,
                     AppColors.gray400,
@@ -167,7 +169,7 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
               ),
               SizedBox(height: 20.h),
               Text(
-                'Banner Image',
+                LocaleKeys.bannerImage.tr(),
                 style: AppTextStyles.withColor(
                   AppTextStyles.inter14W500,
                   AppColors.gray700,
@@ -229,7 +231,7 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
                           ),
                           SizedBox(height: 12.h),
                           Text(
-                            'Choose Image',
+                            LocaleKeys.chooseImage.tr(),
                             style: AppTextStyles.withColor(
                               AppTextStyles.inter16W500,
                               AppColors.darkTeal,
@@ -237,7 +239,7 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
                           ),
                           SizedBox(height: 4.h),
                           Text(
-                            'Upload a banner image',
+                            LocaleKeys.uploadBannerImage.tr(),
                             style: AppTextStyles.withColor(
                               AppTextStyles.inter12W500,
                               AppColors.gray500,
@@ -245,7 +247,7 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
                           ),
                           SizedBox(height: 2.h),
                           Text(
-                            'PNG, JPG or WEBP (up to 5MB)',
+                            LocaleKeys.imageFormatsHint.tr(),
                             style: AppTextStyles.withColor(
                               AppTextStyles.inter10W400,
                               AppColors.gray400,
@@ -302,7 +304,7 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
                           ),
                           SizedBox(width: 8.w),
                           Text(
-                            'Add Banner',
+                            LocaleKeys.addBanner.tr(),
                             style: AppTextStyles.withColor(
                               AppTextStyles.inter16W500,
                               AppColors.white,

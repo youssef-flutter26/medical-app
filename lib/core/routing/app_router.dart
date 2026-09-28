@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:medical_app/core/common/pages/main_layout.dart';
 import 'package:medical_app/core/routing/routes.dart';
-import 'package:medical_app/features/admin/presentation/screens/add_banner_screen.dart';
-import 'package:medical_app/features/admin/presentation/screens/add_category_screen.dart';
-import 'package:medical_app/features/admin/presentation/screens/add_data_screen.dart';
-import 'package:medical_app/features/admin/presentation/screens/add_doctor_screen.dart';
-import 'package:medical_app/features/admin/presentation/screens/add_medical_center_screen.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_banner_screen.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_category_screen.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_data_screen.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_doctor_screen.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_medical_center_screen.dart';
 import 'package:medical_app/features/auth/presentation/pages/forget_password_screen.dart';
 import 'package:medical_app/features/auth/presentation/pages/login_screen.dart';
 import 'package:medical_app/features/auth/presentation/pages/register_screen .dart';
 import 'package:medical_app/features/auth/presentation/widgets/fill_profile.dart';
-import 'package:medical_app/features/onboarding/presentation/views/onboarding_screen.dart';
-import 'package:medical_app/features/profile/presentation/screens/profile_screen.dart';
-import 'package:medical_app/features/splash/presentation/views/splash_screen.dart';
+import 'package:medical_app/features/onboarding/presentation/pages/onboarding_screen.dart';
+import 'package:medical_app/features/profile/presentation/pages/profile_screen.dart';
+import 'package:medical_app/features/splash/presentation/pages/splash_screen.dart';
 
 class AppRouter {
   Route<dynamic>? generateRoute(RouteSettings settings) {

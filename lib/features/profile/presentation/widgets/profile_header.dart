@@ -1,6 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 
@@ -16,7 +18,7 @@ class ProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final displayName = user?.displayName != null && user!.displayName!.isNotEmpty
         ? user!.displayName!
-        : (user?.email?.split('@').first ?? 'User');
+        : (user?.email?.split('@').first ?? LocaleKeys.user.tr());
     final email = user?.email ?? '';
     final photoUrl = user?.photoURL;
 

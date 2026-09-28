@@ -1,5 +1,7 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
@@ -86,8 +88,8 @@ class _AddDataScreenState extends State<AddDataScreen>
           icon: const Icon(Icons.arrow_back, color: AppColors.gray700),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Add Data',
+        title: Text(
+          LocaleKeys.addData.tr(),
           style: AppTextStyles.inter16W500,
         ),
       ),
@@ -98,7 +100,7 @@ class _AddDataScreenState extends State<AddDataScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Manage Home Data',
+                LocaleKeys.manageHomeData.tr(),
                 style: AppTextStyles.withColor(
                   AppTextStyles.inter20W600,
                   AppColors.darkTeal,
@@ -106,7 +108,7 @@ class _AddDataScreenState extends State<AddDataScreen>
               ),
               SizedBox(height: 6.h),
               Text(
-                'Choose what you want to add',
+                LocaleKeys.chooseWhatYouWantToAdd.tr(),
                 style: AppTextStyles.withColor(
                   AppTextStyles.inter14W400,
                   AppColors.gray500,
@@ -116,8 +118,8 @@ class _AddDataScreenState extends State<AddDataScreen>
               _buildAnimatedCard(
                 index: 0,
                 child: AdminOptionCard(
-                  title: 'Banner',
-                  subtitle: 'Add a promotional banner',
+                  title: LocaleKeys.banner.tr(),
+                  subtitle: LocaleKeys.addPromotionalBanner.tr(),
                   icon: Icons.view_carousel_rounded,
                   iconColor: AppColors.lightTeal,
                   iconBgColor: AppColors.bannerBgStart,
@@ -130,8 +132,8 @@ class _AddDataScreenState extends State<AddDataScreen>
               _buildAnimatedCard(
                 index: 1,
                 child: AdminOptionCard(
-                  title: 'Category',
-                  subtitle: 'Add a medical category',
+                  title: LocaleKeys.category.tr(),
+                  subtitle: LocaleKeys.addMedicalCategory.tr(),
                   icon: Icons.category_rounded,
                   iconColor: AppColors.primary600,
                   iconBgColor: AppColors.primary600.withValues(alpha: 0.1),
@@ -144,8 +146,8 @@ class _AddDataScreenState extends State<AddDataScreen>
               _buildAnimatedCard(
                 index: 2,
                 child: AdminOptionCard(
-                  title: 'Medical Center',
-                  subtitle: 'Add a medical center',
+                  title: LocaleKeys.medicalCenter.tr(),
+                  subtitle: LocaleKeys.addMedicalCenter.tr(),
                   icon: Icons.local_hospital_rounded,
                   iconColor: AppColors.red,
                   iconBgColor: AppColors.red.withValues(alpha: 0.1),
@@ -158,8 +160,8 @@ class _AddDataScreenState extends State<AddDataScreen>
               _buildAnimatedCard(
                 index: 3,
                 child: AdminOptionCard(
-                  title: 'Doctor',
-                  subtitle: 'Add a doctor',
+                  title: LocaleKeys.doctor.tr(),
+                  subtitle: LocaleKeys.addDoctor.tr(),
                   icon: Icons.medical_services_rounded,
                   iconColor: AppColors.amber,
                   iconBgColor: AppColors.amber.withValues(alpha: 0.14),
