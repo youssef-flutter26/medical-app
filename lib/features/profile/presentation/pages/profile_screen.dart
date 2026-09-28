@@ -11,7 +11,10 @@ import 'package:medical_app/features/profile/presentation/widgets/profile_header
 import 'package:medical_app/features/profile/presentation/widgets/profile_menu_item.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  final FirebaseAuth? auth;
+  const ProfileScreen({super.key, this.auth});
+
+  FirebaseAuth get _auth => auth ?? FirebaseAuth.instance;
 
   Future<void> _handleLogout(BuildContext context) async {
     final shouldLogout = await showDialog<bool>(
@@ -62,7 +65,7 @@ class ProfileScreen extends StatelessWidget {
     if (shouldLogout != true) return;
 
     try {
-      await FirebaseAuth.instance.signOut();
+      await _auth.signOut();
       try {
         await GoogleSignIn.instance.signOut();
       } catch (_) {
@@ -90,7 +93,12 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
+    User? user;
+    try {
+      user = _auth.currentUser;
+    } catch (_) {
+      user = null;
+    }
 
     return Scaffold(
       backgroundColor: AppColors.white,

@@ -76,8 +76,12 @@ class _RegisterScreenBodyState extends State<RegisterScreenBody> {
           if (FirebaseAuth.instance.currentUser != null) {
             Navigator.pushNamedAndRemoveUntil(
               context,
-              Routes.mainLayout,
+              Routes.fillProfile,
               (route) => false,
+              arguments: {
+                'name': nameController.text.trim(),
+                'email': emailController.text.trim(),
+              },
             );
           }
         } else if (state is GoogleLoginSuccess) {

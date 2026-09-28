@@ -189,7 +189,7 @@ class _FillProfileState extends State<FillProfile> {
 
       Navigator.pushNamedAndRemoveUntil(
         context,
-        Routes.login,
+        Routes.mainLayout,
         (route) => false,
       );
     });

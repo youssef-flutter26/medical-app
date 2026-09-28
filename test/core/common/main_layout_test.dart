@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medical_app/core/common/pages/main_layout.dart';
+import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
+import 'package:medical_app/features/home/presentation/pages/home_screen.dart';
+import 'package:medical_app/features/profile/presentation/pages/profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TestAssetLoader extends AssetLoader {
@@ -17,6 +20,25 @@ class TestAssetLoader extends AssetLoader {
       "location": "Location",
       "appointment": "Appointment",
       "profile": "Profile",
+      "searchDoctor": "Search doctor...",
+      "searchDoctorHint": "Search doctor...",
+      "lookingForSpecialistDoctors": "Looking for\nSpecialist Doctors?",
+      "bannerSubtext": "Schedule an appointment with our top doctors.",
+      "explore": "Explore",
+      "categories": "Categories",
+      "seeAll": "See All",
+      "dentistry": "Dentistry",
+      "cardiology": "Cardiology",
+      "pulmonology": "Pulmonology",
+      "general": "General",
+      "neurology": "Neurology",
+      "gastro": "Gastro...",
+      "laboratory": "Laboratory",
+      "vaccination": "Vaccination",
+      "nearbyMedicalCenters": "Nearby Medical Centers",
+      "user": "User",
+      "logOut": "Log out",
+      "cancel": "Cancel",
     };
   }
 }
@@ -28,15 +50,17 @@ Widget createMainLayoutTestWidget() {
     assetLoader: const TestAssetLoader(),
     fallbackLocale: const Locale('en'),
     startLocale: const Locale('en'),
-    child: Builder(
-      builder: (context) {
-        return MaterialApp(
-          localizationsDelegates: context.localizationDelegates,
-          supportedLocales: context.supportedLocales,
-          locale: context.locale,
-          home: const MainLayout(),
-        );
-      },
+    child: AppScreenUtilScope(
+      child: Builder(
+        builder: (context) {
+          return MaterialApp(
+            localizationsDelegates: context.localizationDelegates,
+            supportedLocales: context.supportedLocales,
+            locale: context.locale,
+            home: const MainLayout(),
+          );
+        },
+      ),
     ),
   );
 }
@@ -54,10 +78,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Initial tab should be Home
-    expect(
-      find.descendant(of: find.byType(Center), matching: find.text('Home')),
-      findsOneWidget,
-    );
+    expect(find.byType(HomeScreen), findsOneWidget);
     expect(
       find.descendant(of: find.byType(Center), matching: find.text('Location')),
       findsNothing,
@@ -66,10 +87,7 @@ void main() {
       find.descendant(of: find.byType(Center), matching: find.text('Appointment')),
       findsNothing,
     );
-    expect(
-      find.descendant(of: find.byType(Center), matching: find.text('Profile')),
-      findsNothing,
-    );
+    expect(find.byType(ProfileScreen), findsNothing);
 
     // Check BottomNavigationBar items
     final bottomNavBarFinder = find.byType(BottomNavigationBar);
@@ -90,10 +108,7 @@ void main() {
       find.descendant(of: find.byType(Center), matching: find.text('Location')),
       findsOneWidget,
     );
-    expect(
-      find.descendant(of: find.byType(Center), matching: find.text('Home')),
-      findsNothing,
-    );
+    expect(find.byType(HomeScreen), findsNothing);
 
     // Tap Appointment (third item)
     await tester.tap(find.byType(InkResponse).at(2));
@@ -108,19 +123,13 @@ void main() {
     await tester.tap(find.byType(InkResponse).at(3));
     await tester.pumpAndSettle();
 
-    expect(
-      find.descendant(of: find.byType(Center), matching: find.text('Profile')),
-      findsOneWidget,
-    );
+    expect(find.byType(ProfileScreen), findsOneWidget);
 
     // Tap Home (first item)
     await tester.tap(find.byType(InkResponse).at(0));
     await tester.pumpAndSettle();
 
-    expect(
-      find.descendant(of: find.byType(Center), matching: find.text('Home')),
-      findsOneWidget,
-    );
+    expect(find.byType(HomeScreen), findsOneWidget);
   });
 
   testWidgets('MainLayout uses 48px gray100 circle and -2 assets for selected icon', (
