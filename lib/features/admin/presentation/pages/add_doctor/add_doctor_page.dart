@@ -4,8 +4,8 @@ import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 
-class AddDoctorScreen extends StatelessWidget {
-  const AddDoctorScreen({super.key});
+class AddDoctorPage extends StatelessWidget {
+  const AddDoctorPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -34,3 +34,5 @@ class AddDoctorScreen extends StatelessWidget {
     );
   }
 }
+
+typedef AddDoctorScreen = AddDoctorPage;

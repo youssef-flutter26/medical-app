@@ -4,8 +4,8 @@ import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 
-class AddCategoryScreen extends StatelessWidget {
-  const AddCategoryScreen({super.key});
+class AddCategoryPage extends StatelessWidget {
+  const AddCategoryPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -34,3 +34,5 @@ class AddCategoryScreen extends StatelessWidget {
     );
   }
 }
+
+typedef AddCategoryScreen = AddCategoryPage;

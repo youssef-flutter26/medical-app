@@ -31,7 +31,7 @@ class BannerDescriptionField extends StatelessWidget {
         TextFormField(
           controller: controller,
           validator: validator,
-          maxLines: 4,
+          maxLines: 3,
           style: AppTextStyles.withColor(
             AppTextStyles.inter14W400,
             AppColors.gray700,

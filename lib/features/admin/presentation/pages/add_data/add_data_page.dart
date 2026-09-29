@@ -5,18 +5,18 @@ import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
-import 'package:medical_app/features/admin/presentation/widgets/admin_animated_card.dart';
-import 'package:medical_app/features/admin/presentation/widgets/admin_option_card.dart';
+import 'package:medical_app/features/admin/presentation/widgets/add_data/admin_animated_card.dart';
+import 'package:medical_app/features/admin/presentation/widgets/add_data/admin_option_card.dart';
 
-class AddDataScreen extends StatefulWidget {
-  const AddDataScreen({super.key});
+class AddDataPage extends StatefulWidget {
+  const AddDataPage({super.key});
 
   @override
-  State<AddDataScreen> createState() => _AddDataScreenState();
+  State<AddDataPage> createState() => _AddDataPageState();
 }
 
-class _AddDataScreenState extends State<AddDataScreen>
-  with SingleTickerProviderStateMixin {
+class _AddDataPageState extends State<AddDataPage>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _animController;
   late final List<Animation<double>> _fadeAnimations;
   late final List<Animation<Offset>> _slideAnimations;
@@ -168,3 +168,5 @@ class _AddDataScreenState extends State<AddDataScreen>
     );
   }
 }
+
+typedef AddDataScreen = AddDataPage;

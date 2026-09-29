@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:medical_app/core/common/pages/main_layout.dart';
 import 'package:medical_app/core/routing/routes.dart';
-import 'package:medical_app/features/admin/presentation/pages/add_banner_screen.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_banner/add_banner_page.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
-import 'package:medical_app/features/admin/presentation/pages/add_category_screen.dart';
-import 'package:medical_app/features/admin/presentation/pages/add_data_screen.dart';
-import 'package:medical_app/features/admin/presentation/pages/add_doctor_screen.dart';
-import 'package:medical_app/features/admin/presentation/pages/add_medical_center_screen.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_category/add_category_page.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_data/add_data_page.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_doctor/add_doctor_page.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_medical_center/add_medical_center_page.dart';
 import 'package:medical_app/features/auth/presentation/pages/forget_password_screen.dart';
 import 'package:medical_app/features/auth/presentation/pages/login_screen.dart';
 import 'package:medical_app/features/auth/presentation/pages/register_screen .dart';
@@ -72,7 +72,7 @@ class AppRouter {
 
       case Routes.adminDataSelection:
         return MaterialPageRoute(
-          builder: (_) => const AddDataScreen(),
+          builder: (_) => const AddDataPage(),
           settings: settings,
         );
 
@@ -81,25 +81,25 @@ class AppRouter {
             ? settings.arguments as BannerEntity
             : null;
         return MaterialPageRoute(
-          builder: (_) => AddBannerScreen(initialBanner: initialBanner),
+          builder: (_) => AddBannerPage(initialBanner: initialBanner),
           settings: settings,
         );
 
       case Routes.addCategory:
         return MaterialPageRoute(
-          builder: (_) => const AddCategoryScreen(),
+          builder: (_) => const AddCategoryPage(),
           settings: settings,
         );
 
       case Routes.addMedicalCenter:
         return MaterialPageRoute(
-          builder: (_) => const AddMedicalCenterScreen(),
+          builder: (_) => const AddMedicalCenterPage(),
           settings: settings,
         );
 
       case Routes.addDoctor:
         return MaterialPageRoute(
-          builder: (_) => const AddDoctorScreen(),
+          builder: (_) => const AddDoctorPage(),
           settings: settings,
         );
 

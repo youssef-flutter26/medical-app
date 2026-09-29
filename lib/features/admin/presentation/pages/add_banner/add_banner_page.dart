@@ -10,18 +10,18 @@ import 'package:medical_app/core/validators/validator_app.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
 import 'package:medical_app/features/home/domain/usecases/add_banner.dart';
 import 'package:medical_app/features/home/domain/usecases/update_banner.dart';
-import 'package:medical_app/features/admin/presentation/widgets/add_banner_button.dart';
-import 'package:medical_app/features/admin/presentation/widgets/banner_description_field.dart';
-import 'package:medical_app/features/admin/presentation/widgets/banner_header_section.dart';
-import 'package:medical_app/features/admin/presentation/widgets/banner_image_name_field.dart';
-import 'package:medical_app/features/admin/presentation/widgets/banner_title_field.dart';
+import 'package:medical_app/features/admin/presentation/widgets/add_banner/add_banner_button.dart';
+import 'package:medical_app/features/admin/presentation/widgets/add_banner/banner_description_field.dart';
+import 'package:medical_app/features/admin/presentation/widgets/add_banner/banner_header_section.dart';
+import 'package:medical_app/features/admin/presentation/widgets/add_banner/banner_image_name_field.dart';
+import 'package:medical_app/features/admin/presentation/widgets/add_banner/banner_title_field.dart';
 
-class AddBannerScreen extends StatefulWidget {
+class AddBannerPage extends StatefulWidget {
   final BannerEntity? initialBanner;
   final AddBanner? addBanner;
   final UpdateBanner? updateBanner;
 
-  const AddBannerScreen({
+  const AddBannerPage({
     super.key,
     this.initialBanner,
     this.addBanner,
@@ -29,10 +29,10 @@ class AddBannerScreen extends StatefulWidget {
   });
 
   @override
-  State<AddBannerScreen> createState() => _AddBannerScreenState();
+  State<AddBannerPage> createState() => _AddBannerPageState();
 }
 
-class _AddBannerScreenState extends State<AddBannerScreen> {
+class _AddBannerPageState extends State<AddBannerPage> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _titleController;
   late final TextEditingController _descriptionController;
@@ -227,3 +227,5 @@ class _AddBannerScreenState extends State<AddBannerScreen> {
     );
   }
 }
+
+typedef AddBannerScreen = AddBannerPage;

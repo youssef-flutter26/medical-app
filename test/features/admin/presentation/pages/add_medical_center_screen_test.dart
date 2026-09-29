@@ -5,7 +5,7 @@ import 'package:medical_app/core/error/firebase_failure.dart';
 import 'package:medical_app/core/error/result.dart';
 import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
-import 'package:medical_app/features/admin/presentation/pages/add_medical_center_screen.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_medical_center/add_medical_center_page.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
 import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
 import 'package:medical_app/features/home/domain/repositories/home_repository.dart';

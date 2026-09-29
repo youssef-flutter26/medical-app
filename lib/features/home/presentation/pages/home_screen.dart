@@ -6,7 +6,7 @@ import 'package:medical_app/core/di/service_locator.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
 import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
-import 'package:medical_app/features/admin/presentation/pages/add_banner_screen.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_banner/add_banner_page.dart';
 import 'package:medical_app/features/admin/presentation/widgets/admin_fab.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
 import 'package:medical_app/features/auth/data/models/user_model.dart';

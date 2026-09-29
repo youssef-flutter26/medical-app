@@ -5,11 +5,11 @@ import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 
-class MedicalCenterTypeSelector extends StatelessWidget {
+class MedicalCenterTypeField extends StatelessWidget {
   final String selectedType;
   final ValueChanged<String> onTypeChanged;
 
-  const MedicalCenterTypeSelector({
+  const MedicalCenterTypeField({
     super.key,
     required this.selectedType,
     required this.onTypeChanged,
@@ -18,6 +18,7 @@ class MedicalCenterTypeSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      key: const Key('medical_center_type_dropdown'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
@@ -31,7 +32,7 @@ class MedicalCenterTypeSelector extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: _MedicalCenterTypeCard(
+              child: _TypeCard(
                 type: 'Hospital',
                 title: LocaleKeys.hospital.tr(),
                 icon: Icons.local_hospital_rounded,
@@ -41,7 +42,7 @@ class MedicalCenterTypeSelector extends StatelessWidget {
             ),
             SizedBox(width: 12.w),
             Expanded(
-              child: _MedicalCenterTypeCard(
+              child: _TypeCard(
                 type: 'Clinic',
                 title: LocaleKeys.clinic.tr(),
                 icon: Icons.medical_services_rounded,
@@ -56,14 +57,14 @@ class MedicalCenterTypeSelector extends StatelessWidget {
   }
 }
 
-class _MedicalCenterTypeCard extends StatelessWidget {
+class _TypeCard extends StatelessWidget {
   final String type;
   final String title;
   final IconData icon;
   final bool isSelected;
   final VoidCallback onTap;
 
-  const _MedicalCenterTypeCard({
+  const _TypeCard({
     required this.type,
     required this.title,
     required this.icon,
