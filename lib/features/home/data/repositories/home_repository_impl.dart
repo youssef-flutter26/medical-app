@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:medical_app/core/error/firebase_failure.dart';
 import 'package:medical_app/core/error/result.dart';
 import 'package:medical_app/features/home/data/datasources/home_remote_data_source.dart';
@@ -62,7 +64,13 @@ class HomeRepositoryImpl implements HomeRepository {
       final model = MedicalCenterModel.fromEntity(center);
       await remoteDataSource.addMedicalCenter(model);
       return const SuccessAPI(null);
+    } on FirebaseException catch (e) {
+      debugPrint(
+        'HomeRepository addMedicalCenter FirebaseException: [${e.code}] ${e.message}',
+      );
+      return ErrorAPI(FirebaseFailure.fromException(e));
     } catch (e) {
+      debugPrint('HomeRepository addMedicalCenter error: $e');
       return ErrorAPI(FirebaseFailure.fromException(e));
     }
   }
@@ -73,7 +81,13 @@ class HomeRepositoryImpl implements HomeRepository {
       final model = MedicalCenterModel.fromEntity(center);
       await remoteDataSource.updateMedicalCenter(model);
       return const SuccessAPI(null);
+    } on FirebaseException catch (e) {
+      debugPrint(
+        'HomeRepository updateMedicalCenter FirebaseException: [${e.code}] ${e.message}',
+      );
+      return ErrorAPI(FirebaseFailure.fromException(e));
     } catch (e) {
+      debugPrint('HomeRepository updateMedicalCenter error: $e');
       return ErrorAPI(FirebaseFailure.fromException(e));
     }
   }

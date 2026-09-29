@@ -49,7 +49,9 @@ class TestMedicalCenterAssetLoader extends AssetLoader {
       "reviewsCountCannotBeEmpty": "Reviews count cannot be empty",
       "invalidReviewsCount": "Reviews count must be a whole number",
       "distanceCannotBeEmpty": "Distance cannot be empty",
+      "invalidDistance": "Distance must be a valid number",
       "durationCannotBeEmpty": "Duration cannot be empty",
+      "invalidDuration": "Duration must be a whole number",
       "imageNameCannotBeEmpty": "Image name cannot be empty",
       "reviews": "Reviews",
       "km": "km",
@@ -389,8 +391,8 @@ void main() {
       expect(repo.savedCenter!.rating, isA<double>());
       expect(repo.savedCenter!.reviewsCount, 58);
       expect(repo.savedCenter!.reviewsCount, isA<int>());
-      expect(repo.savedCenter!.distance, '2.5 km');
-      expect(repo.savedCenter!.duration, '40 min');
+      expect(repo.savedCenter!.distance, 2.5);
+      expect(repo.savedCenter!.duration, 40);
       expect(repo.savedCenter!.type, 'Hospital');
       expect(repo.savedCenter!.imagePath, 'assets/images/clinic1.png');
 
@@ -597,8 +599,8 @@ void main() {
       expect(repo.savedCenter!.type, 'Clinic');
       expect(repo.savedCenter!.rating, 4.8);
       expect(repo.savedCenter!.reviewsCount, 120);
-      expect(repo.savedCenter!.distance, '3.2 km');
-      expect(repo.savedCenter!.duration, '25 min');
+      expect(repo.savedCenter!.distance, 3.2);
+      expect(repo.savedCenter!.duration, 25);
       expect(repo.savedCenter!.imagePath, 'assets/images/clinic2.png');
     });
 
@@ -620,8 +622,8 @@ void main() {
         address: '100 Main St',
         rating: 4.5,
         reviewsCount: 30,
-        distance: '1.5 km',
-        duration: '20 min',
+        distance: 1.5,
+        duration: 20,
         type: 'Clinic',
         imagePath: 'assets/images/clinic1.png',
       );
@@ -674,8 +676,8 @@ void main() {
       expect(repo.updatedCenter!.address, '100 Main St');
       expect(repo.updatedCenter!.rating, 4.5);
       expect(repo.updatedCenter!.reviewsCount, 30);
-      expect(repo.updatedCenter!.distance, '1.5 km');
-      expect(repo.updatedCenter!.duration, '20 min');
+      expect(repo.updatedCenter!.distance, 1.5);
+      expect(repo.updatedCenter!.duration, 20);
       expect(repo.updatedCenter!.type, 'Clinic');
       expect(repo.updatedCenter!.imagePath, 'assets/images/clinic1.png');
       expect(find.text('Medical center updated successfully'), findsOneWidget);
@@ -699,8 +701,8 @@ void main() {
         address: '100 Fail St',
         rating: 4.0,
         reviewsCount: 10,
-        distance: '2.0 km',
-        duration: '15 min',
+        distance: 2.0,
+        duration: 15,
         type: 'Hospital',
         imagePath: 'assets/images/clinic1.png',
       );

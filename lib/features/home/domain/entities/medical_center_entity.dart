@@ -6,8 +6,8 @@ class MedicalCenterEntity extends Equatable {
   final String address;
   final double rating;
   final int reviewsCount;
-  final String distance;
-  final String duration;
+  final double distance;
+  final int duration;
   final String type;
   final String imagePath;
   final DateTime? createdAt;
@@ -25,14 +25,19 @@ class MedicalCenterEntity extends Equatable {
     this.createdAt,
   });
 
+  String get formattedDistance =>
+      distance == distance.roundToDouble() ? '${distance.toInt()} km' : '$distance km';
+
+  String get formattedDuration => '$duration min';
+
   MedicalCenterEntity copyWith({
     String? id,
     String? name,
     String? address,
     double? rating,
     int? reviewsCount,
-    String? distance,
-    String? duration,
+    double? distance,
+    int? duration,
     String? type,
     String? imagePath,
     DateTime? createdAt,

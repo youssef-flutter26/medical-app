@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:medical_app/features/home/data/models/banner_model.dart';
 import 'package:medical_app/features/home/data/models/medical_center_model.dart';
 import 'home_remote_data_source.dart';
@@ -50,17 +51,49 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
 
   @override
   Future<void> addMedicalCenter(MedicalCenterModel center) async {
-    await firestore.collection('medical_centers').add(center.toFirestore());
+    try {
+      final data = center.toFirestore();
+      debugPrint('Firestore adding to medical_centers: $data');
+      await firestore.collection('medical_centers').add(data);
+      debugPrint('Firestore successfully added document to medical_centers');
+    } on FirebaseException catch (e) {
+      debugPrint(
+        'Firestore addMedicalCenter FirebaseException: [${e.code}] ${e.message}',
+      );
+      rethrow;
+    } catch (e) {
+      debugPrint('Firestore addMedicalCenter error: $e');
+      rethrow;
+    }
   }
 
   @override
   Future<void> updateMedicalCenter(MedicalCenterModel center) async {
     if (center.id == null || center.id!.isEmpty) {
-      throw ArgumentError('Medical Center ID cannot be null or empty when updating');
+      throw ArgumentError(
+        'Medical Center ID cannot be null or empty when updating',
+      );
     }
-    await firestore
-        .collection('medical_centers')
-        .doc(center.id)
-        .update(center.toFirestore());
+    try {
+      final data = center.toFirestore();
+      debugPrint(
+        'Firestore updating document ${center.id} in medical_centers: $data',
+      );
+      await firestore
+          .collection('medical_centers')
+          .doc(center.id)
+          .update(data);
+      debugPrint(
+        'Firestore successfully updated document ${center.id} in medical_centers',
+      );
+    } on FirebaseException catch (e) {
+      debugPrint(
+        'Firestore updateMedicalCenter FirebaseException: [${e.code}] ${e.message}',
+      );
+      rethrow;
+    } catch (e) {
+      debugPrint('Firestore updateMedicalCenter error: $e');
+      rethrow;
+    }
   }
 }

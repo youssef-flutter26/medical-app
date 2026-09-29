@@ -11,7 +11,11 @@ class FirebaseFailure extends Failure {
     }
 
     if (error is FirebaseException) {
-      return FirebaseFailure(_getFirebaseMessage(error.code));
+      final base = _getFirebaseMessage(error.code);
+      final msg = error.message;
+      return FirebaseFailure(
+        msg != null && msg.isNotEmpty ? '$base ($msg)' : base,
+      );
     }
 
     return FirebaseFailure('Something went wrong. Please try again.');

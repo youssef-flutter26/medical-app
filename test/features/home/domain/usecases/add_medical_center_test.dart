@@ -55,8 +55,8 @@ void main() {
       address: '123 Oak Street, CA 98765',
       rating: 4.9,
       reviewsCount: 58,
-      distance: '2.5 km',
-      duration: '40 min',
+      distance: 2.5,
+      duration: 40,
       type: 'Hospital',
       imagePath: 'assets/images/clinic1.png',
     );
@@ -82,8 +82,8 @@ void main() {
       address: '123 Fake Street',
       rating: 3.0,
       reviewsCount: 10,
-      distance: '1 km',
-      duration: '10 min',
+      distance: 1.0,
+      duration: 10,
       type: 'Clinic',
       imagePath: 'assets/images/clinic2.png',
     );

@@ -10,8 +10,8 @@ void main() {
         address: '123 Oak Street, CA 98765',
         rating: 4.9,
         reviewsCount: 58,
-        distance: '2.5 km',
-        duration: '40 min',
+        distance: 2.5,
+        duration: 40,
         type: 'Hospital',
         imagePath: 'assets/images/clinic1.png',
         createdAt: DateTime(2026, 1, 1),
@@ -40,8 +40,8 @@ void main() {
         address: '123 Oak Street, CA 98765',
         rating: 4.6,
         reviewsCount: 58,
-        distance: '2.5 km',
-        duration: '40 min',
+        distance: 2.5,
+        duration: 40,
         type: 'Hospital',
         imagePath: 'assets/images/clinic1.png',
       );
@@ -79,8 +79,10 @@ void main() {
       expect(model.address, '123 Oak Street, CA 98765');
       expect(model.rating, 4.9);
       expect(model.reviewsCount, 58);
-      expect(model.distance, '2.5 km');
-      expect(model.duration, '40 min');
+      expect(model.distance, 2.5);
+      expect(model.duration, 40);
+      expect(model.formattedDistance, '2.5 km');
+      expect(model.formattedDuration, '40 min');
       expect(model.type, 'Hospital');
       expect(model.imagePath, 'assets/images/clinic1.png');
     });
@@ -100,8 +102,10 @@ void main() {
       final model = MedicalCenterModel.fromFirestore(json, 'center_123');
 
       expect(model.id, 'center_123');
-      expect(model.distance, '2.5 km');
-      expect(model.duration, '40 min');
+      expect(model.distance, 2.5);
+      expect(model.duration, 40);
+      expect(model.formattedDistance, '2.5 km');
+      expect(model.formattedDuration, '40 min');
     });
 
     test('fromEntity converts entity to model', () {
@@ -111,8 +115,8 @@ void main() {
         address: 'Main St',
         rating: 4.5,
         reviewsCount: 20,
-        distance: '1 km',
-        duration: '10 min',
+        distance: 1.0,
+        duration: 10,
         type: 'Clinic',
         imagePath: 'assets/images/clinic2.png',
       );

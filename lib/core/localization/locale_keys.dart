@@ -104,6 +104,9 @@ abstract class LocaleKeys {
   static const bannerSubtext = 'bannerSubtext';
   static const explore = 'explore';
   static const categories = 'categories';
+  static const allCategories = 'allCategories';
+  static const searchCategory = 'searchCategory';
+  static const noCategoriesFound = 'noCategoriesFound';
   static const seeAll = 'seeAll';
   static const dentistry = 'dentistry';
   static const cardiology = 'cardiology';
@@ -183,7 +186,9 @@ abstract class LocaleKeys {
   static const reviewsCountCannotBeEmpty = 'reviewsCountCannotBeEmpty';
   static const invalidReviewsCount = 'invalidReviewsCount';
   static const distanceCannotBeEmpty = 'distanceCannotBeEmpty';
+  static const invalidDistance = 'invalidDistance';
   static const durationCannotBeEmpty = 'durationCannotBeEmpty';
+  static const invalidDuration = 'invalidDuration';
   static const reviews = 'reviews';
   static const km = 'km';
   static const min = 'min';

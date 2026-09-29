@@ -16,9 +16,6 @@ import 'package:medical_app/features/admin/presentation/widgets/add_medical_cent
 import 'package:medical_app/features/admin/presentation/widgets/add_medical_center/medical_center_reviews_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_medical_center/medical_center_type_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_medical_center/medical_center_header_section.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:medical_app/features/home/data/datasources/home_remote_data_source_impl.dart';
-import 'package:medical_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
 import 'package:medical_app/features/home/domain/usecases/add_medical_center.dart';
 import 'package:medical_app/features/home/domain/usecases/update_medical_center.dart';
@@ -73,18 +70,15 @@ class _AddMedicalCenterPageState extends State<AddMedicalCenterPage> {
 
     String initialDistance = '';
     if (center != null) {
-      final distMatch =
-          RegExp(r'[0-9]+(?:\.[0-9]+)?').firstMatch(center.distance);
-      initialDistance =
-          distMatch != null ? distMatch.group(0)! : center.distance;
+      initialDistance = center.distance == center.distance.roundToDouble()
+          ? center.distance.toInt().toString()
+          : center.distance.toString();
     }
     _distanceController = TextEditingController(text: initialDistance);
 
     String initialDuration = '';
     if (center != null) {
-      final durMatch = RegExp(r'[0-9]+').firstMatch(center.duration);
-      initialDuration =
-          durMatch != null ? durMatch.group(0)! : center.duration;
+      initialDuration = center.duration.toString();
     }
     _durationController = TextEditingController(text: initialDuration);
 
@@ -158,37 +152,19 @@ class _AddMedicalCenterPageState extends State<AddMedicalCenterPage> {
 
     final rating = double.parse(_ratingController.text.trim());
     final reviewsCount = int.parse(_reviewsCountController.text.trim());
-
-    final rawDistance = _distanceController.text.trim();
-    final distance = rawDistance.toLowerCase().endsWith('km')
-        ? rawDistance
-        : '$rawDistance km';
-
-    final rawDuration = _durationController.text.trim();
-    final duration = rawDuration.toLowerCase().endsWith('min')
-        ? rawDuration
-        : '$rawDuration min';
+    final cleanDist =
+        _distanceController.text.replaceAll(RegExp(r'[^\d.]'), '').trim();
+    final distance = double.parse(cleanDist);
+    final cleanDur =
+        _durationController.text.replaceAll(RegExp(r'[^\d]'), '').trim();
+    final duration = int.parse(cleanDur);
 
     final Result<void> result;
     if (isEditMode) {
-      UpdateMedicalCenter? updateUseCase = _updateMedicalCenterUseCase;
-      if (updateUseCase == null) {
-        if (getIt.isRegistered<UpdateMedicalCenter>()) {
-          updateUseCase = getIt<UpdateMedicalCenter>();
-        } else {
-          try {
-            final firestore = getIt.isRegistered<FirebaseFirestore>()
-                ? getIt<FirebaseFirestore>()
-                : FirebaseFirestore.instance;
-            updateUseCase = UpdateMedicalCenter(
-              HomeRepositoryImpl(HomeRemoteDataSourceImpl(firestore)),
-            );
-          } catch (_) {
-            updateUseCase = null;
-          }
-        }
-      }
-
+      final updateUseCase = _updateMedicalCenterUseCase ??
+          (getIt.isRegistered<UpdateMedicalCenter>()
+              ? getIt<UpdateMedicalCenter>()
+              : null);
       if (updateUseCase == null) {
         setState(() => _isLoading = false);
         return;
@@ -209,24 +185,10 @@ class _AddMedicalCenterPageState extends State<AddMedicalCenterPage> {
         ),
       );
     } else {
-      AddMedicalCenter? addUseCase = _addMedicalCenterUseCase;
-      if (addUseCase == null) {
-        if (getIt.isRegistered<AddMedicalCenter>()) {
-          addUseCase = getIt<AddMedicalCenter>();
-        } else {
-          try {
-            final firestore = getIt.isRegistered<FirebaseFirestore>()
-                ? getIt<FirebaseFirestore>()
-                : FirebaseFirestore.instance;
-            addUseCase = AddMedicalCenter(
-              HomeRepositoryImpl(HomeRemoteDataSourceImpl(firestore)),
-            );
-          } catch (_) {
-            addUseCase = null;
-          }
-        }
-      }
-
+      final addUseCase = _addMedicalCenterUseCase ??
+          (getIt.isRegistered<AddMedicalCenter>()
+              ? getIt<AddMedicalCenter>()
+              : null);
       if (addUseCase == null) {
         setState(() => _isLoading = false);
         return;

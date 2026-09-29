@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medical_app/core/di/service_locator.dart';
+import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
 import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
@@ -171,7 +172,11 @@ class HomeScreen extends StatelessWidget {
                 },
               ),
               SizedBox(height: 22.h),
-              const HomeCategories(),
+              HomeCategories(
+                onSeeAllPressed: () {
+                  Navigator.pushNamed(context, Routes.category);
+                },
+              ),
               SizedBox(height: 24.h),
               StreamBuilder<List<MedicalCenterEntity>>(
                 stream: _getMedicalCentersStream?.call() ??
@@ -193,8 +198,8 @@ class HomeScreen extends StatelessWidget {
                           address: centerData.address,
                           rating: centerData.rating,
                           reviewsCount: centerData.reviewCount,
-                          distance: centerData.distance,
-                          duration: centerData.duration ?? '',
+                          distance: double.tryParse(RegExp(r'[0-9]+(?:\.[0-9]+)?').firstMatch(centerData.distance)?.group(0) ?? '') ?? 0.0,
+                          duration: int.tryParse(RegExp(r'[0-9]+').firstMatch(centerData.duration ?? '')?.group(0) ?? '') ?? 0,
                           type: centerData.type ?? centerData.category,
                           imagePath: centerData.imagePath ?? '',
                         ),
@@ -217,8 +222,8 @@ class HomeScreen extends StatelessWidget {
                             address: c.address,
                             rating: c.rating,
                             reviewCount: c.reviewsCount,
-                            distance: c.distance,
-                            duration: c.duration,
+                            distance: c.formattedDistance,
+                            duration: c.formattedDuration,
                             type: c.type,
                             imagePath: c.imagePath,
                           ),

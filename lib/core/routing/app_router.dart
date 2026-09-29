@@ -13,6 +13,7 @@ import 'package:medical_app/features/auth/presentation/pages/login_screen.dart';
 import 'package:medical_app/features/auth/presentation/pages/register_screen .dart';
 import 'package:medical_app/features/auth/presentation/widgets/fill_profile.dart';
 import 'package:medical_app/features/onboarding/presentation/pages/onboarding_screen.dart';
+import 'package:medical_app/features/category/presentation/pages/category_page.dart';
 import 'package:medical_app/features/profile/presentation/pages/profile_screen.dart';
 import 'package:medical_app/features/splash/presentation/pages/splash_screen.dart';
 
@@ -100,6 +101,12 @@ class AppRouter {
           builder: (_) => AddMedicalCenterPage(
             initialMedicalCenter: initialMedicalCenter,
           ),
+          settings: settings,
+        );
+
+      case Routes.category:
+        return MaterialPageRoute(
+          builder: (_) => const CategoryPage(),
           settings: settings,
         );
 

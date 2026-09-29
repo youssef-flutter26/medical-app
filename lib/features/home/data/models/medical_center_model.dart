@@ -20,24 +20,27 @@ class MedicalCenterModel extends MedicalCenterEntity {
     String? docId,
   ]) {
     final rawDistance = json['distance'];
-    final String distanceStr;
+    final double parsedDistance;
     if (rawDistance is num) {
-      final d = rawDistance.toDouble();
-      distanceStr = d == d.roundToDouble() ? '${d.toInt()} km' : '$d km';
+      parsedDistance = rawDistance.toDouble();
     } else if (rawDistance is String && rawDistance.isNotEmpty) {
-      distanceStr = rawDistance.contains('km') ? rawDistance : '$rawDistance km';
+      final match = RegExp(r'[0-9]+(?:\.[0-9]+)?').firstMatch(rawDistance);
+      parsedDistance =
+          match != null ? (double.tryParse(match.group(0)!) ?? 0.0) : 0.0;
     } else {
-      distanceStr = '';
+      parsedDistance = 0.0;
     }
 
     final rawDuration = json['duration'];
-    final String durationStr;
+    final int parsedDuration;
     if (rawDuration is num) {
-      durationStr = '${rawDuration.toInt()} min';
+      parsedDuration = rawDuration.toInt();
     } else if (rawDuration is String && rawDuration.isNotEmpty) {
-      durationStr = rawDuration.contains('min') ? rawDuration : '$rawDuration min';
+      final match = RegExp(r'[0-9]+').firstMatch(rawDuration);
+      parsedDuration =
+          match != null ? (int.tryParse(match.group(0)!) ?? 0) : 0;
     } else {
-      durationStr = '';
+      parsedDuration = 0;
     }
 
     return MedicalCenterModel(
@@ -48,8 +51,8 @@ class MedicalCenterModel extends MedicalCenterEntity {
       reviewsCount: (json['reviewsCount'] as num?)?.toInt() ??
           (json['reviewCount'] as num?)?.toInt() ??
           0,
-      distance: distanceStr,
-      duration: durationStr,
+      distance: parsedDistance,
+      duration: parsedDuration,
       type: json['type'] as String? ?? 'Hospital',
       imagePath: (json['imagePath'] as String?) ??
           (json['imageUrl'] as String?) ??
@@ -61,25 +64,13 @@ class MedicalCenterModel extends MedicalCenterEntity {
   }
 
   Map<String, dynamic> toFirestore() {
-    double distanceNum = 0.0;
-    final distMatch = RegExp(r'[0-9]+(?:\.[0-9]+)?').firstMatch(distance);
-    if (distMatch != null) {
-      distanceNum = double.tryParse(distMatch.group(0)!) ?? 0.0;
-    }
-
-    int durationNum = 0;
-    final durMatch = RegExp(r'[0-9]+').firstMatch(duration);
-    if (durMatch != null) {
-      durationNum = int.tryParse(durMatch.group(0)!) ?? 0;
-    }
-
     final data = <String, dynamic>{
       'name': name,
       'address': address,
       'rating': rating,
       'reviewsCount': reviewsCount,
-      'distance': distanceNum,
-      'duration': durationNum,
+      'distance': distance,
+      'duration': duration,
       'type': type,
       'imagePath': imagePath,
     };

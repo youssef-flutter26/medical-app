@@ -189,12 +189,22 @@ abstract final class ValidatorApp {
     if (value == null || value.trim().isEmpty) {
       return LocaleKeys.distanceCannotBeEmpty.tr();
     }
+    final clean = value.replaceAll(RegExp(r'[^\d.]'), '').trim();
+    final distance = double.tryParse(clean);
+    if (distance == null || distance < 0) {
+      return LocaleKeys.invalidDistance.tr();
+    }
     return null;
   }
 
   static String? validateDuration(String? value) {
     if (value == null || value.trim().isEmpty) {
       return LocaleKeys.durationCannotBeEmpty.tr();
+    }
+    final clean = value.replaceAll(RegExp(r'[^\d]'), '').trim();
+    final duration = int.tryParse(clean);
+    if (duration == null || duration < 0) {
+      return LocaleKeys.invalidDuration.tr();
     }
     return null;
   }
