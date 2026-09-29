@@ -5,6 +5,7 @@ import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
+import 'package:medical_app/features/admin/presentation/widgets/admin_animated_card.dart';
 import 'package:medical_app/features/admin/presentation/widgets/admin_option_card.dart';
 
 class AddDataScreen extends StatefulWidget {
@@ -15,7 +16,7 @@ class AddDataScreen extends StatefulWidget {
 }
 
 class _AddDataScreenState extends State<AddDataScreen>
-    with SingleTickerProviderStateMixin {
+  with SingleTickerProviderStateMixin {
   late final AnimationController _animController;
   late final List<Animation<double>> _fadeAnimations;
   late final List<Animation<Offset>> _slideAnimations;
@@ -28,7 +29,6 @@ class _AddDataScreenState extends State<AddDataScreen>
       duration: const Duration(milliseconds: 600),
     );
 
-    // Staggered intervals for 4 cards
     _fadeAnimations = List.generate(4, (index) {
       final start = index * 0.12;
       final end = (start + 0.5).clamp(0.0, 1.0);
@@ -61,19 +61,6 @@ class _AddDataScreenState extends State<AddDataScreen>
   void dispose() {
     _animController.dispose();
     super.dispose();
-  }
-
-  Widget _buildAnimatedCard({
-    required int index,
-    required Widget child,
-  }) {
-    return FadeTransition(
-      opacity: _fadeAnimations[index],
-      child: SlideTransition(
-        position: _slideAnimations[index],
-        child: child,
-      ),
-    );
   }
 
   @override
@@ -115,8 +102,9 @@ class _AddDataScreenState extends State<AddDataScreen>
                 ),
               ),
               SizedBox(height: 24.h),
-              _buildAnimatedCard(
-                index: 0,
+              AdminAnimatedCard(
+                fadeAnimation: _fadeAnimations[0],
+                slideAnimation: _slideAnimations[0],
                 child: AdminOptionCard(
                   title: LocaleKeys.banner.tr(),
                   subtitle: LocaleKeys.addPromotionalBanner.tr(),
@@ -129,8 +117,9 @@ class _AddDataScreenState extends State<AddDataScreen>
                 ),
               ),
               SizedBox(height: 14.h),
-              _buildAnimatedCard(
-                index: 1,
+              AdminAnimatedCard(
+                fadeAnimation: _fadeAnimations[1],
+                slideAnimation: _slideAnimations[1],
                 child: AdminOptionCard(
                   title: LocaleKeys.category.tr(),
                   subtitle: LocaleKeys.addMedicalCategory.tr(),
@@ -143,8 +132,9 @@ class _AddDataScreenState extends State<AddDataScreen>
                 ),
               ),
               SizedBox(height: 14.h),
-              _buildAnimatedCard(
-                index: 2,
+              AdminAnimatedCard(
+                fadeAnimation: _fadeAnimations[2],
+                slideAnimation: _slideAnimations[2],
                 child: AdminOptionCard(
                   title: LocaleKeys.medicalCenter.tr(),
                   subtitle: LocaleKeys.addMedicalCenter.tr(),
@@ -157,8 +147,9 @@ class _AddDataScreenState extends State<AddDataScreen>
                 ),
               ),
               SizedBox(height: 14.h),
-              _buildAnimatedCard(
-                index: 3,
+              AdminAnimatedCard(
+                fadeAnimation: _fadeAnimations[3],
+                slideAnimation: _slideAnimations[3],
                 child: AdminOptionCard(
                   title: LocaleKeys.doctor.tr(),
                   subtitle: LocaleKeys.addDoctor.tr(),

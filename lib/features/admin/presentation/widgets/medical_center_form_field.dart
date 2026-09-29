@@ -12,7 +12,6 @@ class MedicalCenterFormField extends StatelessWidget {
   final Key? inputKey;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
-  final Widget? helper;
 
   const MedicalCenterFormField({
     super.key,
@@ -24,7 +23,6 @@ class MedicalCenterFormField extends StatelessWidget {
     this.inputKey,
     this.prefixIcon,
     this.suffixIcon,
-    this.helper,
   });
 
   @override
@@ -98,10 +96,6 @@ class MedicalCenterFormField extends StatelessWidget {
             ),
           ),
         ),
-        if (helper != null) ...[
-          SizedBox(height: 6.h),
-          helper!,
-        ],
       ],
     );
   }

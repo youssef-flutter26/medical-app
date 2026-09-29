@@ -184,6 +184,14 @@ abstract class LocaleKeys {
   static const invalidReviewsCount = 'invalidReviewsCount';
   static const distanceCannotBeEmpty = 'distanceCannotBeEmpty';
   static const durationCannotBeEmpty = 'durationCannotBeEmpty';
+  static const reviews = 'reviews';
+  static const km = 'km';
+  static const min = 'min';
+  static const ratingHint = 'ratingHint';
+  static const reviewsCountHint = 'reviewsCountHint';
+  static const distanceHint = 'distanceHint';
+  static const durationHint = 'durationHint';
+  static const imageNameHint = 'imageNameHint';
 }
 
 

@@ -50,6 +50,14 @@ class TestMedicalCenterAssetLoader extends AssetLoader {
       "distanceCannotBeEmpty": "Distance cannot be empty",
       "durationCannotBeEmpty": "Duration cannot be empty",
       "imageNameCannotBeEmpty": "Image name cannot be empty",
+      "reviews": "Reviews",
+      "km": "km",
+      "min": "min",
+      "ratingHint": "4.5",
+      "reviewsCountHint": "58",
+      "distanceHint": "2.5",
+      "durationHint": "40",
+      "imageNameHint": "clinic1.png",
     };
   }
 }
@@ -534,9 +542,6 @@ void main() {
         'clinic2.png',
       );
       await tester.pumpAndSettle();
-
-      // Image path preview helper should show assets/images/clinic2.png
-      expect(find.text('assets/images/clinic2.png'), findsOneWidget);
 
       await tester.tap(find.byKey(const Key('add_medical_center_submit_button')));
       await tester.pumpAndSettle();

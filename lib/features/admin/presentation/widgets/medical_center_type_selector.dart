@@ -31,20 +31,22 @@ class MedicalCenterTypeSelector extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: _buildTypeCard(
+              child: _MedicalCenterTypeCard(
                 type: 'Hospital',
                 title: LocaleKeys.hospital.tr(),
                 icon: Icons.local_hospital_rounded,
                 isSelected: selectedType == 'Hospital',
+                onTap: () => onTypeChanged('Hospital'),
               ),
             ),
             SizedBox(width: 12.w),
             Expanded(
-              child: _buildTypeCard(
+              child: _MedicalCenterTypeCard(
                 type: 'Clinic',
                 title: LocaleKeys.clinic.tr(),
                 icon: Icons.medical_services_rounded,
                 isSelected: selectedType == 'Clinic',
+                onTap: () => onTypeChanged('Clinic'),
               ),
             ),
           ],
@@ -52,13 +54,25 @@ class MedicalCenterTypeSelector extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget _buildTypeCard({
-    required String type,
-    required String title,
-    required IconData icon,
-    required bool isSelected,
-  }) {
+class _MedicalCenterTypeCard extends StatelessWidget {
+  final String type;
+  final String title;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _MedicalCenterTypeCard({
+    required this.type,
+    required this.title,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
       curve: Curves.easeOut,
@@ -76,7 +90,7 @@ class MedicalCenterTypeSelector extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           key: Key('medical_center_type_option_$type'),
-          onTap: () => onTypeChanged(type),
+          onTap: onTap,
           borderRadius: BorderRadius.circular(12.r),
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),

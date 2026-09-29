@@ -12,6 +12,7 @@ class MedicalCenterCompactField extends StatefulWidget {
   final Key? inputKey;
   final double width;
   final Widget? unitWidget;
+  final String? unitText;
   final ValueChanged<String>? onChanged;
 
   const MedicalCenterCompactField({
@@ -24,6 +25,7 @@ class MedicalCenterCompactField extends StatefulWidget {
     this.keyboardType = TextInputType.text,
     this.inputKey,
     this.unitWidget,
+    this.unitText,
     this.onChanged,
   });
 
@@ -151,6 +153,15 @@ class _MedicalCenterCompactFieldState extends State<MedicalCenterCompactField> {
                 if (widget.unitWidget != null) ...[
                   SizedBox(width: 8.w),
                   widget.unitWidget!,
+                ] else if (widget.unitText != null) ...[
+                  SizedBox(width: 8.w),
+                  Text(
+                    widget.unitText!,
+                    style: AppTextStyles.withColor(
+                      AppTextStyles.inter14W500,
+                      AppColors.gray600,
+                    ),
+                  ),
                 ],
               ],
             ),

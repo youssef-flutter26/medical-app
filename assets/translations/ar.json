@@ -172,5 +172,13 @@
   "reviewsCountCannotBeEmpty": "عدد المراجعات لا يمكن أن يكون فارغاً",
   "invalidReviewsCount": "يجب أن يكون عدد المراجعات عدداً صحيحاً",
   "distanceCannotBeEmpty": "المسافة لا يمكن أن تكون فارغة",
-  "durationCannotBeEmpty": "المدة لا يمكن أن تكون فارغة"
+  "durationCannotBeEmpty": "المدة لا يمكن أن تكون فارغة",
+  "reviews": "مراجعات",
+  "km": "كم",
+  "min": "دقيقة",
+  "ratingHint": "4.5",
+  "reviewsCountHint": "58",
+  "distanceHint": "2.5",
+  "durationHint": "40",
+  "imageNameHint": "clinic1.png"
 }
