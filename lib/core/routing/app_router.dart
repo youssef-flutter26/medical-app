@@ -3,6 +3,7 @@ import 'package:medical_app/core/common/pages/main_layout.dart';
 import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_banner/add_banner_page.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
+import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_category/add_category_page.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_data/add_data_page.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_doctor/add_doctor_page.dart';
@@ -92,8 +93,13 @@ class AppRouter {
         );
 
       case Routes.addMedicalCenter:
+        final initialMedicalCenter = settings.arguments is MedicalCenterEntity
+            ? settings.arguments as MedicalCenterEntity
+            : null;
         return MaterialPageRoute(
-          builder: (_) => const AddMedicalCenterPage(),
+          builder: (_) => AddMedicalCenterPage(
+            initialMedicalCenter: initialMedicalCenter,
+          ),
           settings: settings,
         );
 

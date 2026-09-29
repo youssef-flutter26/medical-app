@@ -4,11 +4,11 @@ import 'package:medical_app/core/error/result.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
 import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
 import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
-import 'package:medical_app/features/home/domain/usecases/add_medical_center.dart';
+import 'package:medical_app/features/home/domain/usecases/update_medical_center.dart';
 
 class FakeHomeRepository implements HomeRepository {
   bool shouldSucceed = true;
-  MedicalCenterEntity? lastAddedCenter;
+  MedicalCenterEntity? lastUpdatedCenter;
 
   @override
   Stream<List<BannerEntity>> getBannersStream() => const Stream.empty();
@@ -26,31 +26,32 @@ class FakeHomeRepository implements HomeRepository {
       const Stream.empty();
 
   @override
-  Future<Result<void>> addMedicalCenter(MedicalCenterEntity center) async {
-    lastAddedCenter = center;
+  Future<Result<void>> addMedicalCenter(MedicalCenterEntity center) async =>
+      const SuccessAPI(null);
+
+  @override
+  Future<Result<void>> updateMedicalCenter(MedicalCenterEntity center) async {
+    lastUpdatedCenter = center;
     if (shouldSucceed) {
       return const SuccessAPI(null);
     } else {
-      return ErrorAPI(FirebaseFailure('Failed to add medical center'));
+      return ErrorAPI(FirebaseFailure('Failed to update medical center'));
     }
   }
-
-  @override
-  Future<Result<void>> updateMedicalCenter(MedicalCenterEntity center) async =>
-      const SuccessAPI(null);
 }
 
 void main() {
   late FakeHomeRepository repository;
-  late AddMedicalCenter usecase;
+  late UpdateMedicalCenter usecase;
 
   setUp(() {
     repository = FakeHomeRepository();
-    usecase = AddMedicalCenter(repository);
+    usecase = UpdateMedicalCenter(repository);
   });
 
-  test('AddMedicalCenter returns SuccessAPI on success', () async {
+  test('UpdateMedicalCenter returns SuccessAPI on success', () async {
     const center = MedicalCenterEntity(
+      id: 'center_123',
       name: 'Sunrise Health Clinic',
       address: '123 Oak Street, CA 98765',
       rating: 4.9,
@@ -64,32 +65,28 @@ void main() {
     final result = await usecase(center);
 
     expect(result, isA<SuccessAPI<void>>());
-    expect(repository.lastAddedCenter?.name, 'Sunrise Health Clinic');
-    expect(repository.lastAddedCenter?.rating, 4.9);
-    expect(repository.lastAddedCenter?.reviewsCount, 58);
-    expect(repository.lastAddedCenter?.type, 'Hospital');
-    expect(
-      repository.lastAddedCenter?.imagePath,
-      'assets/images/clinic1.png',
-    );
+    expect(repository.lastUpdatedCenter, equals(center));
   });
 
-  test('AddMedicalCenter returns ErrorAPI on failure', () async {
+  test('UpdateMedicalCenter returns ErrorAPI on failure', () async {
     repository.shouldSucceed = false;
 
     const center = MedicalCenterEntity(
-      name: 'Error Clinic',
-      address: '123 Fake Street',
-      rating: 3.0,
-      reviewsCount: 10,
-      distance: '1 km',
-      duration: '10 min',
-      type: 'Clinic',
-      imagePath: 'assets/images/clinic2.png',
+      id: 'center_123',
+      name: 'Sunrise Health Clinic',
+      address: '123 Oak Street, CA 98765',
+      rating: 4.9,
+      reviewsCount: 58,
+      distance: '2.5 km',
+      duration: '40 min',
+      type: 'Hospital',
+      imagePath: 'assets/images/clinic1.png',
     );
 
     final result = await usecase(center);
 
     expect(result, isA<ErrorAPI<void>>());
+    final error = result as ErrorAPI<void>;
+    expect(error.failure.message, 'Failed to update medical center');
   });
 }

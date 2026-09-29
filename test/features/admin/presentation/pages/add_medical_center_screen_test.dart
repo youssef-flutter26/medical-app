@@ -10,6 +10,7 @@ import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
 import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
 import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
 import 'package:medical_app/features/home/domain/usecases/add_medical_center.dart';
+import 'package:medical_app/features/home/domain/usecases/update_medical_center.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TestMedicalCenterAssetLoader extends AssetLoader {
@@ -58,6 +59,13 @@ class TestMedicalCenterAssetLoader extends AssetLoader {
       "distanceHint": "2.5",
       "durationHint": "40",
       "imageNameHint": "clinic1.png",
+      "editMedicalCenter": "Edit Medical Center",
+      "updateMedicalCenter": "Update Medical Center",
+      "editMedicalCenterInformation":
+          "Modify the information for this medical center.",
+      "medicalCenterUpdatedSuccessfully":
+          "Medical center updated successfully",
+      "failedToUpdateMedicalCenter": "Failed to update medical center",
     };
   }
 }
@@ -65,6 +73,8 @@ class TestMedicalCenterAssetLoader extends AssetLoader {
 class FakeMedicalCenterRepository implements HomeRepository {
   bool shouldSucceed = true;
   MedicalCenterEntity? savedCenter;
+
+  MedicalCenterEntity? updatedCenter;
 
   @override
   Stream<List<BannerEntity>> getBannersStream() => const Stream.empty();
@@ -90,10 +100,22 @@ class FakeMedicalCenterRepository implements HomeRepository {
       return ErrorAPI(FirebaseFailure('Failed to add medical center'));
     }
   }
+
+  @override
+  Future<Result<void>> updateMedicalCenter(MedicalCenterEntity center) async {
+    updatedCenter = center;
+    if (shouldSucceed) {
+      return const SuccessAPI(null);
+    } else {
+      return ErrorAPI(FirebaseFailure('Failed to update medical center'));
+    }
+  }
 }
 
 Widget createAddMedicalCenterScreenTestWidget({
-  required AddMedicalCenter addMedicalCenter,
+  AddMedicalCenter? addMedicalCenter,
+  UpdateMedicalCenter? updateMedicalCenter,
+  MedicalCenterEntity? initialMedicalCenter,
   bool pushRoute = false,
 }) {
   return EasyLocalization(
@@ -112,6 +134,8 @@ Widget createAddMedicalCenterScreenTestWidget({
               locale: context.locale,
               home: AddMedicalCenterScreen(
                 addMedicalCenter: addMedicalCenter,
+                updateMedicalCenter: updateMedicalCenter,
+                initialMedicalCenter: initialMedicalCenter,
               ),
             );
           }
@@ -129,6 +153,8 @@ Widget createAddMedicalCenterScreenTestWidget({
                         MaterialPageRoute(
                           builder: (_) => AddMedicalCenterScreen(
                             addMedicalCenter: addMedicalCenter,
+                            updateMedicalCenter: updateMedicalCenter,
+                            initialMedicalCenter: initialMedicalCenter,
                           ),
                         ),
                       );
@@ -441,7 +467,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Enter rating 3.5 -> 3 amber stars, 2 gray stars
+      // Enter rating 3.5 -> 4 amber stars, 1 gray star (normal rounding: 3.5 rounds to 4)
       await tester.enterText(
         find.byKey(const Key('medical_center_rating_input')),
         '3.5',
@@ -453,6 +479,26 @@ void main() {
 
       int amberCount = 0;
       int grayCount = 0;
+      for (final element in starsFinder.evaluate()) {
+        final icon = element.widget as Icon;
+        if (icon.color == AppColors.amber) {
+          amberCount++;
+        } else {
+          grayCount++;
+        }
+      }
+      expect(amberCount, 4);
+      expect(grayCount, 1);
+
+      // Enter rating 3.4 -> 3 amber stars, 2 gray stars
+      await tester.enterText(
+        find.byKey(const Key('medical_center_rating_input')),
+        '3.4',
+      );
+      await tester.pumpAndSettle();
+
+      amberCount = 0;
+      grayCount = 0;
       for (final element in starsFinder.evaluate()) {
         final icon = element.widget as Icon;
         if (icon.color == AppColors.amber) {
@@ -554,6 +600,123 @@ void main() {
       expect(repo.savedCenter!.distance, '3.2 km');
       expect(repo.savedCenter!.duration, '25 min');
       expect(repo.savedCenter!.imagePath, 'assets/images/clinic2.png');
+    });
+
+    testWidgets('renders pre-filled fields in edit mode and updates existing document',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 4000);
+      tester.view.devicePixelRatio = 3.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      final repo = FakeMedicalCenterRepository();
+      final updateUsecase = UpdateMedicalCenter(repo);
+
+      const existingCenter = MedicalCenterEntity(
+        id: 'doc_123',
+        name: 'Existing Clinic',
+        address: '100 Main St',
+        rating: 4.5,
+        reviewsCount: 30,
+        distance: '1.5 km',
+        duration: '20 min',
+        type: 'Clinic',
+        imagePath: 'assets/images/clinic1.png',
+      );
+
+      await tester.pumpWidget(
+        createAddMedicalCenterScreenTestWidget(
+          updateMedicalCenter: updateUsecase,
+          initialMedicalCenter: existingCenter,
+          pushRoute: true,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Open Form'));
+      await tester.pumpAndSettle();
+
+      // Check AppBar and Header
+      expect(find.text('Edit Medical Center'), findsWidgets);
+      expect(find.text('Update Medical Center'), findsOneWidget);
+
+      // Check pre-filled values
+      expect(find.text('Existing Clinic'), findsOneWidget);
+      expect(find.text('100 Main St'), findsOneWidget);
+      final ratingInput = tester.widget<TextFormField>(
+        find.byKey(const Key('medical_center_rating_input')),
+      );
+      expect(ratingInput.controller?.text, '4.5');
+      expect(find.text('30'), findsOneWidget);
+      expect(find.text('1.5'), findsOneWidget);
+      expect(find.text('20'), findsOneWidget);
+      final imageInput = tester.widget<TextFormField>(
+        find.byKey(const Key('medical_center_image_name_input')),
+      );
+      expect(imageInput.controller?.text, 'clinic1.png');
+
+      // Modify name
+      await tester.enterText(
+        find.byKey(const Key('medical_center_name_input')),
+        'Updated Clinic Name',
+      );
+      await tester.pumpAndSettle();
+
+      // Submit update
+      await tester.tap(find.byKey(const Key('add_medical_center_submit_button')));
+      await tester.pumpAndSettle();
+
+      expect(repo.updatedCenter, isNotNull);
+      expect(repo.updatedCenter!.id, 'doc_123');
+      expect(repo.updatedCenter!.name, 'Updated Clinic Name');
+      expect(repo.updatedCenter!.address, '100 Main St');
+      expect(repo.updatedCenter!.rating, 4.5);
+      expect(repo.updatedCenter!.reviewsCount, 30);
+      expect(repo.updatedCenter!.distance, '1.5 km');
+      expect(repo.updatedCenter!.duration, '20 min');
+      expect(repo.updatedCenter!.type, 'Clinic');
+      expect(repo.updatedCenter!.imagePath, 'assets/images/clinic1.png');
+      expect(find.text('Medical center updated successfully'), findsOneWidget);
+    });
+
+    testWidgets('shows error snackbar when update fails in edit mode',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 4000);
+      tester.view.devicePixelRatio = 3.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      final repo = FakeMedicalCenterRepository()..shouldSucceed = false;
+      final updateUsecase = UpdateMedicalCenter(repo);
+
+      const existingCenter = MedicalCenterEntity(
+        id: 'doc_fail',
+        name: 'Fail Clinic',
+        address: '100 Fail St',
+        rating: 4.0,
+        reviewsCount: 10,
+        distance: '2.0 km',
+        duration: '15 min',
+        type: 'Hospital',
+        imagePath: 'assets/images/clinic1.png',
+      );
+
+      await tester.pumpWidget(
+        createAddMedicalCenterScreenTestWidget(
+          updateMedicalCenter: updateUsecase,
+          initialMedicalCenter: existingCenter,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('add_medical_center_submit_button')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Failed to update medical center'), findsOneWidget);
     });
   });
 }

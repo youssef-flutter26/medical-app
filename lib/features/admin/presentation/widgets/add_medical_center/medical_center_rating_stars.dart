@@ -14,11 +14,13 @@ class MedicalCenterRatingStars extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final filledStars = rating.round().clamp(0, 5);
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: List.generate(5, (index) {
         final starIndex = index + 1;
-        final isSelected = rating >= starIndex;
+        final isSelected = starIndex <= filledStars;
 
         return GestureDetector(
           onTap: onRatingChanged != null

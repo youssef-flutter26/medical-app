@@ -180,5 +180,10 @@
   "reviewsCountHint": "58",
   "distanceHint": "2.5",
   "durationHint": "40",
-  "imageNameHint": "clinic1.png"
+  "imageNameHint": "clinic1.png",
+  "editMedicalCenter": "تعديل المركز الطبي",
+  "updateMedicalCenter": "تحديث المركز الطبي",
+  "editMedicalCenterInformation": "تعديل معلومات هذا المركز الطبي.",
+  "medicalCenterUpdatedSuccessfully": "تم تحديث المركز الطبي بنجاح",
+  "failedToUpdateMedicalCenter": "فشل في تحديث المركز الطبي"
 }

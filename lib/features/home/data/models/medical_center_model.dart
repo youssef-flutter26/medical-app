@@ -19,6 +19,27 @@ class MedicalCenterModel extends MedicalCenterEntity {
     Map<String, dynamic> json, [
     String? docId,
   ]) {
+    final rawDistance = json['distance'];
+    final String distanceStr;
+    if (rawDistance is num) {
+      final d = rawDistance.toDouble();
+      distanceStr = d == d.roundToDouble() ? '${d.toInt()} km' : '$d km';
+    } else if (rawDistance is String && rawDistance.isNotEmpty) {
+      distanceStr = rawDistance.contains('km') ? rawDistance : '$rawDistance km';
+    } else {
+      distanceStr = '';
+    }
+
+    final rawDuration = json['duration'];
+    final String durationStr;
+    if (rawDuration is num) {
+      durationStr = '${rawDuration.toInt()} min';
+    } else if (rawDuration is String && rawDuration.isNotEmpty) {
+      durationStr = rawDuration.contains('min') ? rawDuration : '$rawDuration min';
+    } else {
+      durationStr = '';
+    }
+
     return MedicalCenterModel(
       id: docId,
       name: json['name'] as String? ?? '',
@@ -27,8 +48,8 @@ class MedicalCenterModel extends MedicalCenterEntity {
       reviewsCount: (json['reviewsCount'] as num?)?.toInt() ??
           (json['reviewCount'] as num?)?.toInt() ??
           0,
-      distance: json['distance'] as String? ?? '',
-      duration: json['duration'] as String? ?? '',
+      distance: distanceStr,
+      duration: durationStr,
       type: json['type'] as String? ?? 'Hospital',
       imagePath: (json['imagePath'] as String?) ??
           (json['imageUrl'] as String?) ??
@@ -40,19 +61,32 @@ class MedicalCenterModel extends MedicalCenterEntity {
   }
 
   Map<String, dynamic> toFirestore() {
-    return {
+    double distanceNum = 0.0;
+    final distMatch = RegExp(r'[0-9]+(?:\.[0-9]+)?').firstMatch(distance);
+    if (distMatch != null) {
+      distanceNum = double.tryParse(distMatch.group(0)!) ?? 0.0;
+    }
+
+    int durationNum = 0;
+    final durMatch = RegExp(r'[0-9]+').firstMatch(duration);
+    if (durMatch != null) {
+      durationNum = int.tryParse(durMatch.group(0)!) ?? 0;
+    }
+
+    final data = <String, dynamic>{
       'name': name,
       'address': address,
       'rating': rating,
       'reviewsCount': reviewsCount,
-      'distance': distance,
-      'duration': duration,
+      'distance': distanceNum,
+      'duration': durationNum,
       'type': type,
       'imagePath': imagePath,
-      'createdAt': createdAt != null
-          ? Timestamp.fromDate(createdAt!)
-          : FieldValue.serverTimestamp(),
     };
+    if (createdAt != null) {
+      data['createdAt'] = Timestamp.fromDate(createdAt!);
+    }
+    return data;
   }
 
   factory MedicalCenterModel.fromEntity(MedicalCenterEntity entity) {

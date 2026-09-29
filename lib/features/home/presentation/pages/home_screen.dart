@@ -7,6 +7,7 @@ import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
 import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_banner/add_banner_page.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_medical_center/add_medical_center_page.dart';
 import 'package:medical_app/features/admin/presentation/widgets/admin_fab.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
 import 'package:medical_app/features/auth/data/models/user_model.dart';
@@ -176,14 +177,41 @@ class HomeScreen extends StatelessWidget {
                 stream: _getMedicalCentersStream?.call() ??
                     Stream.value(const <MedicalCenterEntity>[]),
                 builder: (context, centerSnapshot) {
-                  final centers = centerSnapshot.data;
-                  if (centers == null || centers.isEmpty) {
-                    return const NearbyMedicalCenters();
-                  }
+                  final centers =
+                      centerSnapshot.data ?? const <MedicalCenterEntity>[];
                   return NearbyMedicalCenters(
+                    isAdmin: isAdmin,
+                    onEditCenter: (centerData) {
+                      final entity = centers.firstWhere(
+                        (c) =>
+                            (centerData.id != null && c.id == centerData.id) ||
+                            (c.name == centerData.name &&
+                                c.address == centerData.address),
+                        orElse: () => MedicalCenterEntity(
+                          id: centerData.id,
+                          name: centerData.name,
+                          address: centerData.address,
+                          rating: centerData.rating,
+                          reviewsCount: centerData.reviewCount,
+                          distance: centerData.distance,
+                          duration: centerData.duration ?? '',
+                          type: centerData.type ?? centerData.category,
+                          imagePath: centerData.imagePath ?? '',
+                        ),
+                      );
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => AddMedicalCenterPage(
+                            initialMedicalCenter: entity,
+                          ),
+                        ),
+                      );
+                    },
                     medicalCenters: centers
                         .map(
                           (c) => MedicalCenterData(
+                            id: c.id,
                             name: c.name,
                             category: c.type,
                             address: c.address,

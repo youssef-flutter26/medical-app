@@ -192,6 +192,11 @@ abstract class LocaleKeys {
   static const distanceHint = 'distanceHint';
   static const durationHint = 'durationHint';
   static const imageNameHint = 'imageNameHint';
+  static const editMedicalCenter = 'editMedicalCenter';
+  static const updateMedicalCenter = 'updateMedicalCenter';
+  static const editMedicalCenterInformation = 'editMedicalCenterInformation';
+  static const medicalCenterUpdatedSuccessfully = 'medicalCenterUpdatedSuccessfully';
+  static const failedToUpdateMedicalCenter = 'failedToUpdateMedicalCenter';
 }
 
 

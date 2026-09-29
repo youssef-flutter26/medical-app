@@ -52,4 +52,15 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   Future<void> addMedicalCenter(MedicalCenterModel center) async {
     await firestore.collection('medical_centers').add(center.toFirestore());
   }
+
+  @override
+  Future<void> updateMedicalCenter(MedicalCenterModel center) async {
+    if (center.id == null || center.id!.isEmpty) {
+      throw ArgumentError('Medical Center ID cannot be null or empty when updating');
+    }
+    await firestore
+        .collection('medical_centers')
+        .doc(center.id)
+        .update(center.toFirestore());
+  }
 }

@@ -9,6 +9,7 @@ import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
 import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
 import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
 import 'package:medical_app/features/home/domain/usecases/get_banners_stream.dart';
+import 'package:medical_app/features/home/domain/usecases/get_medical_centers_stream.dart';
 import 'package:medical_app/features/home/presentation/pages/home_screen.dart';
 import 'package:medical_app/features/home/presentation/widgets/category_item.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_banner.dart';
@@ -43,31 +44,42 @@ class HomeTestAssetLoader extends AssetLoader {
       "laboratory": "Laboratory",
       "vaccination": "Vaccination",
       "nearbyMedicalCenters": "Nearby Medical Centers",
+      "contentNotFound": "Content not found",
     };
   }
 }
 
-Widget createHomeScreenTestWidget() {
+Widget createHomeScreenTestWidget({
+  GetMedicalCentersStream? getMedicalCentersStream,
+}) {
   return EasyLocalization(
     supportedLocales: const [Locale('en')],
     path: 'assets/translations',
     assetLoader: const HomeTestAssetLoader(),
     fallbackLocale: const Locale('en'),
     startLocale: const Locale('en'),
-    child: const AppScreenUtilScope(
+    child: AppScreenUtilScope(
       child: Builder(
-        builder: _buildMaterialApp,
+        builder: (context) => _buildMaterialApp(
+          context,
+          getMedicalCentersStream: getMedicalCentersStream,
+        ),
       ),
     ),
   );
 }
 
-Widget _buildMaterialApp(BuildContext context) {
+Widget _buildMaterialApp(
+  BuildContext context, {
+  GetMedicalCentersStream? getMedicalCentersStream,
+}) {
   return MaterialApp(
     localizationsDelegates: context.localizationDelegates,
     supportedLocales: context.supportedLocales,
     locale: context.locale,
-    home: const HomeScreen(),
+    home: HomeScreen(
+      getMedicalCentersStream: getMedicalCentersStream,
+    ),
   );
 }
 
@@ -80,7 +92,37 @@ void main() {
   testWidgets('HomeScreen renders all sections in the correct order', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(createHomeScreenTestWidget());
+    final centers = [
+      const MedicalCenterEntity(
+        name: 'Sunrise Health Clinic',
+        address: '123 Oak Street, CA 98765',
+        rating: 4.6,
+        reviewsCount: 58,
+        distance: '2.5 km',
+        duration: '40 min',
+        type: 'Hospital',
+        imagePath: 'assets/images/clinic1.png',
+      ),
+      const MedicalCenterEntity(
+        name: 'Golden Cardiology Center',
+        address: '555 Pine Street, NY 10001',
+        rating: 4.8,
+        reviewsCount: 120,
+        distance: '3.0 km',
+        duration: '25 min',
+        type: 'Clinic',
+        imagePath: 'assets/images/clinic2.png',
+      ),
+    ];
+    final fakeRepo = _FakeHomeRepository(
+      const Stream.empty(),
+      Stream.value(centers),
+    );
+    final getCentersStream = GetMedicalCentersStream(fakeRepo);
+
+    await tester.pumpWidget(createHomeScreenTestWidget(
+      getMedicalCentersStream: getCentersStream,
+    ));
     await tester.pumpAndSettle();
 
     // 1. Location section
@@ -115,6 +157,18 @@ void main() {
     expect(find.byType(MedicalCenterItem), findsNWidgets(2));
     expect(find.text('Sunrise Health Clinic'), findsOneWidget);
     expect(find.text('Golden Cardiology Center'), findsOneWidget);
+  });
+
+  testWidgets('HomeScreen renders empty state when no medical centers exist in stream', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(createHomeScreenTestWidget());
+    await tester.pumpAndSettle();
+
+    expect(find.byType(NearbyMedicalCenters), findsOneWidget);
+    expect(find.text('Nearby Medical Centers'), findsOneWidget);
+    expect(find.byType(MedicalCenterItem), findsNothing);
+    expect(find.text('Content not found'), findsOneWidget);
   });
 
   testWidgets(
@@ -316,6 +370,80 @@ void main() {
   });
 
   testWidgets(
+      'MedicalCenterItem displays edit pencil icon for Admin and hides it for normal users',
+      (WidgetTester tester) async {
+    bool editTapped = false;
+
+    // 1. Normal user (isAdmin = false)
+    await tester.pumpWidget(
+      EasyLocalization(
+        supportedLocales: const [Locale('en')],
+        path: 'assets/translations',
+        assetLoader: const HomeTestAssetLoader(),
+        fallbackLocale: const Locale('en'),
+        startLocale: const Locale('en'),
+        child: const AppScreenUtilScope(
+          child: MaterialApp(
+            home: Scaffold(
+              body: MedicalCenterItem(
+                name: 'Sunrise Health Clinic',
+                address: '123 Oak St',
+                rating: 4.6,
+                reviewCount: 58,
+                distance: '2.5 km',
+                duration: '40 min',
+                isAdmin: false,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Normal users must NOT see edit controls
+    expect(find.byKey(const Key('medical_center_edit_button')), findsNothing);
+
+    // 2. Admin user (isAdmin = true with onEdit callback)
+    await tester.pumpWidget(
+      EasyLocalization(
+        supportedLocales: const [Locale('en')],
+        path: 'assets/translations',
+        assetLoader: const HomeTestAssetLoader(),
+        fallbackLocale: const Locale('en'),
+        startLocale: const Locale('en'),
+        child: AppScreenUtilScope(
+          child: MaterialApp(
+            home: Scaffold(
+              body: MedicalCenterItem(
+                name: 'Sunrise Health Clinic',
+                address: '123 Oak St',
+                rating: 4.6,
+                reviewCount: 58,
+                distance: '2.5 km',
+                duration: '40 min',
+                isAdmin: true,
+                onEdit: () {
+                  editTapped = true;
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Admin MUST see the edit pencil icon
+    expect(find.byKey(const Key('medical_center_edit_button')), findsOneWidget);
+
+    // Tapping triggers onEdit
+    await tester.tap(find.byKey(const Key('medical_center_edit_button')));
+    await tester.pumpAndSettle();
+    expect(editTapped, isTrue);
+  });
+
+  testWidgets(
       'HomeBanner converts literal \\n in title and description to actual newlines',
       (WidgetTester tester) async {
     await tester.pumpWidget(
@@ -403,18 +531,26 @@ void main() {
 
 class _FakeHomeRepository implements HomeRepository {
   final Stream<List<BannerEntity>> _stream;
+  final Stream<List<MedicalCenterEntity>> _medicalCentersStream;
 
-  _FakeHomeRepository(this._stream);
+  _FakeHomeRepository(
+    this._stream, [
+    this._medicalCentersStream = const Stream.empty(),
+  ]);
 
   @override
   Stream<List<BannerEntity>> getBannersStream() => _stream;
 
   @override
   Stream<List<MedicalCenterEntity>> getMedicalCentersStream() =>
-      const Stream.empty();
+      _medicalCentersStream;
 
   @override
   Future<Result<void>> addMedicalCenter(MedicalCenterEntity center) async =>
+      const SuccessAPI(null);
+
+  @override
+  Future<Result<void>> updateMedicalCenter(MedicalCenterEntity center) async =>
       const SuccessAPI(null);
 
   @override

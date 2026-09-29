@@ -8,4 +8,5 @@ abstract class HomeRepository {
   Future<Result<void>> updateBanner(BannerEntity banner);
   Stream<List<MedicalCenterEntity>> getMedicalCentersStream();
   Future<Result<void>> addMedicalCenter(MedicalCenterEntity center);
+  Future<Result<void>> updateMedicalCenter(MedicalCenterEntity center);
 }

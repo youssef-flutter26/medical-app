@@ -19,8 +19,10 @@ class MedicalCenterItem extends StatelessWidget {
     this.imagePath,
     this.imageUrl,
     this.isFavorite = false,
+    this.isAdmin = false,
     this.onTap,
     this.onFavoriteTap,
+    this.onEdit,
   });
 
   final String name;
@@ -34,12 +36,14 @@ class MedicalCenterItem extends StatelessWidget {
   final String? imagePath;
   final String? imageUrl;
   final bool isFavorite;
+  final bool isAdmin;
   final VoidCallback? onTap;
   final VoidCallback? onFavoriteTap;
+  final VoidCallback? onEdit;
 
   String get displayDistance {
     if (duration != null && duration!.isNotEmpty && !distance.contains('/')) {
-      return '$distance/$duration';
+      return '$distance / $duration';
     }
     return distance;
   }
@@ -131,6 +135,31 @@ class MedicalCenterItem extends StatelessWidget {
                 Stack(
                   children: [
                     _buildImage(),
+                    if (isAdmin && onEdit != null)
+                      Positioned(
+                        top: 8.h,
+                        left: 8.w,
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            key: const Key('medical_center_edit_button'),
+                            onTap: onEdit,
+                            borderRadius: BorderRadius.circular(20.r),
+                            child: Container(
+                              padding: EdgeInsets.all(6.r),
+                              decoration: BoxDecoration(
+                                color: AppColors.darkTeal.withValues(alpha: 0.45),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.edit_rounded,
+                                color: AppColors.white,
+                                size: 16.r,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     Positioned(
                       top: 8.h,
                       right: 8.w,
@@ -217,11 +246,16 @@ class MedicalCenterItem extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: List.generate(
                               5,
-                              (index) => Icon(
-                                Icons.star_rounded,
-                                size: 12.r,
-                                color: AppColors.amber,
-                              ),
+                              (index) {
+                                final isFilled = (index + 1) <= rating.round().clamp(0, 5);
+                                return Icon(
+                                  Icons.star_rounded,
+                                  size: 12.r,
+                                  color: isFilled
+                                      ? AppColors.amber
+                                      : AppColors.gray400.withValues(alpha: 0.35),
+                                );
+                              },
                             ),
                           ),
                           SizedBox(width: 3.w),

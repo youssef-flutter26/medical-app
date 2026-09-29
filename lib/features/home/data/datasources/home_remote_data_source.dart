@@ -7,4 +7,5 @@ abstract class HomeRemoteDataSource {
   Future<void> updateBanner(BannerModel banner);
   Stream<List<MedicalCenterModel>> getMedicalCentersStream();
   Future<void> addMedicalCenter(MedicalCenterModel center);
+  Future<void> updateMedicalCenter(MedicalCenterModel center);
 }

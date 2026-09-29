@@ -7,6 +7,7 @@ import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/features/home/presentation/widgets/medical_center_item.dart';
 
 class MedicalCenterData {
+  final String? id;
   final String name;
   final String category;
   final String address;
@@ -20,6 +21,7 @@ class MedicalCenterData {
   final bool isFavorite;
 
   const MedicalCenterData({
+    this.id,
     required this.name,
     this.category = '',
     required this.address,
@@ -38,48 +40,23 @@ class NearbyMedicalCenters extends StatelessWidget {
   const NearbyMedicalCenters({
     super.key,
     this.medicalCenters,
+    this.isAdmin = false,
     this.onSeeAllPressed,
     this.onCenterTap,
     this.onFavoriteTap,
+    this.onEditCenter,
   });
 
   final List<MedicalCenterData>? medicalCenters;
+  final bool isAdmin;
   final VoidCallback? onSeeAllPressed;
   final ValueChanged<MedicalCenterData>? onCenterTap;
   final ValueChanged<MedicalCenterData>? onFavoriteTap;
-
-  static const List<MedicalCenterData> defaultCenters = [
-    MedicalCenterData(
-      name: 'Sunrise Health Clinic',
-      category: 'Hospital • Multi-Specialty',
-      address: '123 Oak Street, CA 98765',
-      rating: 5.0,
-      reviewCount: 58,
-      distance: '2.5 km/40min',
-      duration: '40min',
-      type: 'Hospital',
-      imagePath: 'assets/images/medical_center_1.png',
-      isFavorite: false,
-    ),
-    MedicalCenterData(
-      name: 'Golden Cardiology Center',
-      category: 'Cardiology Specialist',
-      address: '555 Bridge Street, Golden Gate',
-      rating: 4.9,
-      reviewCount: 108,
-      distance: '2.5 km/40min',
-      duration: '40min',
-      type: 'Clinic',
-      imagePath: 'assets/images/medical_center_2.png',
-      isFavorite: false,
-    ),
-  ];
-
-  static const List<MedicalCenterData> centers = defaultCenters;
+  final ValueChanged<MedicalCenterData>? onEditCenter;
 
   @override
   Widget build(BuildContext context) {
-    final list = medicalCenters ?? centers;
+    final list = medicalCenters ?? const <MedicalCenterData>[];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,52 +76,71 @@ class NearbyMedicalCenters extends StatelessWidget {
                 ),
               ),
             ),
-            InkWell(
-              onTap: onSeeAllPressed,
-              borderRadius: BorderRadius.circular(4.r),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
-                child: Text(
-                  LocaleKeys.seeAll.tr(),
-                  style: AppTextStyles.inter14W500.copyWith(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                    height: 1.5,
-                    color: AppColors.gray500,
+            if (list.isNotEmpty)
+              InkWell(
+                onTap: onSeeAllPressed,
+                borderRadius: BorderRadius.circular(4.r),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
+                  child: Text(
+                    LocaleKeys.seeAll.tr(),
+                    style: AppTextStyles.inter14W500.copyWith(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      height: 1.5,
+                      color: AppColors.gray500,
+                    ),
                   ),
                 ),
               ),
-            ),
           ],
         ),
         SizedBox(height: 12.h),
-        SizedBox(
-          height: 218.h,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            clipBehavior: Clip.none,
-            itemCount: list.length,
-            separatorBuilder: (context, index) => SizedBox(width: 14.w),
-            itemBuilder: (context, index) {
-              final center = list[index];
-              return MedicalCenterItem(
-                name: center.name,
-                category: center.category,
-                address: center.address,
-                rating: center.rating,
-                reviewCount: center.reviewCount,
-                distance: center.distance,
-                duration: center.duration,
-                type: center.type,
-                imagePath: center.imagePath,
-                imageUrl: center.imageUrl,
-                isFavorite: center.isFavorite,
-                onTap: () => onCenterTap?.call(center),
-                onFavoriteTap: () => onFavoriteTap?.call(center),
-              );
-            },
+        if (list.isEmpty)
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(vertical: 24.h),
+            alignment: Alignment.center,
+            child: Text(
+              LocaleKeys.contentNotFound.tr(),
+              style: AppTextStyles.withColor(
+                AppTextStyles.inter14W400,
+                AppColors.gray500,
+              ),
+            ),
+          )
+        else
+          SizedBox(
+            height: 218.h,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
+              itemCount: list.length,
+              separatorBuilder: (context, index) => SizedBox(width: 14.w),
+              itemBuilder: (context, index) {
+                final center = list[index];
+                return MedicalCenterItem(
+                  name: center.name,
+                  category: center.category,
+                  address: center.address,
+                  rating: center.rating,
+                  reviewCount: center.reviewCount,
+                  distance: center.distance,
+                  duration: center.duration,
+                  type: center.type,
+                  imagePath: center.imagePath,
+                  imageUrl: center.imageUrl,
+                  isFavorite: center.isFavorite,
+                  isAdmin: isAdmin,
+                  onTap: () => onCenterTap?.call(center),
+                  onFavoriteTap: () => onFavoriteTap?.call(center),
+                  onEdit: (isAdmin && onEditCenter != null)
+                      ? () => onEditCenter!(center)
+                      : null,
+                );
+              },
+            ),
           ),
-        ),
       ],
     );
   }

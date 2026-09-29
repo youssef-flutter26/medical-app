@@ -79,6 +79,7 @@ class _AddMedicalCenterButtonState extends State<AddMedicalCenterButton> {
                     )
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
                           widget.icon ?? Icons.add_circle_outline_rounded,
@@ -86,11 +87,14 @@ class _AddMedicalCenterButtonState extends State<AddMedicalCenterButton> {
                           size: 20.r,
                         ),
                         SizedBox(width: 8.w),
-                        Text(
-                          widget.text ?? LocaleKeys.addMedicalCenter.tr(),
-                          style: AppTextStyles.withColor(
-                            AppTextStyles.inter16W500,
-                            AppColors.white,
+                        Flexible(
+                          child: Text(
+                            widget.text ?? LocaleKeys.addMedicalCenter.tr(),
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.withColor(
+                              AppTextStyles.inter16W500,
+                              AppColors.white,
+                            ),
                           ),
                         ),
                       ],

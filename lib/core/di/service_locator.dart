@@ -12,6 +12,7 @@ import 'package:medical_app/features/home/domain/usecases/add_medical_center.dar
 import 'package:medical_app/features/home/domain/usecases/get_banners_stream.dart';
 import 'package:medical_app/features/home/domain/usecases/get_medical_centers_stream.dart';
 import 'package:medical_app/features/home/domain/usecases/update_banner.dart';
+import 'package:medical_app/features/home/domain/usecases/update_medical_center.dart';
 import 'package:medical_app/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:medical_app/features/auth/data/datasources/auth_remote_data_source_impl.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
@@ -78,6 +79,9 @@ void setupServiceLocator() {
   );
   getIt.registerLazySingleton<AddMedicalCenter>(
     () => AddMedicalCenter(getIt<HomeRepository>()),
+  );
+  getIt.registerLazySingleton<UpdateMedicalCenter>(
+    () => UpdateMedicalCenter(getIt<HomeRepository>()),
   );
   getIt.registerLazySingleton<GetMedicalCentersStream>(
     () => GetMedicalCentersStream(getIt<HomeRepository>()),

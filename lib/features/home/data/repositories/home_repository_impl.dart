@@ -66,4 +66,15 @@ class HomeRepositoryImpl implements HomeRepository {
       return ErrorAPI(FirebaseFailure.fromException(e));
     }
   }
+
+  @override
+  Future<Result<void>> updateMedicalCenter(MedicalCenterEntity center) async {
+    try {
+      final model = MedicalCenterModel.fromEntity(center);
+      await remoteDataSource.updateMedicalCenter(model);
+      return const SuccessAPI(null);
+    } catch (e) {
+      return ErrorAPI(FirebaseFailure.fromException(e));
+    }
+  }
 }

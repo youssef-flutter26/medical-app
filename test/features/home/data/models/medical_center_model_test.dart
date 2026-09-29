@@ -22,24 +22,52 @@ void main() {
       expect(map['name'], 'Sunrise Health Clinic');
       expect(map['address'], '123 Oak Street, CA 98765');
       expect(map['rating'], 4.9);
-      expect(map['rating'], isA<num>());
+      expect(map['rating'], isA<double>());
       expect(map['reviewsCount'], 58);
       expect(map['reviewsCount'], isA<int>());
-      expect(map['distance'], '2.5 km');
-      expect(map['duration'], '40 min');
+      expect(map['distance'], 2.5);
+      expect(map['distance'], isA<double>());
+      expect(map['duration'], 40);
+      expect(map['duration'], isA<int>());
       expect(map['type'], 'Hospital');
       expect(map['imagePath'], 'assets/images/clinic1.png');
       expect(map['createdAt'], isNotNull);
     });
 
-    test('fromFirestore parses Firestore map correctly', () {
+    test('toFirestore without createdAt returns only the 8 required fields', () {
+      const model = MedicalCenterModel(
+        name: 'Sunrise Health Clinic',
+        address: '123 Oak Street, CA 98765',
+        rating: 4.6,
+        reviewsCount: 58,
+        distance: '2.5 km',
+        duration: '40 min',
+        type: 'Hospital',
+        imagePath: 'assets/images/clinic1.png',
+      );
+
+      final map = model.toFirestore();
+
+      expect(map.keys.length, 8);
+      expect(map.containsKey('createdAt'), isFalse);
+      expect(map['name'], 'Sunrise Health Clinic');
+      expect(map['address'], '123 Oak Street, CA 98765');
+      expect(map['rating'], 4.6);
+      expect(map['reviewsCount'], 58);
+      expect(map['distance'], 2.5);
+      expect(map['duration'], 40);
+      expect(map['type'], 'Hospital');
+      expect(map['imagePath'], 'assets/images/clinic1.png');
+    });
+
+    test('fromFirestore parses Firestore map with numbers correctly', () {
       final json = <String, dynamic>{
         'name': 'Sunrise Health Clinic',
         'address': '123 Oak Street, CA 98765',
         'rating': 4.9,
         'reviewsCount': 58,
-        'distance': '2.5 km',
-        'duration': '40 min',
+        'distance': 2.5,
+        'duration': 40,
         'type': 'Hospital',
         'imagePath': 'assets/images/clinic1.png',
       };
@@ -55,6 +83,25 @@ void main() {
       expect(model.duration, '40 min');
       expect(model.type, 'Hospital');
       expect(model.imagePath, 'assets/images/clinic1.png');
+    });
+
+    test('fromFirestore parses legacy Firestore map with strings correctly', () {
+      final json = <String, dynamic>{
+        'name': 'Sunrise Health Clinic',
+        'address': '123 Oak Street, CA 98765',
+        'rating': 4.9,
+        'reviewsCount': 58,
+        'distance': '2.5 km',
+        'duration': '40 min',
+        'type': 'Hospital',
+        'imagePath': 'assets/images/clinic1.png',
+      };
+
+      final model = MedicalCenterModel.fromFirestore(json, 'center_123');
+
+      expect(model.id, 'center_123');
+      expect(model.distance, '2.5 km');
+      expect(model.duration, '40 min');
     });
 
     test('fromEntity converts entity to model', () {

@@ -71,6 +71,11 @@ class FakeAdminRepository implements HomeRepository {
   }
 
   @override
+  Future<Result<void>> updateMedicalCenter(MedicalCenterEntity center) async {
+    return const SuccessAPI(null);
+  }
+
+  @override
   Future<Result<void>> addBanner(BannerEntity banner) async {
     savedBanners.add(banner);
     if (shouldSucceed) {
