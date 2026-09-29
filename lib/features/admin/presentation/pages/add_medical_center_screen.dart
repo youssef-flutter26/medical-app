@@ -8,8 +8,10 @@ import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/core/validators/validator_app.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_medical_center_button.dart';
+import 'package:medical_app/features/admin/presentation/widgets/medical_center_compact_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/medical_center_form_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/medical_center_header_section.dart';
+import 'package:medical_app/features/admin/presentation/widgets/medical_center_type_selector.dart';
 import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
 import 'package:medical_app/features/home/domain/usecases/add_medical_center.dart';
 
@@ -51,14 +53,25 @@ class _AddMedicalCenterScreenState extends State<AddMedicalCenterScreen> {
     _durationController = TextEditingController();
     _imageNameController = TextEditingController();
 
+    _ratingController.addListener(_onFieldChanged);
+    _imageNameController.addListener(_onFieldChanged);
+
     _addMedicalCenterUseCase = widget.addMedicalCenter ??
         (getIt.isRegistered<AddMedicalCenter>()
             ? getIt<AddMedicalCenter>()
             : null);
   }
 
+  void _onFieldChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   @override
   void dispose() {
+    _ratingController.removeListener(_onFieldChanged);
+    _imageNameController.removeListener(_onFieldChanged);
     _nameController.dispose();
     _addressController.dispose();
     _ratingController.dispose();
@@ -92,6 +105,16 @@ class _AddMedicalCenterScreenState extends State<AddMedicalCenterScreen> {
     final rating = double.parse(_ratingController.text.trim());
     final reviewsCount = int.parse(_reviewsCountController.text.trim());
 
+    final rawDistance = _distanceController.text.trim();
+    final distance = rawDistance.toLowerCase().endsWith('km')
+        ? rawDistance
+        : '$rawDistance km';
+
+    final rawDuration = _durationController.text.trim();
+    final duration = rawDuration.toLowerCase().endsWith('min')
+        ? rawDuration
+        : '$rawDuration min';
+
     final addUseCase = _addMedicalCenterUseCase ??
         (getIt.isRegistered<AddMedicalCenter>()
             ? getIt<AddMedicalCenter>()
@@ -108,8 +131,8 @@ class _AddMedicalCenterScreenState extends State<AddMedicalCenterScreen> {
         address: _addressController.text.trim(),
         rating: rating,
         reviewsCount: reviewsCount,
-        distance: _distanceController.text.trim(),
-        duration: _durationController.text.trim(),
+        distance: distance,
+        duration: duration,
         type: _selectedType,
         imagePath: imagePath,
       ),
@@ -144,76 +167,61 @@ class _AddMedicalCenterScreenState extends State<AddMedicalCenterScreen> {
     }
   }
 
-  Widget _buildTypeDropdown() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          LocaleKeys.type.tr(),
-          style: AppTextStyles.withColor(
-            AppTextStyles.inter14W500,
-            AppColors.gray700,
-          ),
-        ),
-        SizedBox(height: 8.h),
-        DropdownButtonFormField<String>(
-          key: const Key('medical_center_type_dropdown'),
-          initialValue: _selectedType,
-          dropdownColor: AppColors.white,
-          style: AppTextStyles.withColor(
-            AppTextStyles.inter14W400,
-            AppColors.gray700,
-          ),
-          icon: const Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: AppColors.gray500,
-          ),
-          items: [
-            DropdownMenuItem(
-              value: 'Hospital',
-              child: Text(LocaleKeys.hospital.tr()),
-            ),
-            DropdownMenuItem(
-              value: 'Clinic',
-              child: Text(LocaleKeys.clinic.tr()),
-            ),
-          ],
-          onChanged: (value) {
-            if (value != null) {
-              setState(() {
-                _selectedType = value;
-              });
-            }
+  Widget _buildRatingStars() {
+    final ratingVal = double.tryParse(_ratingController.text.trim()) ?? 0.0;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(5, (index) {
+        final starIndex = index + 1;
+        final isSelected = ratingVal >= starIndex;
+
+        return GestureDetector(
+          onTap: () {
+            _ratingController.text = starIndex.toDouble().toStringAsFixed(1);
           },
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: AppColors.gray100,
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: 16.w,
-              vertical: 14.h,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.r),
-              borderSide: BorderSide(
-                color: AppColors.gray400.withValues(alpha: 0.2),
-              ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.r),
-              borderSide: BorderSide(
-                color: AppColors.gray400.withValues(alpha: 0.2),
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.r),
-              borderSide: const BorderSide(
-                color: AppColors.lightTeal,
-                width: 1.5,
-              ),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 1.w),
+            child: Icon(
+              Icons.star_rounded,
+              size: 22.r,
+              color: isSelected
+                  ? AppColors.amber
+                  : AppColors.gray400.withValues(alpha: 0.35),
             ),
           ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildReviewsBadge() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 7.h),
+      decoration: BoxDecoration(
+        color: AppColors.gray100,
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(
+          color: AppColors.gray400.withValues(alpha: 0.2),
         ),
-      ],
+      ),
+      child: Text(
+        'Reviews',
+        style: AppTextStyles.withColor(
+          AppTextStyles.inter12W500,
+          AppColors.gray600,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUnitText(String unit) {
+    return Text(
+      unit,
+      style: AppTextStyles.withColor(
+        AppTextStyles.inter14W500,
+        AppColors.gray600,
+      ),
     );
   }
 
@@ -244,7 +252,8 @@ class _AddMedicalCenterScreenState extends State<AddMedicalCenterScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const MedicalCenterHeaderSection(),
-                SizedBox(height: 24.h),
+                SizedBox(height: 20.h),
+
                 // 1. Medical Center Name
                 MedicalCenterFormField(
                   key: const Key('medical_center_name_field'),
@@ -253,8 +262,14 @@ class _AddMedicalCenterScreenState extends State<AddMedicalCenterScreen> {
                   hintText: LocaleKeys.enterMedicalCenterName.tr(),
                   controller: _nameController,
                   validator: ValidatorApp.validateMedicalCenterName,
+                  prefixIcon: const Icon(
+                    Icons.domain_rounded,
+                    color: AppColors.gray500,
+                    size: 20,
+                  ),
                 ),
-                SizedBox(height: 20.h),
+                SizedBox(height: 16.h),
+
                 // 2. Address
                 MedicalCenterFormField(
                   key: const Key('medical_center_address_field'),
@@ -263,65 +278,110 @@ class _AddMedicalCenterScreenState extends State<AddMedicalCenterScreen> {
                   hintText: LocaleKeys.enterAddress.tr(),
                   controller: _addressController,
                   validator: ValidatorApp.validateAddress,
+                  prefixIcon: const Icon(
+                    Icons.location_on_outlined,
+                    color: AppColors.gray500,
+                    size: 20,
+                  ),
                 ),
-                SizedBox(height: 20.h),
-                // 3. Rating
-                MedicalCenterFormField(
+                SizedBox(height: 16.h),
+
+                // 3. Facility Type Selector
+                MedicalCenterTypeSelector(
+                  key: const Key('medical_center_type_dropdown'),
+                  selectedType: _selectedType,
+                  onTypeChanged: (type) {
+                    setState(() {
+                      _selectedType = type;
+                    });
+                  },
+                ),
+                SizedBox(height: 16.h),
+
+                // 4. Rating (Compact Field + 5 Stars Preview)
+                MedicalCenterCompactField(
                   key: const Key('medical_center_rating_field'),
                   inputKey: const Key('medical_center_rating_input'),
                   label: LocaleKeys.rating.tr(),
-                  hintText: LocaleKeys.enterRating.tr(),
+                  hintText: '4.5',
                   controller: _ratingController,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
+                  width: 72.w,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   validator: ValidatorApp.validateRating,
+                  unitWidget: _buildRatingStars(),
                 ),
-                SizedBox(height: 20.h),
-                // 4. Reviews Count
-                MedicalCenterFormField(
+                SizedBox(height: 16.h),
+
+                // 5. Reviews Count (Compact Numeric Field + 'Reviews' Badge)
+                MedicalCenterCompactField(
                   key: const Key('medical_center_reviews_count_field'),
                   inputKey: const Key('medical_center_reviews_count_input'),
                   label: LocaleKeys.reviewsCount.tr(),
-                  hintText: LocaleKeys.enterReviewsCount.tr(),
+                  hintText: '58',
                   controller: _reviewsCountController,
+                  width: 78.w,
                   keyboardType: TextInputType.number,
                   validator: ValidatorApp.validateReviewsCount,
+                  unitWidget: _buildReviewsBadge(),
                 ),
-                SizedBox(height: 20.h),
-                // 5. Distance
-                MedicalCenterFormField(
-                  key: const Key('medical_center_distance_field'),
-                  inputKey: const Key('medical_center_distance_input'),
-                  label: LocaleKeys.distance.tr(),
-                  hintText: LocaleKeys.enterDistance.tr(),
-                  controller: _distanceController,
-                  validator: ValidatorApp.validateDistance,
+                SizedBox(height: 16.h),
+
+                // 6. Distance & Duration (Side-by-Side Compact Fields)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: MedicalCenterCompactField(
+                        key: const Key('medical_center_distance_field'),
+                        inputKey: const Key('medical_center_distance_input'),
+                        label: LocaleKeys.distance.tr(),
+                        hintText: '2.5',
+                        controller: _distanceController,
+                        width: 68.w,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        validator: ValidatorApp.validateDistance,
+                        unitWidget: _buildUnitText('km'),
+                      ),
+                    ),
+                    SizedBox(width: 14.w),
+                    Expanded(
+                      child: MedicalCenterCompactField(
+                        key: const Key('medical_center_duration_field'),
+                        inputKey: const Key('medical_center_duration_input'),
+                        label: LocaleKeys.duration.tr(),
+                        hintText: '40',
+                        controller: _durationController,
+                        width: 68.w,
+                        keyboardType: TextInputType.number,
+                        validator: ValidatorApp.validateDuration,
+                        unitWidget: _buildUnitText('min'),
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 20.h),
-                // 6. Duration
-                MedicalCenterFormField(
-                  key: const Key('medical_center_duration_field'),
-                  inputKey: const Key('medical_center_duration_input'),
-                  label: LocaleKeys.duration.tr(),
-                  hintText: LocaleKeys.enterDuration.tr(),
-                  controller: _durationController,
-                  validator: ValidatorApp.validateDuration,
-                ),
-                SizedBox(height: 20.h),
-                // 7. Type
-                _buildTypeDropdown(),
-                SizedBox(height: 20.h),
-                // 8. Image Name
+                SizedBox(height: 16.h),
+
+                // 7. Image Name (with Path Preview Helper)
                 MedicalCenterFormField(
                   key: const Key('medical_center_image_name_field'),
                   inputKey: const Key('medical_center_image_name_input'),
                   label: LocaleKeys.imageName.tr(),
-                  hintText: LocaleKeys.enterImageName.tr(),
+                  hintText: 'clinic1.png',
                   controller: _imageNameController,
                   validator: ValidatorApp.validateImageName,
+                  prefixIcon: const Icon(
+                    Icons.image_outlined,
+                    color: AppColors.gray500,
+                    size: 20,
+                  )
                 ),
-                SizedBox(height: 36.h),
-                // 9. Submit Button
+                SizedBox(height: 28.h),
+
+                // 8. Submit Button
                 AddMedicalCenterButton(
                   key: const Key('medical_center_submit_button'),
                   isLoading: _isLoading,
@@ -329,6 +389,7 @@ class _AddMedicalCenterScreenState extends State<AddMedicalCenterScreen> {
                   icon: Icons.add_circle_outline_rounded,
                   onPressed: _saveMedicalCenter,
                 ),
+                SizedBox(height: 16.h),
               ],
             ),
           ),

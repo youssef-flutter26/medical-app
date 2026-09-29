@@ -10,6 +10,9 @@ class MedicalCenterFormField extends StatelessWidget {
   final String? Function(String?)? validator;
   final TextInputType? keyboardType;
   final Key? inputKey;
+  final Widget? prefixIcon;
+  final Widget? suffixIcon;
+  final Widget? helper;
 
   const MedicalCenterFormField({
     super.key,
@@ -19,6 +22,9 @@ class MedicalCenterFormField extends StatelessWidget {
     this.validator,
     this.keyboardType,
     this.inputKey,
+    this.prefixIcon,
+    this.suffixIcon,
+    this.helper,
   });
 
   @override
@@ -49,6 +55,8 @@ class MedicalCenterFormField extends StatelessWidget {
               AppTextStyles.inter14W400,
               AppColors.gray400,
             ),
+            prefixIcon: prefixIcon,
+            suffixIcon: suffixIcon,
             filled: true,
             fillColor: AppColors.gray100,
             contentPadding: EdgeInsets.symmetric(
@@ -90,6 +98,10 @@ class MedicalCenterFormField extends StatelessWidget {
             ),
           ),
         ),
+        if (helper != null) ...[
+          SizedBox(height: 6.h),
+          helper!,
+        ],
       ],
     );
   }

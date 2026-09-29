@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:medical_app/core/error/firebase_failure.dart';
 import 'package:medical_app/core/error/result.dart';
 import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
+import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_medical_center_screen.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
 import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
@@ -414,5 +415,141 @@ void main() {
 
       expect(find.text('Failed to add medical center'), findsOneWidget);
     });
+
+    testWidgets('rating input updates visual stars and star tap updates input',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 4000);
+      tester.view.devicePixelRatio = 3.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      final repo = FakeMedicalCenterRepository();
+      final usecase = AddMedicalCenter(repo);
+
+      await tester.pumpWidget(
+        createAddMedicalCenterScreenTestWidget(addMedicalCenter: usecase),
+      );
+      await tester.pumpAndSettle();
+
+      // Enter rating 3.5 -> 3 amber stars, 2 gray stars
+      await tester.enterText(
+        find.byKey(const Key('medical_center_rating_input')),
+        '3.5',
+      );
+      await tester.pumpAndSettle();
+
+      final starsFinder = find.byIcon(Icons.star_rounded);
+      expect(starsFinder, findsNWidgets(5));
+
+      int amberCount = 0;
+      int grayCount = 0;
+      for (final element in starsFinder.evaluate()) {
+        final icon = element.widget as Icon;
+        if (icon.color == AppColors.amber) {
+          amberCount++;
+        } else {
+          grayCount++;
+        }
+      }
+      expect(amberCount, 3);
+      expect(grayCount, 2);
+
+      // Tap the 5th star -> sets rating input to 5.0
+      await tester.tap(starsFinder.at(4));
+      await tester.pumpAndSettle();
+
+      final ratingInput = tester.widget<TextFormField>(
+        find.byKey(const Key('medical_center_rating_input')),
+      );
+      expect(ratingInput.controller?.text, '5.0');
+
+      int allAmberCount = 0;
+      for (final element in starsFinder.evaluate()) {
+        final icon = element.widget as Icon;
+        if (icon.color == AppColors.amber) {
+          allAmberCount++;
+        }
+      }
+      expect(allAmberCount, 5);
+    });
+
+    testWidgets('allows selecting Clinic and entering numeric-only distance/duration',
+        (tester) async {
+      tester.view.physicalSize = const Size(1080, 4000);
+      tester.view.devicePixelRatio = 3.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      final repo = FakeMedicalCenterRepository();
+      final usecase = AddMedicalCenter(repo);
+
+      await tester.pumpWidget(
+        createAddMedicalCenterScreenTestWidget(
+          addMedicalCenter: usecase,
+          pushRoute: true,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Open Form'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const Key('medical_center_name_input')),
+        'Modern Medical Center',
+      );
+      await tester.enterText(
+        find.byKey(const Key('medical_center_address_input')),
+        '456 Avenue, NY',
+      );
+
+      // Select Clinic
+      await tester.tap(find.byKey(const Key('medical_center_type_option_Clinic')));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const Key('medical_center_rating_input')),
+        '4.8',
+      );
+      await tester.enterText(
+        find.byKey(const Key('medical_center_reviews_count_input')),
+        '120',
+      );
+      // Pure numeric distance without typing 'km' manually
+      await tester.enterText(
+        find.byKey(const Key('medical_center_distance_input')),
+        '3.2',
+      );
+      // Pure numeric duration without typing 'min' manually
+      await tester.enterText(
+        find.byKey(const Key('medical_center_duration_input')),
+        '25',
+      );
+      await tester.enterText(
+        find.byKey(const Key('medical_center_image_name_input')),
+        'clinic2.png',
+      );
+      await tester.pumpAndSettle();
+
+      // Image path preview helper should show assets/images/clinic2.png
+      expect(find.text('assets/images/clinic2.png'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('add_medical_center_submit_button')));
+      await tester.pumpAndSettle();
+
+      expect(repo.savedCenter, isNotNull);
+      expect(repo.savedCenter!.name, 'Modern Medical Center');
+      expect(repo.savedCenter!.type, 'Clinic');
+      expect(repo.savedCenter!.rating, 4.8);
+      expect(repo.savedCenter!.reviewsCount, 120);
+      expect(repo.savedCenter!.distance, '3.2 km');
+      expect(repo.savedCenter!.duration, '25 min');
+      expect(repo.savedCenter!.imagePath, 'assets/images/clinic2.png');
+    });
   });
 }
+
