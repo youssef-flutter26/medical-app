@@ -7,11 +7,12 @@ import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/core/validators/validator_app.dart';
-import 'package:medical_app/core/widgets/app_button.dart';
 import 'package:medical_app/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:medical_app/features/auth/presentation/cubit/auth_state.dart';
 import 'package:medical_app/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:medical_app/features/auth/presentation/widgets/gender_type.dart';
+
+import '../../../../core/common/widgets/app_button.dart';
 
 class FillProfile extends StatefulWidget {
   final String name;

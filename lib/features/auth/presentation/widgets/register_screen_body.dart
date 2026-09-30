@@ -10,7 +10,6 @@ import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
 import 'package:medical_app/core/validators/validator_app.dart';
-import 'package:medical_app/core/widgets/app_button.dart';
 import 'package:medical_app/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:medical_app/features/auth/presentation/cubit/auth_state.dart';
 import 'package:medical_app/features/auth/presentation/widgets/auth_text_field.dart';
@@ -18,6 +17,8 @@ import 'package:medical_app/features/auth/presentation/widgets/custom_health_pal
 import 'package:medical_app/features/auth/presentation/widgets/have_an_account_widget.dart';
 import 'package:medical_app/features/auth/presentation/widgets/or_widget.dart';
 import 'package:medical_app/features/auth/presentation/widgets/social_auth_button.dart';
+
+import '../../../../core/common/widgets/app_button.dart';
 
 class RegisterScreenBody extends StatefulWidget {
   const RegisterScreenBody({super.key});
