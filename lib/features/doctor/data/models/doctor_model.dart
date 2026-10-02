@@ -14,6 +14,7 @@ class DoctorModel extends DoctorEntity {
     required super.reviewsCount,
     super.about = '',
     required super.imagePath,
+    super.availableTime = 'Mon - Sat: 09:00 AM - 05:00 PM',
     super.createdAt,
   });
 
@@ -81,6 +82,9 @@ class DoctorModel extends DoctorEntity {
       imagePath: json['imagePath']?.toString() ??
           json['imageUrl']?.toString() ??
           '',
+      availableTime: json['availableTime']?.toString() ??
+          json['schedule']?.toString() ??
+          'Mon - Sat: 09:00 AM - 05:00 PM',
       createdAt: parsedCreatedAt,
     );
   }
@@ -98,6 +102,8 @@ class DoctorModel extends DoctorEntity {
       'reviewsCount': reviewsCount,
       'about': about,
       'imagePath': imagePath,
+      'availableTime': availableTime,
+      'schedule': availableTime,
       'createdAt': createdAt != null
           ? Timestamp.fromDate(createdAt!)
           : FieldValue.serverTimestamp(),
@@ -118,6 +124,7 @@ class DoctorModel extends DoctorEntity {
       reviewsCount: entity.reviewsCount,
       about: entity.about,
       imagePath: entity.imagePath,
+      availableTime: entity.availableTime,
       createdAt: entity.createdAt,
     );
   }

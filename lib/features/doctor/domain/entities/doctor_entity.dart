@@ -10,6 +10,7 @@ class DoctorEntity {
   final int reviewsCount;
   final String about;
   final String imagePath;
+  final String availableTime;
   final DateTime? createdAt;
 
   const DoctorEntity({
@@ -24,6 +25,7 @@ class DoctorEntity {
     required this.reviewsCount,
     this.about = '',
     required this.imagePath,
+    this.availableTime = 'Mon - Sat: 09:00 AM - 05:00 PM',
     this.createdAt,
   });
 
@@ -41,6 +43,7 @@ class DoctorEntity {
         other.rating == rating &&
         other.reviewsCount == reviewsCount &&
         other.about == about &&
+        other.availableTime == availableTime &&
         other.imagePath == imagePath;
   }
 
@@ -56,6 +59,7 @@ class DoctorEntity {
         rating,
         reviewsCount,
         about,
+        availableTime,
         imagePath,
       );
 }

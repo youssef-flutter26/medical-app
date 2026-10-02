@@ -3,6 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:medical_app/core/routing/app_router.dart';
 import 'package:medical_app/features/category/presentation/pages/category_doctors_page.dart';
 import 'package:medical_app/features/category/presentation/widgets/category_doctors/category_doctors_header.dart';
 import 'package:medical_app/features/category/presentation/widgets/category_doctors/category_doctors_list.dart';
@@ -22,6 +23,10 @@ class _FakeCategoryDoctorsAssetLoader extends AssetLoader {
       "defaultSort": "Default",
       "reviews": "Reviews",
       "noDoctorsFound": "No doctors found",
+      "doctorDetails": "Doctor Details",
+      "aboutDoctor": "About Doctor",
+      "experience": "Experience",
+      "appointment": "Appointment",
     };
   }
 }
@@ -87,6 +92,7 @@ Widget createCategoryDoctorsTestWidget({
             locale: context.locale,
             supportedLocales: context.supportedLocales,
             localizationsDelegates: context.localizationDelegates,
+            onGenerateRoute: AppRouter().generateRoute,
             navigatorObservers: [
               ?navigatorObserver,
             ],
@@ -227,5 +233,21 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byIcon(Icons.favorite_rounded), findsOneWidget);
+  });
+
+  testWidgets(
+      'CategoryDoctorsPage navigates to DoctorDetailsPage when doctor is tapped',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(createCategoryDoctorsTestWidget());
+    await tester.pumpAndSettle();
+
+    final firstDoctor = find.text('Dr. David Patel');
+    expect(firstDoctor, findsOneWidget);
+
+    await tester.tap(firstDoctor);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Doctor Details'), findsOneWidget);
+    expect(find.text('Appointment'), findsOneWidget);
   });
 }

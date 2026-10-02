@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:medical_app/core/di/service_locator.dart';
+import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
@@ -184,6 +185,14 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
     });
   }
 
+  void _navigateToDoctorDetails(DoctorData doctor) {
+    Navigator.pushNamed(
+      context,
+      Routes.doctorDetails,
+      arguments: doctor,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final doctors = _filteredDoctors;
@@ -263,6 +272,7 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
               else
                 CategoryDoctorsList(
                   doctors: doctors,
+                  onDoctorTap: _navigateToDoctorDetails,
                   onFavoriteTap: _toggleFavorite,
                 ),
             ],

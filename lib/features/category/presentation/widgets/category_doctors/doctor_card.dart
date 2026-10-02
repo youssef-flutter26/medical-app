@@ -12,11 +12,15 @@ class DoctorData {
   final String specialty;
   final String? category;
   final String location;
+  final int experience;
   final double rating;
   final int reviewCount;
+  final String about;
+  final String availableTime;
   final String? imagePath;
   final bool isFavorite;
   final Color? backgroundColor;
+  final DoctorEntity? rawEntity;
 
   const DoctorData({
     this.id,
@@ -24,11 +28,15 @@ class DoctorData {
     required this.specialty,
     this.category,
     required this.location,
+    this.experience = 0,
     required this.rating,
     required this.reviewCount,
+    this.about = '',
+    this.availableTime = 'Mon - Sat: 09:00 AM - 05:00 PM',
     this.imagePath,
     this.isFavorite = false,
     this.backgroundColor,
+    this.rawEntity,
   });
 
   String get address => location;
@@ -44,9 +52,31 @@ class DoctorData {
           : (doctor.categoryName.isNotEmpty
               ? '${doctor.categoryName} Specialist'
               : ''),
+      experience: doctor.experience,
       rating: doctor.rating,
       reviewCount: doctor.reviewsCount,
+      about: doctor.about,
+      availableTime: doctor.availableTime,
       imagePath: doctor.imagePath,
+      rawEntity: doctor,
+    );
+  }
+
+  DoctorEntity toEntity() {
+    if (rawEntity != null) return rawEntity!;
+    return DoctorEntity(
+      id: id,
+      name: name,
+      specialty: specialty,
+      categoryId: category ?? '',
+      categoryName: category ?? specialty,
+      address: location,
+      experience: experience,
+      rating: rating,
+      reviewsCount: reviewCount,
+      about: about,
+      availableTime: availableTime,
+      imagePath: imagePath ?? '',
     );
   }
 
@@ -56,11 +86,15 @@ class DoctorData {
     String? specialty,
     String? category,
     String? location,
+    int? experience,
     double? rating,
     int? reviewCount,
+    String? about,
+    String? availableTime,
     String? imagePath,
     bool? isFavorite,
     Color? backgroundColor,
+    DoctorEntity? rawEntity,
   }) {
     return DoctorData(
       id: id ?? this.id,
@@ -68,11 +102,15 @@ class DoctorData {
       specialty: specialty ?? this.specialty,
       category: category ?? this.category,
       location: location ?? this.location,
+      experience: experience ?? this.experience,
       rating: rating ?? this.rating,
       reviewCount: reviewCount ?? this.reviewCount,
+      about: about ?? this.about,
+      availableTime: availableTime ?? this.availableTime,
       imagePath: imagePath ?? this.imagePath,
       isFavorite: isFavorite ?? this.isFavorite,
       backgroundColor: backgroundColor ?? this.backgroundColor,
+      rawEntity: rawEntity ?? this.rawEntity,
     );
   }
 }
