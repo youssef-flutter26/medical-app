@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
-import 'package:medical_app/features/admin/presentation/pages/add_category/add_category_page.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_category_page.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_category/add_category_button.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_category/category_image_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_category/category_name_field.dart';

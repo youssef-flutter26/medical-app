@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:medical_app/core/common/pages/main_layout.dart';
 import 'package:medical_app/core/routing/routes.dart';
-import 'package:medical_app/features/admin/presentation/pages/add_banner/add_banner_page.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_banner_page.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
 import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
-import 'package:medical_app/features/admin/presentation/pages/add_category/add_category_page.dart';
-import 'package:medical_app/features/admin/presentation/pages/add_data/add_data_page.dart';
-import 'package:medical_app/features/admin/presentation/pages/add_doctor/add_doctor_page.dart';
-import 'package:medical_app/features/admin/presentation/pages/add_medical_center/add_medical_center_page.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_category_page.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_data_page.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_doctor_page.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_medical_center_page.dart';
 import 'package:medical_app/features/auth/presentation/pages/forget_password_screen.dart';
 import 'package:medical_app/features/auth/presentation/pages/login_screen.dart';
 import 'package:medical_app/features/auth/presentation/pages/register_screen .dart';

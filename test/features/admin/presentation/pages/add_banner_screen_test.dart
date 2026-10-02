@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:medical_app/core/error/firebase_failure.dart';
 import 'package:medical_app/core/error/result.dart';
 import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
-import 'package:medical_app/features/admin/presentation/pages/add_banner/add_banner_page.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_banner_page.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_banner/add_banner_button.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_banner/banner_description_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_banner/banner_header_section.dart';
