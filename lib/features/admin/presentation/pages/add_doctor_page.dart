@@ -9,7 +9,7 @@ import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/add_doctor_button.dart';
-import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_category_dropdown.dart';
+import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_category_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_experience_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_header_section.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_image_field.dart';
@@ -316,7 +316,7 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
                 SizedBox(height: 20.h),
                 DoctorNameField(controller: _nameController),
                 SizedBox(height: 16.h),
-                DoctorCategoryDropdown(
+                DoctorCategoryField(
                   categories: _categories,
                   isLoading: _isCategoriesLoading,
                   errorMessage: _categoriesError,
