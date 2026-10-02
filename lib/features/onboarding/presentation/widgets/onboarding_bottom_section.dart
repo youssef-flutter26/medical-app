@@ -6,6 +6,8 @@ import 'package:medical_app/core/common/widgets/app_button.dart';
 import 'package:medical_app/features/onboarding/presentation/widgets/onboarding_page_indicator.dart';
 import 'package:medical_app/features/onboarding/presentation/widgets/onboarding_skip_button.dart';
 
+import '../../../../core/common/widgets/app_button.dart';
+
 class OnboardingBottomSection extends StatelessWidget {
   const OnboardingBottomSection({
     super.key,

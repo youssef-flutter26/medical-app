@@ -19,6 +19,8 @@ import 'package:medical_app/features/auth/presentation/widgets/have_an_account_w
 import 'package:medical_app/features/auth/presentation/widgets/or_widget.dart';
 import 'package:medical_app/features/auth/presentation/widgets/social_auth_button.dart';
 
+import '../../../../core/common/widgets/app_button.dart';
+
 class RegisterScreenBody extends StatefulWidget {
   const RegisterScreenBody({super.key});
 

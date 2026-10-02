@@ -13,6 +13,8 @@ import 'package:medical_app/features/auth/presentation/cubit/auth_state.dart';
 import 'package:medical_app/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:medical_app/features/auth/presentation/widgets/gender_type.dart';
 
+import '../../../../core/common/widgets/app_button.dart';
+
 class FillProfile extends StatefulWidget {
   final String name;
   final String email;
