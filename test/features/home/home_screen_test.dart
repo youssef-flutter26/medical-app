@@ -22,9 +22,7 @@ import 'package:medical_app/features/home/presentation/widgets/home_location.dar
 import 'package:medical_app/features/home/presentation/widgets/home_search.dart';
 import 'package:medical_app/features/home/presentation/widgets/medical_center_item.dart';
 import 'package:medical_app/features/home/presentation/widgets/nearby_medical_centers.dart';
-import 'package:medical_app/features/home/presentation/widgets/doctors_section.dart';
-import 'package:medical_app/features/doctor/domain/entities/doctor_entity.dart';
-import 'package:medical_app/features/category/presentation/widgets/category_doctors/doctor_card.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeTestAssetLoader extends AssetLoader {
@@ -762,8 +760,7 @@ void main() {
     expect(tappedCategory?.name, equals('Cardiology'));
   });
 
-  testWidgets(
-      'DoctorsSection displays empty state when no doctors exist in stream',
+  testWidgets('HomeScreen does not display All Doctors section',
       (WidgetTester tester) async {
     await tester.pumpWidget(
       EasyLocalization(
@@ -774,63 +771,15 @@ void main() {
         startLocale: const Locale('en'),
         child: const AppScreenUtilScope(
           child: MaterialApp(
-            home: Scaffold(
-              body: DoctorsSection(
-                doctors: <DoctorEntity>[],
-              ),
-            ),
+            home: HomeScreen(),
           ),
         ),
       ),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('All Doctors'), findsOneWidget);
-    expect(find.text('No doctors found'), findsOneWidget);
-    expect(find.byType(DoctorCard), findsNothing);
-  });
-
-  testWidgets(
-      'DoctorsSection displays doctors dynamically from Firestore data',
-      (WidgetTester tester) async {
-    final doctors = [
-      const DoctorEntity(
-        id: '1',
-        name: 'Dr. John Doe',
-        specialty: 'Cardiology',
-        categoryId: 'cat_1',
-        categoryName: 'Cardiology',
-        experience: 10,
-        rating: 4.8,
-        reviewsCount: 150,
-        imagePath: '',
-      ),
-    ];
-
-    await tester.pumpWidget(
-      EasyLocalization(
-        supportedLocales: const [Locale('en')],
-        path: 'assets/translations',
-        assetLoader: const HomeTestAssetLoader(),
-        fallbackLocale: const Locale('en'),
-        startLocale: const Locale('en'),
-        child: AppScreenUtilScope(
-          child: MaterialApp(
-            home: Scaffold(
-              body: DoctorsSection(
-                doctors: doctors,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.text('All Doctors'), findsOneWidget);
-    expect(find.text('Dr. John Doe'), findsOneWidget);
-    expect(find.text('Cardiology'), findsOneWidget);
-    expect(find.byType(DoctorCard), findsOneWidget);
+    expect(find.text('All Doctors'), findsNothing);
+    expect(find.text('No doctors found'), findsNothing);
   });
 }
 

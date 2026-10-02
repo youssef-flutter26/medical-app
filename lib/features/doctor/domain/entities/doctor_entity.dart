@@ -4,6 +4,7 @@ class DoctorEntity {
   final String specialty;
   final String categoryId;
   final String categoryName;
+  final String address;
   final int experience;
   final double rating;
   final int reviewsCount;
@@ -17,7 +18,8 @@ class DoctorEntity {
     required this.specialty,
     required this.categoryId,
     required this.categoryName,
-    required this.experience,
+    this.address = '',
+    this.experience = 0,
     required this.rating,
     required this.reviewsCount,
     this.about = '',
@@ -34,6 +36,7 @@ class DoctorEntity {
         other.specialty == specialty &&
         other.categoryId == categoryId &&
         other.categoryName == categoryName &&
+        other.address == address &&
         other.experience == experience &&
         other.rating == rating &&
         other.reviewsCount == reviewsCount &&
@@ -48,6 +51,7 @@ class DoctorEntity {
         specialty,
         categoryId,
         categoryName,
+        address,
         experience,
         rating,
         reviewsCount,

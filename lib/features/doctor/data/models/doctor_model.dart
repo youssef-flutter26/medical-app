@@ -8,7 +8,8 @@ class DoctorModel extends DoctorEntity {
     required super.specialty,
     required super.categoryId,
     required super.categoryName,
-    required super.experience,
+    super.address = '',
+    super.experience = 0,
     required super.rating,
     required super.reviewsCount,
     super.about = '',
@@ -22,13 +23,13 @@ class DoctorModel extends DoctorEntity {
     if (value is int) return value.toDouble();
     if (value is num) return value.toDouble();
     if (value is String) {
-      final trimmed = value.trim();
-      if (trimmed.isEmpty) return defaultValue;
-      final match = RegExp(r'[0-9]+(?:\.[0-9]+)?').firstMatch(trimmed);
+      final normalized = value.trim().replaceAll(',', '.');
+      if (normalized.isEmpty) return defaultValue;
+      final match = RegExp(r'[0-9]+(?:\.[0-9]+)?').firstMatch(normalized);
       if (match != null) {
         return double.tryParse(match.group(0)!) ?? defaultValue;
       }
-      return double.tryParse(trimmed) ?? defaultValue;
+      return double.tryParse(normalized) ?? defaultValue;
     }
     return defaultValue;
   }
@@ -70,6 +71,9 @@ class DoctorModel extends DoctorEntity {
       specialty: json['specialty']?.toString() ?? '',
       categoryId: json['categoryId']?.toString() ?? '',
       categoryName: json['categoryName']?.toString() ?? '',
+      address: json['address']?.toString() ??
+          json['location']?.toString() ??
+          '',
       experience: _parseInt(json['experience']),
       rating: _parseDouble(json['rating']),
       reviewsCount: _parseInt(json['reviewsCount'] ?? json['reviewCount']),
@@ -87,6 +91,8 @@ class DoctorModel extends DoctorEntity {
       'specialty': specialty,
       'categoryId': categoryId,
       'categoryName': categoryName,
+      'address': address,
+      'location': address,
       'experience': experience,
       'rating': rating,
       'reviewsCount': reviewsCount,
@@ -106,6 +112,7 @@ class DoctorModel extends DoctorEntity {
       specialty: entity.specialty,
       categoryId: entity.categoryId,
       categoryName: entity.categoryName,
+      address: entity.address,
       experience: entity.experience,
       rating: entity.rating,
       reviewsCount: entity.reviewsCount,

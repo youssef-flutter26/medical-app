@@ -31,15 +31,19 @@ class DoctorData {
     this.backgroundColor,
   });
 
+  String get address => location;
+
   factory DoctorData.fromEntity(DoctorEntity doctor) {
     return DoctorData(
       id: doctor.id,
       name: doctor.name,
       specialty: doctor.specialty,
       category: doctor.categoryName,
-      location: doctor.categoryName.isNotEmpty
-          ? '${doctor.categoryName} Specialist'
-          : '',
+      location: doctor.address.isNotEmpty
+          ? doctor.address
+          : (doctor.categoryName.isNotEmpty
+              ? '${doctor.categoryName} Specialist'
+              : ''),
       rating: doctor.rating,
       reviewCount: doctor.reviewsCount,
       imagePath: doctor.imagePath,
@@ -89,7 +93,11 @@ class DoctorCard extends StatelessWidget {
     if (doctor.rating % 1 == 0) {
       return doctor.rating.toInt().toString();
     }
-    return doctor.rating.toString();
+    final fixed = doctor.rating.toStringAsFixed(2);
+    if (fixed.endsWith('0')) {
+      return doctor.rating.toStringAsFixed(1);
+    }
+    return fixed;
   }
 
   String get _formattedReviews {

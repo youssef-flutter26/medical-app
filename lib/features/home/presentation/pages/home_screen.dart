@@ -23,12 +23,7 @@ import 'package:medical_app/features/home/presentation/widgets/banner_section.da
 import 'package:medical_app/features/home/presentation/widgets/categories_section.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_header.dart';
 import 'package:medical_app/features/home/presentation/widgets/medical_centers_section.dart';
-import 'package:medical_app/features/home/presentation/widgets/doctors_section.dart';
-import 'package:medical_app/features/doctor/domain/entities/doctor_entity.dart';
-import 'package:medical_app/features/doctor/domain/repositories/doctor_repository.dart';
-import 'package:medical_app/features/doctor/domain/usecases/get_doctors_stream.dart';
-import 'package:medical_app/features/doctor/data/repositories/doctor_repository_impl.dart';
-import 'package:medical_app/features/doctor/data/datasources/doctor_remote_data_source_impl.dart';
+
 
 class HomeScreen extends StatefulWidget {
   final FirebaseAuth? auth;
@@ -37,9 +32,6 @@ class HomeScreen extends StatefulWidget {
   final GetBannersStream? getBannersStream;
   final GetMedicalCentersStream? getMedicalCentersStream;
   final GetCategoriesStream? getCategoriesStream;
-  final GetDoctorsStream? getDoctorsStream;
-  final Stream<List<DoctorEntity>>? doctorsStream;
-
   const HomeScreen({
     super.key,
     this.auth,
@@ -48,8 +40,6 @@ class HomeScreen extends StatefulWidget {
     this.getBannersStream,
     this.getMedicalCentersStream,
     this.getCategoriesStream,
-    this.getDoctorsStream,
-    this.doctorsStream,
   });
 
   @override
@@ -60,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Stream<List<BannerEntity>>? _bannersStream;
   Stream<List<MedicalCenterEntity>>? _medicalCentersStream;
   Stream<List<CategoryEntity>>? _categoriesStream;
-  Stream<List<DoctorEntity>>? _doctorsStream;
+
 
   FirebaseAuth? get _auth {
     if (widget.auth != null) return widget.auth;
@@ -96,8 +86,6 @@ class _HomeScreenState extends State<HomeScreen> {
     if (widget.getBannersStream != oldWidget.getBannersStream ||
         widget.getMedicalCentersStream != oldWidget.getMedicalCentersStream ||
         widget.getCategoriesStream != oldWidget.getCategoriesStream ||
-        widget.getDoctorsStream != oldWidget.getDoctorsStream ||
-        widget.doctorsStream != oldWidget.doctorsStream ||
         widget.firestore != oldWidget.firestore) {
       _initStreams();
     }
@@ -152,24 +140,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _categoriesStream = categoriesUseCase?.call() ??
         Stream.value(const <CategoryEntity>[]);
 
-    final doctorsUseCase = widget.getDoctorsStream ??
-        (getIt.isRegistered<GetDoctorsStream>()
-            ? getIt<GetDoctorsStream>()
-            : (widget.firestore != null || getIt.isRegistered<FirebaseFirestore>())
-                ? GetDoctorsStream(
-                    DoctorRepositoryImpl(
-                      DoctorRemoteDataSourceImpl(
-                        widget.firestore ?? getIt<FirebaseFirestore>(),
-                      ),
-                    ),
-                  )
-                : (getIt.isRegistered<DoctorRepository>()
-                    ? GetDoctorsStream(getIt<DoctorRepository>())
-                    : null));
-
-    _doctorsStream = widget.doctorsStream ??
-        doctorsUseCase?.call() ??
-        Stream.value(const <DoctorEntity>[]);
   }
 
   void _navigateToEditBanner(BuildContext context, BannerEntity banner) {
@@ -326,29 +296,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 },
               ),
-              SizedBox(height: 24.h),
-              StreamBuilder<List<DoctorEntity>>(
-                stream: _doctorsStream,
-                builder: (context, doctorSnapshot) {
-                  if (doctorSnapshot.hasError) {
-                    debugPrint(
-                      'HomeScreen: Doctors stream error: ${doctorSnapshot.error}',
-                    );
-                  }
-                  return DoctorsSection(
-                    doctors: doctorSnapshot.data,
-                    isLoading: doctorSnapshot.connectionState ==
-                            ConnectionState.waiting &&
-                        !doctorSnapshot.hasData,
-                    errorMessage: doctorSnapshot.hasError
-                        ? '${doctorSnapshot.error}'
-                        : null,
-                    onSeeAll: () {
-                      Navigator.pushNamed(context, Routes.categoryDoctors);
-                    },
-                  );
-                },
-              ),
+
               SizedBox(height: 24.h),
             ],
           ),

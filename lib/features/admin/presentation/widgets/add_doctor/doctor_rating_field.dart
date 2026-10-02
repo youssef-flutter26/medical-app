@@ -24,7 +24,7 @@ class DoctorRatingField extends StatelessWidget {
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+        FilteringTextInputFormatter.allow(RegExp(r'^\d*[\.,]?\d*')),
       ],
       validator: validator ?? ValidatorApp.validateRating,
       prefixIcon: const Icon(

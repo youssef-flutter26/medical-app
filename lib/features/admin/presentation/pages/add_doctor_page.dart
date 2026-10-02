@@ -10,7 +10,7 @@ import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/add_doctor_button.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_category_field.dart';
-import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_experience_field.dart';
+import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_address_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_header_section.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_image_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_name_field.dart';
@@ -49,7 +49,7 @@ class AddDoctorPage extends StatefulWidget {
 class _AddDoctorPageState extends State<AddDoctorPage> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
-  late final TextEditingController _experienceController;
+  late final TextEditingController _addressController;
   late final TextEditingController _ratingController;
   late final TextEditingController _reviewsCountController;
   late final TextEditingController _imageNameController;
@@ -73,7 +73,7 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
   void initState() {
     super.initState();
     _nameController = TextEditingController();
-    _experienceController = TextEditingController();
+    _addressController = TextEditingController();
     _ratingController = TextEditingController();
     _reviewsCountController = TextEditingController();
     _imageNameController = TextEditingController();
@@ -129,7 +129,7 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
   void dispose() {
     _categoriesSubscription?.cancel();
     _nameController.dispose();
-    _experienceController.dispose();
+    _addressController.dispose();
     _ratingController.dispose();
     _reviewsCountController.dispose();
     _imageNameController.dispose();
@@ -213,17 +213,16 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
     final imagePath =
         cleanImageName.isNotEmpty ? 'assets/images/$cleanImageName' : '';
 
-    final rating = double.parse(_ratingController.text.trim());
+    final rating =
+        double.parse(_ratingController.text.trim().replaceAll(',', '.'));
     final reviewsCount = int.parse(_reviewsCountController.text.trim());
-    final experience = int.parse(_experienceController.text.trim());
-
     // The selected Category represents the Specialty, so categoryName is used directly.
     final doctor = DoctorEntity(
       name: _nameController.text.trim(),
       specialty: _selectedCategory!.name,
       categoryId: _selectedCategory!.id ?? '',
       categoryName: _selectedCategory!.name,
-      experience: experience,
+      address: _addressController.text.trim(),
       rating: rating,
       reviewsCount: reviewsCount,
       about: '',
@@ -324,7 +323,7 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
                   onChanged: (cat) => setState(() => _selectedCategory = cat),
                 ),
                 SizedBox(height: 16.h),
-                DoctorExperienceField(controller: _experienceController),
+                DoctorAddressField(controller: _addressController),
                 SizedBox(height: 16.h),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,

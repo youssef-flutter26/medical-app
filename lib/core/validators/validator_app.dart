@@ -167,7 +167,7 @@ abstract final class ValidatorApp {
     if (value == null || value.trim().isEmpty) {
       return LocaleKeys.ratingCannotBeEmpty.tr();
     }
-    final rating = double.tryParse(value.trim());
+    final rating = double.tryParse(value.trim().replaceAll(',', '.'));
     if (rating == null || rating < 0.0 || rating > 5.0) {
       return LocaleKeys.invalidRating.tr();
     }

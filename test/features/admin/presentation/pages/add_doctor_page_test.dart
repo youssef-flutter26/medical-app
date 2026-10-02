@@ -6,7 +6,7 @@ import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_doctor_page.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/add_doctor_button.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_category_dropdown.dart';
-import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_experience_field.dart';
+import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_address_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_image_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_name_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_rating_field.dart';
@@ -33,10 +33,9 @@ class TestDoctorAssetLoader extends AssetLoader {
       "noCategoriesAvailable": "No categories available",
       "pleaseAddCategoryFirst":
           "Please add a category first before adding a doctor.",
-      "experience": "Experience (Years)",
-      "enterExperience": "Enter years of experience",
-      "experienceCannotBeEmpty": "Experience cannot be empty",
-      "invalidExperience": "Please enter a valid number of years",
+      "address": "Address",
+      "enterAddress": "Enter address",
+      "addressCannotBeEmpty": "Address cannot be empty",
       "rating": "Rating",
       "ratingHint": "4.8",
       "ratingCannotBeEmpty": "Rating cannot be empty",
@@ -149,7 +148,7 @@ void main() {
 
       expect(find.byType(DoctorNameField), findsOneWidget);
       expect(find.byType(DoctorCategoryDropdown), findsOneWidget);
-      expect(find.byType(DoctorExperienceField), findsOneWidget);
+      expect(find.byType(DoctorAddressField), findsOneWidget);
       expect(find.byType(DoctorRatingField), findsOneWidget);
       expect(find.byType(DoctorReviewsField), findsOneWidget);
       expect(find.byType(DoctorImageField), findsOneWidget);
@@ -208,13 +207,13 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Doctor name cannot be empty'), findsOneWidget);
-      expect(find.text('Experience cannot be empty'), findsOneWidget);
+      expect(find.text('Address cannot be empty'), findsOneWidget);
       expect(find.text('Rating cannot be empty'), findsOneWidget);
       expect(find.text('Reviews count cannot be empty'), findsOneWidget);
       expect(find.text('Image name cannot be empty'), findsOneWidget);
     });
 
-    testWidgets('submits doctor data successfully and derives specialty from category', (
+    testWidgets('submits doctor data successfully with address and derives specialty from category', (
       WidgetTester tester,
     ) async {
       tester.view.physicalSize = const Size(1080, 2400);
@@ -243,8 +242,8 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(
-        find.byKey(const Key('doctor_experience_input')),
-        '12',
+        find.byKey(const Key('doctor_address_input')),
+        'Cardiology Center, USA',
       );
       await tester.enterText(
         find.byKey(const Key('doctor_rating_input')),
@@ -272,7 +271,7 @@ void main() {
       expect(savedDoctor!.specialty, 'Cardiology');
       expect(savedDoctor!.categoryId, 'cat1');
       expect(savedDoctor!.categoryName, 'Cardiology');
-      expect(savedDoctor!.experience, 12);
+      expect(savedDoctor!.address, 'Cardiology Center, USA');
       expect(savedDoctor!.rating, 4.9);
       expect(savedDoctor!.reviewsCount, 350);
       expect(savedDoctor!.imagePath, 'assets/images/doctor1.png');

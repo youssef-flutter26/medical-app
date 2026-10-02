@@ -92,5 +92,32 @@ void main() {
       expect(model.about, entity.about);
       expect(model.imagePath, entity.imagePath);
     });
+
+    test('supports decimal ratings in various formats (double, num, int, string)', () {
+      final modelDouble = DoctorModel.fromFirestore({'rating': 4.8});
+      expect(modelDouble.rating, 4.8);
+      expect(modelDouble.rating, isA<double>());
+
+      final modelInt = DoctorModel.fromFirestore({'rating': 4});
+      expect(modelInt.rating, 4.0);
+      expect(modelInt.rating, isA<double>());
+
+      final modelNum = DoctorModel.fromFirestore({'rating': 4.7 as num});
+      expect(modelNum.rating, 4.7);
+      expect(modelNum.rating, isA<double>());
+
+      final modelStringDot = DoctorModel.fromFirestore({'rating': '4.5'});
+      expect(modelStringDot.rating, 4.5);
+      expect(modelStringDot.rating, isA<double>());
+
+      final modelStringComma = DoctorModel.fromFirestore({'rating': '4,1'});
+      expect(modelStringComma.rating, 4.1);
+      expect(modelStringComma.rating, isA<double>());
+
+      // Verifies toFirestore always writes numeric rating (double)
+      final firestoreMap = modelDouble.toFirestore();
+      expect(firestoreMap['rating'], 4.8);
+      expect(firestoreMap['rating'], isA<double>());
+    });
   });
 }
