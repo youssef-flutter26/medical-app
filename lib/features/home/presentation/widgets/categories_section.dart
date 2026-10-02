@@ -14,6 +14,7 @@ class CategoriesSection extends StatelessWidget {
   final bool isAdmin;
   final ValueChanged<CategoryEntity>? onEditCategory;
   final VoidCallback? onSeeAllPressed;
+  final ValueChanged<CategoryEntity>? onCategoryTap;
 
   const CategoriesSection({
     super.key,
@@ -23,6 +24,7 @@ class CategoriesSection extends StatelessWidget {
     this.isAdmin = false,
     this.onEditCategory,
     this.onSeeAllPressed,
+    this.onCategoryTap,
   });
 
   @override
@@ -92,6 +94,16 @@ class CategoriesSection extends StatelessWidget {
       isAdmin: isAdmin,
       onEditCategory: onEditCategory,
       onSeeAllPressed: onSeeAllPressed,
+      onCategoryTap: (categoryName) {
+        if (onCategoryTap != null) {
+          final list = categories ?? const <CategoryEntity>[];
+          final matched = list.firstWhere(
+            (c) => c.name == categoryName,
+            orElse: () => CategoryEntity(name: categoryName),
+          );
+          onCategoryTap!(matched);
+        }
+      },
     );
   }
 }

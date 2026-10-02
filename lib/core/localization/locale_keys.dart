@@ -216,6 +216,34 @@ abstract class LocaleKeys {
   static const editCategoryInformation = 'editCategoryInformation';
   static const categoryUpdatedSuccessfully = 'categoryUpdatedSuccessfully';
   static const failedToUpdateCategory = 'failedToUpdateCategory';
+  static const allDoctors = 'allDoctors';
+  static const founds = 'founds';
+  static const defaultSort = 'defaultSort';
+  static const noDoctorsFound = 'noDoctorsFound';
+  static const doctorDetails = 'doctorDetails';
+  static const addDoctorInformation = 'addDoctorInformation';
+  static const doctorName = 'doctorName';
+  static const enterDoctorName = 'enterDoctorName';
+  static const doctorNameCannotBeEmpty = 'doctorNameCannotBeEmpty';
+  static const specialty = 'specialty';
+  static const enterSpecialty = 'enterSpecialty';
+  static const specialtyCannotBeEmpty = 'specialtyCannotBeEmpty';
+  static const selectCategory = 'selectCategory';
+  static const categoryCannotBeEmpty = 'categoryCannotBeEmpty';
+  static const noCategoriesAvailable = 'noCategoriesAvailable';
+  static const pleaseAddCategoryFirst = 'pleaseAddCategoryFirst';
+  static const experience = 'experience';
+  static const enterExperience = 'enterExperience';
+  static const experienceCannotBeEmpty = 'experienceCannotBeEmpty';
+  static const invalidExperience = 'invalidExperience';
+  static const aboutDoctor = 'aboutDoctor';
+  static const enterAboutDoctor = 'enterAboutDoctor';
+  static const aboutDoctorCannotBeEmpty = 'aboutDoctorCannotBeEmpty';
+  static const doctorImageHint = 'doctorImageHint';
+  static const doctorAddedSuccessfully = 'doctorAddedSuccessfully';
+  static const failedToAddDoctor = 'failedToAddDoctor';
+  static const notAuthorizedAdmin = 'notAuthorizedAdmin';
+  static const years = 'years';
 }
 
 

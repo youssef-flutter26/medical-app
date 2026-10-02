@@ -172,6 +172,17 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _navigateToCategoryDoctors(
+    BuildContext context,
+    CategoryEntity category,
+  ) {
+    Navigator.pushNamed(
+      context,
+      Routes.categoryDoctors,
+      arguments: category,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final firebaseAuth = _auth;
@@ -252,6 +263,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     isAdmin: isAdmin,
                     onEditCategory: (category) =>
                         _navigateToEditCategory(context, category),
+                    onCategoryTap: (category) =>
+                        _navigateToCategoryDoctors(context, category),
                     onSeeAllPressed: () {
                       Navigator.pushNamed(context, Routes.category);
                     },

@@ -7,6 +7,11 @@ import 'package:medical_app/features/home/data/datasources/home_remote_data_sour
 import 'package:medical_app/features/home/data/datasources/home_remote_data_source_impl.dart';
 import 'package:medical_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
+import 'package:medical_app/features/doctor/data/datasources/doctor_remote_data_source.dart';
+import 'package:medical_app/features/doctor/data/datasources/doctor_remote_data_source_impl.dart';
+import 'package:medical_app/features/doctor/data/repositories/doctor_repository_impl.dart';
+import 'package:medical_app/features/doctor/domain/repositories/doctor_repository.dart';
+import 'package:medical_app/features/doctor/domain/usecases/add_doctor.dart';
 import 'package:medical_app/features/home/domain/usecases/add_banner.dart';
 import 'package:medical_app/features/home/domain/usecases/add_category.dart';
 import 'package:medical_app/features/home/domain/usecases/update_category.dart';
@@ -58,6 +63,10 @@ void setupServiceLocator() {
     () => HomeRemoteDataSourceImpl(getIt<FirebaseFirestore>()),
   );
 
+  getIt.registerLazySingleton<DoctorRemoteDataSource>(
+    () => DoctorRemoteDataSourceImpl(getIt<FirebaseFirestore>()),
+  );
+
   // Repository
   getIt.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(
@@ -70,7 +79,14 @@ void setupServiceLocator() {
     () => HomeRepositoryImpl(getIt<HomeRemoteDataSource>()),
   );
 
+  getIt.registerLazySingleton<DoctorRepository>(
+    () => DoctorRepositoryImpl(getIt<DoctorRemoteDataSource>()),
+  );
+
   // Use Cases
+  getIt.registerLazySingleton<AddDoctor>(
+    () => AddDoctor(getIt<DoctorRepository>()),
+  );
   getIt.registerLazySingleton<AddBanner>(
     () => AddBanner(getIt<HomeRepository>()),
   );

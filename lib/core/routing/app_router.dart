@@ -14,6 +14,7 @@ import 'package:medical_app/features/auth/presentation/pages/login_screen.dart';
 import 'package:medical_app/features/auth/presentation/pages/register_screen .dart';
 import 'package:medical_app/features/auth/presentation/widgets/fill_profile.dart';
 import 'package:medical_app/features/onboarding/presentation/pages/onboarding_screen.dart';
+import 'package:medical_app/features/category/presentation/pages/category_doctors_page.dart';
 import 'package:medical_app/features/category/presentation/pages/category_page.dart';
 import 'package:medical_app/features/profile/presentation/pages/profile_screen.dart';
 import 'package:medical_app/features/splash/presentation/pages/splash_screen.dart';
@@ -111,6 +112,21 @@ class AppRouter {
       case Routes.category:
         return MaterialPageRoute(
           builder: (_) => const CategoryPage(),
+          settings: settings,
+        );
+
+      case Routes.categoryDoctors:
+        final categoryEntity = settings.arguments is CategoryEntity
+            ? settings.arguments as CategoryEntity
+            : null;
+        final categoryName = settings.arguments is String
+            ? settings.arguments as String
+            : categoryEntity?.name;
+        return MaterialPageRoute(
+          builder: (_) => CategoryDoctorsPage(
+            category: categoryEntity,
+            categoryName: categoryName,
+          ),
           settings: settings,
         );
 

@@ -16,6 +16,7 @@ import 'package:medical_app/features/home/presentation/pages/home_screen.dart';
 import 'package:medical_app/features/home/presentation/widgets/category_item.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_banner.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_banner_slider.dart';
+import 'package:medical_app/features/home/presentation/widgets/categories_section.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_categories.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_location.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_search.dart';
@@ -715,6 +716,44 @@ void main() {
 
     expect(editedCategory?.id, equals('cat_1'));
     expect(editedCategory?.name, equals('Cardiology'));
+  });
+
+  testWidgets(
+      'CategoriesSection forwards onCategoryTap callback when CategoryItem is tapped',
+      (WidgetTester tester) async {
+    CategoryEntity? tappedCategory;
+    final categories = [
+      const CategoryEntity(id: 'cat_1', name: 'Cardiology'),
+      const CategoryEntity(id: 'cat_2', name: 'Pulmonology'),
+    ];
+
+    await tester.pumpWidget(
+      EasyLocalization(
+        supportedLocales: const [Locale('en')],
+        path: 'assets/translations',
+        assetLoader: const HomeTestAssetLoader(),
+        fallbackLocale: const Locale('en'),
+        startLocale: const Locale('en'),
+        child: AppScreenUtilScope(
+          child: MaterialApp(
+            home: Scaffold(
+              body: CategoriesSection(
+                categories: categories,
+                onCategoryTap: (category) {
+                  tappedCategory = category;
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Cardiol..'));
+    await tester.pumpAndSettle();
+
+    expect(tappedCategory?.name, equals('Cardiology'));
   });
 }
 
