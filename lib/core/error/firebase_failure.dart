@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 import 'failure.dart';
 
@@ -7,10 +8,12 @@ class FirebaseFailure extends Failure {
 
   factory FirebaseFailure.fromException(Object error) {
     if (error is FirebaseAuthException) {
+      debugPrint('[FirebaseFailure] FirebaseAuthException: [${error.code}] ${error.message}');
       return FirebaseFailure(_getAuthMessage(error.code));
     }
 
     if (error is FirebaseException) {
+      debugPrint('[FirebaseFailure] FirebaseException: [${error.code}] ${error.message}');
       final base = _getFirebaseMessage(error.code);
       final msg = error.message;
       return FirebaseFailure(
@@ -18,6 +21,7 @@ class FirebaseFailure extends Failure {
       );
     }
 
+    debugPrint('[FirebaseFailure] Unknown Exception: $error');
     return FirebaseFailure('Something went wrong. Please try again.');
   }
 

@@ -77,21 +77,6 @@ class AuthCubit extends Cubit<AuthState> {
   }) async {
     emit(const AuthLoading());
 
-    // Check name before creating Firebase account.
-    final nameResult = await checkNameAvailability(name: name);
-
-    switch (nameResult) {
-      case SuccessAPI(data: final isTaken):
-        if (isTaken) {
-          emit(AuthFailure(LocaleKeys.nameAlreadyTaken.tr()));
-          return;
-        }
-
-      case ErrorAPI(failure: final failure):
-        emit(AuthFailure(failure.message));
-        return;
-    }
-
     final result = await signup(email: email, password: password, name: name);
 
     switch (result) {

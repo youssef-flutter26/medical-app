@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../../core/error/app_exception.dart';
 import '../../../../core/error/failure.dart';
@@ -144,29 +145,35 @@ class AuthRepositoryImpl implements AuthRepository {
         name: name,
       );
 
-      final isAdmin = _isAdminEmail(user.email ?? email);
+      final firebaseAuthUser = FirebaseAuth.instance.currentUser ?? user;
+
+      final isAdmin = _isAdminEmail(firebaseAuthUser.email ?? email);
       final assignedRole = isAdmin ? 'admin' : 'user';
       final assignedName = isAdmin
           ? (name.trim().isNotEmpty ? name.trim() : _adminName)
           : name;
 
       final userModel = UserModel.fromFirebase(
-        id: user.uid,
-        email: user.email ?? email,
+        id: firebaseAuthUser.uid,
+        email: firebaseAuthUser.email ?? email,
         name: assignedName,
         role: assignedRole,
       );
 
-      // Create users/{uid} document in Firestore immediately
+      // Create users/{uid} document in Firestore immediately after auth
       await userRemoteDataSource.saveUser(userModel);
 
       return SuccessAPI(userModel);
     } on AuthException catch (e) {
       return ErrorAPI(_mapAuthException(e));
-    } catch (_) {
-      return ErrorAPI(
-        FirebaseFailure('An unexpected error occurred. Please try again.'),
+    } on FirebaseException catch (e) {
+      debugPrint(
+        'Firestore/Firebase error during signup: [${e.code}] ${e.message}',
       );
+      return ErrorAPI(FirebaseFailure.fromException(e));
+    } catch (e) {
+      debugPrint('Unexpected error during signup: $e');
+      return ErrorAPI(FirebaseFailure.fromException(e));
     }
   }
 
