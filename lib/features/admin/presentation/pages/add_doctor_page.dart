@@ -9,8 +9,8 @@ import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/add_doctor_button.dart';
-import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_category_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_address_field.dart';
+import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_category_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_header_section.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_image_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_name_field.dart';
@@ -18,12 +18,16 @@ import 'package:medical_app/features/admin/presentation/widgets/add_doctor/docto
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_reviews_field.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
 import 'package:medical_app/features/doctor/domain/entities/doctor_entity.dart';
+import 'package:medical_app/features/doctor/domain/repositories/doctor_repository.dart';
 import 'package:medical_app/features/doctor/domain/usecases/add_doctor.dart';
+import 'package:medical_app/features/doctor/domain/usecases/update_doctor.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 import 'package:medical_app/features/home/domain/usecases/get_categories_stream.dart';
 
 class AddDoctorPage extends StatefulWidget {
+  final DoctorEntity? initialDoctor;
   final AddDoctor? addDoctor;
+  final UpdateDoctor? updateDoctor;
   final GetCategoriesStream? getCategoriesStream;
   final Stream<List<CategoryEntity>>? categoriesStream;
   final List<CategoryEntity>? initialCategories;
@@ -33,7 +37,9 @@ class AddDoctorPage extends StatefulWidget {
 
   const AddDoctorPage({
     super.key,
+    this.initialDoctor,
     this.addDoctor,
+    this.updateDoctor,
     this.getCategoriesStream,
     this.categoriesStream,
     this.initialCategories,
@@ -67,20 +73,50 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
   bool _isLoading = false;
   AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
 
+  bool get isEditMode => widget.initialDoctor != null;
   bool get _hasCategories => _categories != null && _categories!.isNotEmpty;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController();
-    _addressController = TextEditingController();
-    _ratingController = TextEditingController();
-    _reviewsCountController = TextEditingController();
-    _imageNameController = TextEditingController();
+    final initial = widget.initialDoctor;
+    _nameController = TextEditingController(text: initial?.name ?? '');
+    _addressController = TextEditingController(text: initial?.address ?? '');
+    _ratingController = TextEditingController(
+      text: initial != null
+          ? (initial.rating % 1 == 0
+              ? initial.rating.toInt().toString()
+              : initial.rating.toString())
+          : '',
+    );
+    _reviewsCountController = TextEditingController(
+      text: initial != null ? initial.reviewsCount.toString() : '',
+    );
+
+    String initialImageName = '';
+    if (initial != null && initial.imagePath.isNotEmpty) {
+      final path = initial.imagePath;
+      initialImageName = path.startsWith('assets/images/')
+          ? path.substring('assets/images/'.length)
+          : path;
+    }
+    _imageNameController = TextEditingController(text: initialImageName);
 
     if (widget.initialCategories != null) {
       _categories = widget.initialCategories;
       _isCategoriesLoading = false;
+      if (initial != null) {
+        _selectedCategory = _categories?.cast<CategoryEntity?>().firstWhere(
+              (c) =>
+                  c?.id == initial.categoryId ||
+                  (c?.name.isNotEmpty == true &&
+                      (c!.name.toLowerCase() ==
+                              initial.categoryName.toLowerCase() ||
+                          c.name.toLowerCase() ==
+                              initial.specialty.toLowerCase())),
+              orElse: () => null,
+            );
+      }
     }
 
     _addDoctorUseCase = widget.addDoctor ??
@@ -99,7 +135,18 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
             _categories = categories;
             _isCategoriesLoading = false;
             _categoriesError = null;
-            if (_selectedCategory != null &&
+            if (_selectedCategory == null && initial != null) {
+              _selectedCategory = categories.cast<CategoryEntity?>().firstWhere(
+                    (c) =>
+                        c?.id == initial.categoryId ||
+                        (c?.name.isNotEmpty == true &&
+                            (c!.name.toLowerCase() ==
+                                    initial.categoryName.toLowerCase() ||
+                                c.name.toLowerCase() ==
+                                    initial.specialty.toLowerCase())),
+                    orElse: () => null,
+                  );
+            } else if (_selectedCategory != null &&
                 !categories.any((c) => c.id == _selectedCategory?.id)) {
               _selectedCategory = null;
             }
@@ -216,8 +263,9 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
     final rating =
         double.parse(_ratingController.text.trim().replaceAll(',', '.'));
     final reviewsCount = int.parse(_reviewsCountController.text.trim());
-    // The selected Category represents the Specialty, so categoryName is used directly.
+
     final doctor = DoctorEntity(
+      id: widget.initialDoctor?.id,
       name: _nameController.text.trim(),
       specialty: _selectedCategory!.name,
       categoryId: _selectedCategory!.id ?? '',
@@ -225,9 +273,10 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
       address: _addressController.text.trim(),
       rating: rating,
       reviewsCount: reviewsCount,
-      about: '',
+      availableTime: widget.initialDoctor?.availableTime ??
+          'Mon - Sat: 09:00 AM - 05:00 PM',
       imagePath: imagePath,
-      createdAt: DateTime.now(),
+      createdAt: widget.initialDoctor?.createdAt ?? DateTime.now(),
     );
 
     if (widget.onSubmit != null) {
@@ -238,26 +287,42 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(LocaleKeys.doctorAddedSuccessfully.tr()),
+          content: Text(
+            isEditMode
+                ? LocaleKeys.doctorUpdatedSuccessfully.tr()
+                : LocaleKeys.doctorAddedSuccessfully.tr(),
+          ),
           backgroundColor: AppColors.lightTeal,
         ),
       );
-      Navigator.pop(context);
+      Navigator.pop(context, doctor);
       return;
     }
 
-    final addUseCase = _addDoctorUseCase ??
-        (getIt.isRegistered<AddDoctor>() ? getIt<AddDoctor>() : null);
-
-    if (addUseCase == null) {
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-      });
-      return;
+    final Result<void> result;
+    if (isEditMode) {
+      final updateUseCase = widget.updateDoctor ??
+          (getIt.isRegistered<UpdateDoctor>() ? getIt<UpdateDoctor>() : null);
+      if (updateUseCase != null) {
+        result = await updateUseCase(doctor);
+      } else if (getIt.isRegistered<DoctorRepository>()) {
+        result = await getIt<DoctorRepository>().updateDoctor(doctor);
+      } else {
+        if (!mounted) return;
+        setState(() => _isLoading = false);
+        return;
+      }
+    } else {
+      final addUseCase = _addDoctorUseCase ??
+          (getIt.isRegistered<AddDoctor>() ? getIt<AddDoctor>() : null);
+      if (addUseCase != null) {
+        result = await addUseCase(doctor);
+      } else {
+        if (!mounted) return;
+        setState(() => _isLoading = false);
+        return;
+      }
     }
-
-    final result = await addUseCase(doctor);
 
     if (!mounted) return;
 
@@ -269,16 +334,26 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
       case SuccessAPI():
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(LocaleKeys.doctorAddedSuccessfully.tr()),
+            content: Text(
+              isEditMode
+                  ? LocaleKeys.doctorUpdatedSuccessfully.tr()
+                  : LocaleKeys.doctorAddedSuccessfully.tr(),
+            ),
             backgroundColor: AppColors.lightTeal,
           ),
         );
-        Navigator.pop(context);
+        Navigator.pop(context, doctor);
       case ErrorAPI(:final failure):
-        debugPrint('Failed to add doctor: ${failure.message}');
+        debugPrint(
+          'Failed to ${isEditMode ? 'update' : 'add'} doctor: ${failure.message}',
+        );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(LocaleKeys.failedToAddDoctor.tr()),
+            content: Text(
+              isEditMode
+                  ? LocaleKeys.failedToUpdateDoctor.tr()
+                  : LocaleKeys.failedToAddDoctor.tr(),
+            ),
             backgroundColor: AppColors.red,
           ),
         );
@@ -298,7 +373,7 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          LocaleKeys.addDoctor.tr(),
+          isEditMode ? LocaleKeys.editDoctor.tr() : LocaleKeys.addDoctor.tr(),
           style: AppTextStyles.inter16W500,
         ),
       ),
@@ -311,7 +386,12 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const DoctorHeaderSection(),
+                DoctorHeaderSection(
+                  title: isEditMode ? LocaleKeys.editDoctor.tr() : null,
+                  subtitle: isEditMode
+                      ? LocaleKeys.editDoctorInformation.tr()
+                      : null,
+                ),
                 SizedBox(height: 20.h),
                 DoctorNameField(controller: _nameController),
                 SizedBox(height: 16.h),
@@ -339,10 +419,10 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
                     ),
                   ],
                 ),
-                SizedBox(height: 16.h),
                 DoctorImageField(controller: _imageNameController),
                 SizedBox(height: 28.h),
                 AddDoctorButton(
+                  text: isEditMode ? LocaleKeys.updateDoctor.tr() : null,
                   isLoading: _isLoading,
                   isEnabled: _hasCategories,
                   onPressed: _saveDoctor,

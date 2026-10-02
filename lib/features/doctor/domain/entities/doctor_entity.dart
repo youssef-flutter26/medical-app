@@ -5,10 +5,8 @@ class DoctorEntity {
   final String categoryId;
   final String categoryName;
   final String address;
-  final int experience;
   final double rating;
   final int reviewsCount;
-  final String about;
   final String imagePath;
   final String availableTime;
   final DateTime? createdAt;
@@ -20,10 +18,8 @@ class DoctorEntity {
     required this.categoryId,
     required this.categoryName,
     this.address = '',
-    this.experience = 0,
     required this.rating,
     required this.reviewsCount,
-    this.about = '',
     required this.imagePath,
     this.availableTime = 'Mon - Sat: 09:00 AM - 05:00 PM',
     this.createdAt,
@@ -39,10 +35,8 @@ class DoctorEntity {
         other.categoryId == categoryId &&
         other.categoryName == categoryName &&
         other.address == address &&
-        other.experience == experience &&
         other.rating == rating &&
         other.reviewsCount == reviewsCount &&
-        other.about == about &&
         other.availableTime == availableTime &&
         other.imagePath == imagePath;
   }
@@ -55,10 +49,8 @@ class DoctorEntity {
         categoryId,
         categoryName,
         address,
-        experience,
         rating,
         reviewsCount,
-        about,
         availableTime,
         imagePath,
       );

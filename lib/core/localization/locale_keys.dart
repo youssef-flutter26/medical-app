@@ -242,6 +242,11 @@ abstract class LocaleKeys {
   static const doctorImageHint = 'doctorImageHint';
   static const doctorAddedSuccessfully = 'doctorAddedSuccessfully';
   static const failedToAddDoctor = 'failedToAddDoctor';
+  static const editDoctor = 'editDoctor';
+  static const updateDoctor = 'updateDoctor';
+  static const editDoctorInformation = 'editDoctorInformation';
+  static const doctorUpdatedSuccessfully = 'doctorUpdatedSuccessfully';
+  static const failedToUpdateDoctor = 'failedToUpdateDoctor';
   static const notAuthorizedAdmin = 'notAuthorizedAdmin';
   static const years = 'years';
 }

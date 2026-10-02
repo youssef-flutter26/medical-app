@@ -232,6 +232,11 @@
   "doctorImageHint": "doctor1.png",
   "doctorAddedSuccessfully": "Doctor added successfully",
   "failedToAddDoctor": "Failed to add doctor",
+  "editDoctor": "Edit Doctor",
+  "updateDoctor": "Update Doctor",
+  "editDoctorInformation": "Modify the information for this doctor.",
+  "doctorUpdatedSuccessfully": "Doctor updated successfully",
+  "failedToUpdateDoctor": "Failed to update doctor",
   "notAuthorizedAdmin": "You must be an administrator to add doctors.",
   "years": "years"
 }

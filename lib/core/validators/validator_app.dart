@@ -229,24 +229,6 @@ abstract final class ValidatorApp {
     }
     return null;
   }
-
-  static String? validateExperience(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return LocaleKeys.experienceCannotBeEmpty.tr();
-    }
-    final exp = int.tryParse(value.trim());
-    if (exp == null || exp < 0) {
-      return LocaleKeys.invalidExperience.tr();
-    }
-    return null;
-  }
-
-  static String? validateAboutDoctor(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return LocaleKeys.aboutDoctorCannotBeEmpty.tr();
-    }
-    return null;
-  }
 }
 
 

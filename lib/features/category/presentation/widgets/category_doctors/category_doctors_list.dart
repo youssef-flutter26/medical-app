@@ -10,12 +10,16 @@ class CategoryDoctorsList extends StatelessWidget {
   final List<DoctorData> doctors;
   final ValueChanged<DoctorData>? onDoctorTap;
   final ValueChanged<DoctorData>? onFavoriteTap;
+  final bool isAdmin;
+  final ValueChanged<DoctorData>? onEditDoctor;
 
   const CategoryDoctorsList({
     super.key,
     required this.doctors,
     this.onDoctorTap,
     this.onFavoriteTap,
+    this.isAdmin = false,
+    this.onEditDoctor,
   });
 
   @override
@@ -56,6 +60,8 @@ class CategoryDoctorsList extends StatelessWidget {
           doctor: doctor,
           onTap: () => onDoctorTap?.call(doctor),
           onFavoriteTap: () => onFavoriteTap?.call(doctor),
+          isAdmin: isAdmin,
+          onEdit: onEditDoctor != null ? () => onEditDoctor!(doctor) : null,
         );
       },
     );

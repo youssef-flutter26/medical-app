@@ -28,6 +28,28 @@ class DoctorRemoteDataSourceImpl implements DoctorRemoteDataSource {
   }
 
   @override
+  Future<void> updateDoctor(DoctorModel doctor) async {
+    final docId = doctor.id;
+    if (docId == null || docId.isEmpty) {
+      throw ArgumentError('Doctor id is required for update');
+    }
+    try {
+      final data = doctor.toFirestore();
+      debugPrint('Firestore updating doctor $docId with: $data');
+      await firestore.collection('doctors').doc(docId).update(data);
+      debugPrint('Firestore successfully updated doctor $docId');
+    } on FirebaseException catch (e) {
+      debugPrint(
+        'Firestore updateDoctor FirebaseException: [${e.code}] ${e.message}',
+      );
+      rethrow;
+    } catch (e) {
+      debugPrint('Firestore updateDoctor error: $e');
+      rethrow;
+    }
+  }
+
+  @override
   Stream<List<DoctorModel>> getDoctorsStream() {
     return firestore.collection('doctors').snapshots().map(
       (snapshot) {

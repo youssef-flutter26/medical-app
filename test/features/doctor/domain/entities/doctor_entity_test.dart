@@ -11,10 +11,8 @@ void main() {
         specialty: 'Cardiologist',
         categoryId: 'cat1',
         categoryName: 'Cardiology',
-        experience: 10,
         rating: 4.8,
         reviewsCount: 150,
-        about: 'Experienced cardiologist with 10 years of practice.',
         imagePath: 'assets/images/doctor1.png',
         createdAt: now,
       );
@@ -25,10 +23,8 @@ void main() {
         specialty: 'Cardiologist',
         categoryId: 'cat1',
         categoryName: 'Cardiology',
-        experience: 10,
         rating: 4.8,
         reviewsCount: 150,
-        about: 'Experienced cardiologist with 10 years of practice.',
         imagePath: 'assets/images/doctor1.png',
         createdAt: now,
       );

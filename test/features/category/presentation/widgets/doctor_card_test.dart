@@ -73,5 +73,44 @@ void main() {
             reason: 'Rating $ratingVal should be formatted as $expectedText');
       }
     });
+
+    testWidgets('shows edit icon only when isAdmin is true and triggers onEdit',
+        (tester) async {
+      bool editTapped = false;
+      final doctor = DoctorData(
+        id: 'doc1',
+        name: 'Dr. John Doe',
+        specialty: 'Cardiologist',
+        location: 'Heart Hospital',
+        rating: 4.8,
+        reviewCount: 200,
+      );
+
+      // When isAdmin is false, edit icon is hidden
+      await tester.pumpWidget(_wrapWithApp(
+        DoctorCard(
+          doctor: doctor,
+          isAdmin: false,
+          onEdit: () => editTapped = true,
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('doctor_edit_button')), findsNothing);
+
+      // When isAdmin is true, edit icon is visible and triggers onEdit
+      await tester.pumpWidget(_wrapWithApp(
+        DoctorCard(
+          doctor: doctor,
+          isAdmin: true,
+          onEdit: () => editTapped = true,
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('doctor_edit_button')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('doctor_edit_button')));
+      await tester.pumpAndSettle();
+      expect(editTapped, isTrue);
+    });
   });
 }

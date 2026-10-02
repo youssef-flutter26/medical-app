@@ -154,8 +154,15 @@ class AppRouter {
         );
 
       case Routes.addDoctor:
+        final doctorArg = settings.arguments;
+        DoctorEntity? initialDoctor;
+        if (doctorArg is DoctorEntity) {
+          initialDoctor = doctorArg;
+        } else if (doctorArg is DoctorData) {
+          initialDoctor = doctorArg.toEntity();
+        }
         return MaterialPageRoute(
-          builder: (_) => const AddDoctorPage(),
+          builder: (_) => AddDoctorPage(initialDoctor: initialDoctor),
           settings: settings,
         );
 

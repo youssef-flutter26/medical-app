@@ -12,6 +12,7 @@ import 'package:medical_app/features/doctor/data/datasources/doctor_remote_data_
 import 'package:medical_app/features/doctor/data/repositories/doctor_repository_impl.dart';
 import 'package:medical_app/features/doctor/domain/repositories/doctor_repository.dart';
 import 'package:medical_app/features/doctor/domain/usecases/add_doctor.dart';
+import 'package:medical_app/features/doctor/domain/usecases/update_doctor.dart';
 import 'package:medical_app/features/doctor/domain/usecases/get_doctors_stream.dart';
 import 'package:medical_app/features/doctor/domain/usecases/get_doctors_by_category_stream.dart';
 import 'package:medical_app/features/home/domain/usecases/add_banner.dart';
@@ -87,6 +88,9 @@ void setupServiceLocator() {
 
   getIt.registerLazySingleton<AddDoctor>(
     () => AddDoctor(getIt<DoctorRepository>()),
+  );
+  getIt.registerLazySingleton<UpdateDoctor>(
+    () => UpdateDoctor(getIt<DoctorRepository>()),
   );
   getIt.registerLazySingleton<GetDoctorsStream>(
     () => GetDoctorsStream(getIt<DoctorRepository>()),

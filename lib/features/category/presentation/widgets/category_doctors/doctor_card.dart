@@ -12,10 +12,8 @@ class DoctorData {
   final String specialty;
   final String? category;
   final String location;
-  final int experience;
   final double rating;
   final int reviewCount;
-  final String about;
   final String availableTime;
   final String? imagePath;
   final bool isFavorite;
@@ -28,10 +26,8 @@ class DoctorData {
     required this.specialty,
     this.category,
     required this.location,
-    this.experience = 0,
     required this.rating,
     required this.reviewCount,
-    this.about = '',
     this.availableTime = 'Mon - Sat: 09:00 AM - 05:00 PM',
     this.imagePath,
     this.isFavorite = false,
@@ -52,10 +48,8 @@ class DoctorData {
           : (doctor.categoryName.isNotEmpty
               ? '${doctor.categoryName} Specialist'
               : ''),
-      experience: doctor.experience,
       rating: doctor.rating,
       reviewCount: doctor.reviewsCount,
-      about: doctor.about,
       availableTime: doctor.availableTime,
       imagePath: doctor.imagePath,
       rawEntity: doctor,
@@ -71,10 +65,8 @@ class DoctorData {
       categoryId: category ?? '',
       categoryName: category ?? specialty,
       address: location,
-      experience: experience,
       rating: rating,
       reviewsCount: reviewCount,
-      about: about,
       availableTime: availableTime,
       imagePath: imagePath ?? '',
     );
@@ -86,10 +78,8 @@ class DoctorData {
     String? specialty,
     String? category,
     String? location,
-    int? experience,
     double? rating,
     int? reviewCount,
-    String? about,
     String? availableTime,
     String? imagePath,
     bool? isFavorite,
@@ -102,10 +92,8 @@ class DoctorData {
       specialty: specialty ?? this.specialty,
       category: category ?? this.category,
       location: location ?? this.location,
-      experience: experience ?? this.experience,
       rating: rating ?? this.rating,
       reviewCount: reviewCount ?? this.reviewCount,
-      about: about ?? this.about,
       availableTime: availableTime ?? this.availableTime,
       imagePath: imagePath ?? this.imagePath,
       isFavorite: isFavorite ?? this.isFavorite,
@@ -119,12 +107,16 @@ class DoctorCard extends StatelessWidget {
   final DoctorData doctor;
   final VoidCallback? onTap;
   final VoidCallback? onFavoriteTap;
+  final bool isAdmin;
+  final VoidCallback? onEdit;
 
   const DoctorCard({
     super.key,
     required this.doctor,
     this.onTap,
     this.onFavoriteTap,
+    this.isAdmin = false,
+    this.onEdit,
   });
 
   String get _formattedRating {
@@ -236,6 +228,29 @@ class DoctorCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      if (isAdmin && onEdit != null) ...[
+                        Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            key: const Key('doctor_edit_button'),
+                            onTap: onEdit,
+                            borderRadius: BorderRadius.circular(12.r),
+                            child: Container(
+                              padding: EdgeInsets.all(4.r),
+                              decoration: BoxDecoration(
+                                color: AppColors.darkTeal.withValues(alpha: 0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.edit_rounded,
+                                size: 14.r,
+                                color: AppColors.darkTeal,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 6.w),
+                      ],
                       InkWell(
                         onTap: onFavoriteTap,
                         borderRadius: BorderRadius.circular(12.r),

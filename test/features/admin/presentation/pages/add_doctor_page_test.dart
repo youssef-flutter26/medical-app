@@ -49,8 +49,20 @@ class TestDoctorAssetLoader extends AssetLoader {
       "imageNameCannotBeEmpty": "Image name cannot be empty",
       "doctorAddedSuccessfully": "Doctor added successfully",
       "failedToAddDoctor": "Failed to add doctor",
+      "editDoctor": "Edit Doctor",
+      "updateDoctor": "Update Doctor",
+      "editDoctorInformation": "Modify the information for this doctor.",
+      "doctorUpdatedSuccessfully": "Doctor updated successfully",
+      "failedToUpdateDoctor": "Failed to update doctor",
       "notAuthorizedAdmin": "You must be an administrator to add doctors.",
       "years": "years",
+      "experience": "Experience (Years)",
+      "enterExperience": "Enter years of experience",
+      "experienceCannotBeEmpty": "Experience cannot be empty",
+      "invalidExperience": "Please enter a valid number of years",
+      "aboutDoctor": "About Doctor",
+      "enterAboutDoctor": "Enter doctor biography and information",
+      "aboutDoctorCannotBeEmpty": "About doctor cannot be empty",
     };
   }
 }
@@ -303,6 +315,83 @@ void main() {
       expect(find.byKey(const Key('doctor_category_dropdown')), findsOneWidget);
 
       await controller.close();
+    });
+
+    testWidgets('edit mode pre-fills doctor data and saves updated values without duplicating record', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      const initialDoctor = DoctorEntity(
+        id: 'doc_existing_123',
+        name: 'Dr. Original Name',
+        specialty: 'Cardiology',
+        categoryId: 'cat1',
+        categoryName: 'Cardiology',
+        address: '123 Medical St',
+        rating: 4.7,
+        reviewsCount: 150,
+        imagePath: 'assets/images/doctor1.png',
+      );
+
+      DoctorEntity? updatedDoctor;
+
+      await tester.pumpWidget(EasyLocalization(
+        supportedLocales: const [Locale('en')],
+        path: 'assets/translations',
+        assetLoader: const TestDoctorAssetLoader(),
+        fallbackLocale: const Locale('en'),
+        startLocale: const Locale('en'),
+        child: AppScreenUtilScope(
+          child: MaterialApp(
+            home: AddDoctorPage(
+              initialDoctor: initialDoctor,
+              initialCategories: sampleCategories,
+              onSubmit: (doctor) async {
+                updatedDoctor = doctor;
+              },
+            ),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      // Verify header and prefilled data
+      expect(find.text('Edit Doctor'), findsNWidgets(2)); // AppBar + Button
+      expect(find.text('Dr. Original Name'), findsOneWidget);
+      expect(find.text('123 Medical St'), findsOneWidget);
+      expect(find.text('4.7'), findsOneWidget);
+      expect(find.text('150'), findsOneWidget);
+      expect(
+        tester
+            .widget<TextFormField>(find.byKey(const Key('doctor_image_name_input')))
+            .controller
+            ?.text,
+        'doctor1.png',
+      );
+
+      // Edit name
+      await tester.enterText(
+        find.byKey(const Key('doctor_name_input')),
+        'Dr. Updated Name',
+      );
+
+      // Submit
+      final submitFinder = find.byKey(const Key('add_doctor_submit_button'));
+      await tester.ensureVisible(submitFinder);
+      await tester.pumpAndSettle();
+      await tester.tap(submitFinder);
+      await tester.pumpAndSettle();
+
+      expect(updatedDoctor, isNotNull);
+      // Verify ID is preserved (no duplicate created)
+      expect(updatedDoctor!.id, 'doc_existing_123');
+      expect(updatedDoctor!.name, 'Dr. Updated Name');
+      expect(updatedDoctor!.address, '123 Medical St');
+      expect(updatedDoctor!.rating, 4.7);
+      expect(updatedDoctor!.reviewsCount, 150);
     });
   });
 }

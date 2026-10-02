@@ -9,10 +9,8 @@ class DoctorModel extends DoctorEntity {
     required super.categoryId,
     required super.categoryName,
     super.address = '',
-    super.experience = 0,
     required super.rating,
     required super.reviewsCount,
-    super.about = '',
     required super.imagePath,
     super.availableTime = 'Mon - Sat: 09:00 AM - 05:00 PM',
     super.createdAt,
@@ -75,10 +73,8 @@ class DoctorModel extends DoctorEntity {
       address: json['address']?.toString() ??
           json['location']?.toString() ??
           '',
-      experience: _parseInt(json['experience']),
       rating: _parseDouble(json['rating']),
       reviewsCount: _parseInt(json['reviewsCount'] ?? json['reviewCount']),
-      about: json['about']?.toString() ?? '',
       imagePath: json['imagePath']?.toString() ??
           json['imageUrl']?.toString() ??
           '',
@@ -97,10 +93,8 @@ class DoctorModel extends DoctorEntity {
       'categoryName': categoryName,
       'address': address,
       'location': address,
-      'experience': experience,
       'rating': rating,
       'reviewsCount': reviewsCount,
-      'about': about,
       'imagePath': imagePath,
       'availableTime': availableTime,
       'schedule': availableTime,
@@ -119,10 +113,8 @@ class DoctorModel extends DoctorEntity {
       categoryId: entity.categoryId,
       categoryName: entity.categoryName,
       address: entity.address,
-      experience: entity.experience,
       rating: entity.rating,
       reviewsCount: entity.reviewsCount,
-      about: entity.about,
       imagePath: entity.imagePath,
       availableTime: entity.availableTime,
       createdAt: entity.createdAt,

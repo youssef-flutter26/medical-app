@@ -232,6 +232,11 @@
   "doctorImageHint": "doctor1.png",
   "doctorAddedSuccessfully": "تمت إضافة الطبيب بنجاح",
   "failedToAddDoctor": "فشل في إضافة الطبيب",
+  "editDoctor": "تعديل الطبيب",
+  "updateDoctor": "تحديث الطبيب",
+  "editDoctorInformation": "تعديل بيانات هذا الطبيب.",
+  "doctorUpdatedSuccessfully": "تم تحديث الطبيب بنجاح",
+  "failedToUpdateDoctor": "فشل في تحديث الطبيب",
   "notAuthorizedAdmin": "يجب أن تكون مسؤولاً لإضافة أطباء.",
   "years": "سنوات"
 }

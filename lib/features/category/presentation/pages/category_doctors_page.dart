@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -9,6 +10,9 @@ import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_doctor_page.dart';
+import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
+import 'package:medical_app/features/auth/data/models/user_model.dart';
 import 'package:medical_app/features/category/presentation/widgets/category_doctors/category_doctors_header.dart';
 import 'package:medical_app/features/category/presentation/widgets/category_doctors/category_doctors_list.dart';
 import 'package:medical_app/features/category/presentation/widgets/category_doctors/doctor_card.dart';
@@ -27,6 +31,10 @@ class CategoryDoctorsPage extends StatefulWidget {
   final GetDoctorsStream? getDoctorsStream;
   final GetDoctorsByCategoryStream? getDoctorsByCategoryStream;
 
+  final bool? isAdmin;
+  final FirebaseAuth? firebaseAuth;
+  final UserRemoteDataSource? userRemoteDataSource;
+
   const CategoryDoctorsPage({
     super.key,
     this.categoryName,
@@ -37,6 +45,9 @@ class CategoryDoctorsPage extends StatefulWidget {
     this.doctorsStream,
     this.getDoctorsStream,
     this.getDoctorsByCategoryStream,
+    this.isAdmin,
+    this.firebaseAuth,
+    this.userRemoteDataSource,
   });
 
   @override
@@ -185,6 +196,52 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
     });
   }
 
+  FirebaseAuth? get _auth {
+    if (widget.firebaseAuth != null) return widget.firebaseAuth;
+    try {
+      return getIt.isRegistered<FirebaseAuth>()
+          ? getIt<FirebaseAuth>()
+          : FirebaseAuth.instance;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  UserRemoteDataSource? get _userRemoteDataSource {
+    if (widget.userRemoteDataSource != null) return widget.userRemoteDataSource;
+    try {
+      return getIt.isRegistered<UserRemoteDataSource>()
+          ? getIt<UserRemoteDataSource>()
+          : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _navigateToEditDoctor(DoctorData doctor) async {
+    final entity = doctor.toEntity();
+    final updated = await Navigator.push<DoctorEntity>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AddDoctorPage(
+          initialDoctor: entity,
+        ),
+      ),
+    );
+    if (updated != null && mounted) {
+      setState(() {
+        if (_doctors != null) {
+          final index = _doctors!.indexWhere((d) => d.id == updated.id);
+          if (index != -1) {
+            final oldFav = _doctors![index].isFavorite;
+            _doctors![index] =
+                DoctorData.fromEntity(updated).copyWith(isFavorite: oldFav);
+          }
+        }
+      });
+    }
+  }
+
   void _navigateToDoctorDetails(DoctorData doctor) {
     Navigator.pushNamed(
       context,
@@ -195,6 +252,37 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isAdmin != null) {
+      return _buildScaffold(context, isAdmin: widget.isAdmin!);
+    }
+
+    final firebaseAuth = _auth;
+    final remoteDataSource = _userRemoteDataSource;
+
+    if (firebaseAuth == null || remoteDataSource == null) {
+      return _buildScaffold(context, isAdmin: false);
+    }
+
+    return StreamBuilder<User?>(
+      stream: firebaseAuth.authStateChanges(),
+      builder: (context, authSnapshot) {
+        final currentUser = authSnapshot.data ?? firebaseAuth.currentUser;
+        if (currentUser == null) {
+          return _buildScaffold(context, isAdmin: false);
+        }
+
+        return StreamBuilder<UserModel?>(
+          stream: remoteDataSource.getUserStream(currentUser.uid),
+          builder: (context, userSnapshot) {
+            final isAdmin = userSnapshot.data?.role == 'admin';
+            return _buildScaffold(context, isAdmin: isAdmin);
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context, {required bool isAdmin}) {
     final doctors = _filteredDoctors;
 
     return Scaffold(
@@ -272,8 +360,10 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
               else
                 CategoryDoctorsList(
                   doctors: doctors,
+                  isAdmin: isAdmin,
                   onDoctorTap: _navigateToDoctorDetails,
                   onFavoriteTap: _toggleFavorite,
+                  onEditDoctor: _navigateToEditDoctor,
                 ),
             ],
           ),

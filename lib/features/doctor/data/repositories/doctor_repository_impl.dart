@@ -21,6 +21,16 @@ class DoctorRepositoryImpl implements DoctorRepository {
   }
 
   @override
+  Future<Result<void>> updateDoctor(DoctorEntity doctor) async {
+    try {
+      await remoteDataSource.updateDoctor(DoctorModel.fromEntity(doctor));
+      return const SuccessAPI(null);
+    } catch (e) {
+      return ErrorAPI(FirebaseFailure.fromException(e));
+    }
+  }
+
+  @override
   Stream<List<DoctorEntity>> getDoctorsStream() {
     return remoteDataSource.getDoctorsStream();
   }
