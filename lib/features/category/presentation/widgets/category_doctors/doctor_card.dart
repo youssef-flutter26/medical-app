@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
+import 'package:medical_app/features/doctor/domain/entities/doctor_entity.dart';
 
 class DoctorData {
   final String? id;
@@ -29,6 +30,21 @@ class DoctorData {
     this.isFavorite = false,
     this.backgroundColor,
   });
+
+  factory DoctorData.fromEntity(DoctorEntity doctor) {
+    return DoctorData(
+      id: doctor.id,
+      name: doctor.name,
+      specialty: doctor.specialty,
+      category: doctor.categoryName,
+      location: doctor.categoryName.isNotEmpty
+          ? '${doctor.categoryName} Specialist'
+          : '',
+      rating: doctor.rating,
+      reviewCount: doctor.reviewsCount,
+      imagePath: doctor.imagePath,
+    );
+  }
 
   DoctorData copyWith({
     String? id,

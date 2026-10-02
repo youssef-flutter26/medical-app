@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,6 +7,7 @@ import 'package:medical_app/features/category/presentation/pages/category_doctor
 import 'package:medical_app/features/category/presentation/widgets/category_doctors/category_doctors_header.dart';
 import 'package:medical_app/features/category/presentation/widgets/category_doctors/category_doctors_list.dart';
 import 'package:medical_app/features/category/presentation/widgets/category_doctors/doctor_card.dart';
+import 'package:medical_app/features/doctor/domain/entities/doctor_entity.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 
 class _FakeCategoryDoctorsAssetLoader extends AssetLoader {
@@ -24,11 +26,48 @@ class _FakeCategoryDoctorsAssetLoader extends AssetLoader {
   }
 }
 
+final List<DoctorEntity> sampleDoctors = [
+  const DoctorEntity(
+    id: '1',
+    name: 'Dr. David Patel',
+    specialty: 'Cardiologist',
+    categoryId: 'cat_cardiology',
+    categoryName: 'Cardiology',
+    experience: 10,
+    rating: 5.0,
+    reviewsCount: 1872,
+    imagePath: '',
+  ),
+  const DoctorEntity(
+    id: '2',
+    name: 'Dr. Jessica Turner',
+    specialty: 'Gynecologist',
+    categoryId: 'cat_gynecology',
+    categoryName: 'Gynecology',
+    experience: 8,
+    rating: 4.9,
+    reviewsCount: 127,
+    imagePath: '',
+  ),
+  const DoctorEntity(
+    id: '3',
+    name: 'Dr. Michael Johnson',
+    specialty: 'Orthopedic Surgery',
+    categoryId: 'cat_orthopedics',
+    categoryName: 'Orthopedics',
+    experience: 15,
+    rating: 4.7,
+    reviewsCount: 5223,
+    imagePath: '',
+  ),
+];
+
 Widget createCategoryDoctorsTestWidget({
   String? categoryName,
   CategoryEntity? category,
   String? pageTitle,
   List<DoctorData>? initialDoctors,
+  Stream<List<DoctorEntity>>? doctorsStream,
   int? resultsCount,
   NavigatorObserver? navigatorObserver,
 }) {
@@ -56,6 +95,7 @@ Widget createCategoryDoctorsTestWidget({
               category: category,
               pageTitle: pageTitle,
               initialDoctors: initialDoctors,
+              doctorsStream: doctorsStream ?? Stream.value(sampleDoctors),
               resultsCount: resultsCount,
             ),
           ),
@@ -69,7 +109,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets(
-      'CategoryDoctorsPage renders AppBar, search, count, sort and reference doctors',
+      'CategoryDoctorsPage renders AppBar, search, count, sort and dynamic doctors',
       (WidgetTester tester) async {
     await tester.pumpWidget(createCategoryDoctorsTestWidget());
     await tester.pumpAndSettle();
@@ -81,39 +121,48 @@ void main() {
     // 2. Header: Search, count and sort
     expect(find.byType(CategoryDoctorsHeader), findsOneWidget);
     expect(find.text('Search doctor...'), findsOneWidget);
-    expect(find.text('532 founds'), findsOneWidget);
+    expect(find.text('3 founds'), findsOneWidget);
     expect(find.text('Default'), findsOneWidget);
     expect(find.byIcon(Icons.swap_vert_rounded), findsOneWidget);
 
-    // 3. Doctor cards from reference image
+    // 3. Doctor cards loaded dynamically from stream
     expect(find.byType(CategoryDoctorsList), findsOneWidget);
     expect(find.text('Dr. David Patel'), findsOneWidget);
     expect(find.text('Cardiologist'), findsOneWidget);
-    expect(find.text('Cardiology Center, USA'), findsOneWidget);
     expect(find.text('5'), findsWidgets);
     expect(find.text('1,872 Reviews'), findsOneWidget);
 
     expect(find.text('Dr. Jessica Turner'), findsOneWidget);
     expect(find.text('Gynecologist'), findsOneWidget);
-    expect(find.text("Women's Clinic,Seattle,USA"), findsOneWidget);
     expect(find.text('4.9'), findsWidgets);
     expect(find.text('127 Reviews'), findsOneWidget);
 
     expect(find.text('Dr. Michael Johnson'), findsOneWidget);
     expect(find.text('Orthopedic Surgery'), findsOneWidget);
-    expect(find.text('Maple Associates, NY,USA'), findsOneWidget);
     expect(find.text('4.7'), findsOneWidget);
     expect(find.text('5,223 Reviews'), findsOneWidget);
-
-    expect(find.text('Dr. Emily Walker'), findsWidgets);
-    expect(find.text('Pediatrics'), findsWidgets);
   });
 
   testWidgets(
       'CategoryDoctorsPage filters doctors by selected Category from Home',
       (WidgetTester tester) async {
+    final cardiologyDoctors = [
+      const DoctorEntity(
+        id: '1',
+        name: 'Dr. David Patel',
+        specialty: 'Cardiologist',
+        categoryId: 'cat_cardiology',
+        categoryName: 'Cardiology',
+        experience: 10,
+        rating: 5.0,
+        reviewsCount: 1872,
+        imagePath: '',
+      ),
+    ];
+
     await tester.pumpWidget(createCategoryDoctorsTestWidget(
-      categoryName: 'Cardiology',
+      category: const CategoryEntity(id: 'cat_cardiology', name: 'Cardiology'),
+      doctorsStream: Stream.value(cardiologyDoctors),
     ));
     await tester.pumpAndSettle();
 
@@ -133,7 +182,8 @@ void main() {
       'CategoryDoctorsPage displays empty state when category has no doctors',
       (WidgetTester tester) async {
     await tester.pumpWidget(createCategoryDoctorsTestWidget(
-      categoryName: 'Vaccination',
+      category: const CategoryEntity(id: 'cat_vaccination', name: 'Vaccination'),
+      doctorsStream: Stream.value(const <DoctorEntity>[]),
     ));
     await tester.pumpAndSettle();
 
@@ -161,7 +211,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Dr. David Patel'), findsOneWidget);
-    expect(find.text('532 founds'), findsOneWidget);
+    expect(find.text('3 founds'), findsOneWidget);
   });
 
   testWidgets(

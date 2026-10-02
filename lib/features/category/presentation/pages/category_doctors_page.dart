@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:medical_app/core/di/service_locator.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
@@ -9,6 +11,9 @@ import 'package:medical_app/core/utils/app_assets.dart';
 import 'package:medical_app/features/category/presentation/widgets/category_doctors/category_doctors_header.dart';
 import 'package:medical_app/features/category/presentation/widgets/category_doctors/category_doctors_list.dart';
 import 'package:medical_app/features/category/presentation/widgets/category_doctors/doctor_card.dart';
+import 'package:medical_app/features/doctor/domain/entities/doctor_entity.dart';
+import 'package:medical_app/features/doctor/domain/usecases/get_doctors_by_category_stream.dart';
+import 'package:medical_app/features/doctor/domain/usecases/get_doctors_stream.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 
 class CategoryDoctorsPage extends StatefulWidget {
@@ -17,6 +22,9 @@ class CategoryDoctorsPage extends StatefulWidget {
   final String? pageTitle;
   final List<DoctorData>? initialDoctors;
   final int? resultsCount;
+  final Stream<List<DoctorEntity>>? doctorsStream;
+  final GetDoctorsStream? getDoctorsStream;
+  final GetDoctorsByCategoryStream? getDoctorsByCategoryStream;
 
   const CategoryDoctorsPage({
     super.key,
@@ -25,6 +33,9 @@ class CategoryDoctorsPage extends StatefulWidget {
     this.pageTitle,
     this.initialDoctors,
     this.resultsCount,
+    this.doctorsStream,
+    this.getDoctorsStream,
+    this.getDoctorsByCategoryStream,
   });
 
   @override
@@ -34,121 +45,72 @@ class CategoryDoctorsPage extends StatefulWidget {
 class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  late List<DoctorData> _doctors;
-
-  static const List<DoctorData> _defaultDoctors = [
-    DoctorData(
-      id: '1',
-      name: 'Dr. David Patel',
-      specialty: 'Cardiologist',
-      category: 'Cardiology',
-      location: 'Cardiology Center, USA',
-      rating: 5.0,
-      reviewCount: 1872,
-      backgroundColor: Color(0xFFFCE7F3),
-    ),
-    DoctorData(
-      id: '2',
-      name: 'Dr. Jessica Turner',
-      specialty: 'Gynecologist',
-      category: 'Gynecology',
-      location: "Women's Clinic,Seattle,USA",
-      rating: 4.9,
-      reviewCount: 127,
-      backgroundColor: Color(0xFFFFEDD5),
-    ),
-    DoctorData(
-      id: '3',
-      name: 'Dr. Michael Johnson',
-      specialty: 'Orthopedic Surgery',
-      category: 'Orthopedics',
-      location: 'Maple Associates, NY,USA',
-      rating: 4.7,
-      reviewCount: 5223,
-      backgroundColor: Color(0xFFCCFBF1),
-    ),
-    DoctorData(
-      id: '4',
-      name: 'Dr. Emily Walker',
-      specialty: 'Pediatrics',
-      category: 'Pediatrics',
-      location: 'Serenity Pediatrics Clinic',
-      rating: 5.0,
-      reviewCount: 405,
-      backgroundColor: Color(0xFFF1F5F9),
-    ),
-    DoctorData(
-      id: '5',
-      name: 'Dr. Emily Walker',
-      specialty: 'Pediatrics',
-      category: 'Pediatrics',
-      location: 'Serenity Pediatrics Clinic',
-      rating: 4.8,
-      reviewCount: 310,
-      backgroundColor: Color(0xFFFCE7F3),
-    ),
-    DoctorData(
-      id: '6',
-      name: 'Dr. Robert Chen',
-      specialty: 'Pulmonologist',
-      category: 'Pulmonology',
-      location: 'Chest & Lung Clinic, USA',
-      rating: 4.8,
-      reviewCount: 420,
-      backgroundColor: Color(0xFFEFF6FF),
-    ),
-    DoctorData(
-      id: '7',
-      name: 'Dr. Sarah Jenkins',
-      specialty: 'Neurologist',
-      category: 'Neurology',
-      location: 'Neurological Institute, NY, USA',
-      rating: 4.9,
-      reviewCount: 890,
-      backgroundColor: Color(0xFFFFFBEB),
-    ),
-    DoctorData(
-      id: '8',
-      name: 'Dr. Alexander Hayes',
-      specialty: 'General Practitioner',
-      category: 'General',
-      location: 'City General Hospital, USA',
-      rating: 4.6,
-      reviewCount: 654,
-      backgroundColor: Color(0xFFFAF5FF),
-    ),
-    DoctorData(
-      id: '9',
-      name: 'Dr. Maria Santos',
-      specialty: 'Dentist',
-      category: 'Dentistry',
-      location: 'Bright Smile Dental Clinic',
-      rating: 4.9,
-      reviewCount: 1420,
-      backgroundColor: Color(0xFFF0FDF4),
-    ),
-    DoctorData(
-      id: '10',
-      name: 'Dr. Linda Martinez',
-      specialty: 'Gastroenterologist',
-      category: 'Gastro',
-      location: 'Digestive Health Clinic, USA',
-      rating: 4.8,
-      reviewCount: 520,
-      backgroundColor: Color(0xFFECFDF5),
-    ),
-  ];
+  List<DoctorData>? _doctors;
+  bool _isLoading = true;
+  String? _errorMessage;
+  StreamSubscription<List<DoctorEntity>>? _subscription;
 
   @override
   void initState() {
     super.initState();
-    _doctors = widget.initialDoctors != null
-        ? List<DoctorData>.from(widget.initialDoctors!)
-        : List<DoctorData>.from(_defaultDoctors);
+    _initData();
+  }
+
+  void _initData() {
+    if (widget.initialDoctors != null) {
+      _doctors = List<DoctorData>.from(widget.initialDoctors!);
+      _isLoading = false;
+      return;
+    }
+
+    final categoryId = widget.category?.id;
+    Stream<List<DoctorEntity>>? stream = widget.doctorsStream;
+
+    if (stream == null) {
+      if (categoryId != null && categoryId.isNotEmpty) {
+        final useCase = widget.getDoctorsByCategoryStream ??
+            (getIt.isRegistered<GetDoctorsByCategoryStream>()
+                ? getIt<GetDoctorsByCategoryStream>()
+                : null);
+        stream = useCase?.call(categoryId);
+      } else {
+        final useCase = widget.getDoctorsStream ??
+            (getIt.isRegistered<GetDoctorsStream>()
+                ? getIt<GetDoctorsStream>()
+                : null);
+        stream = useCase?.call();
+      }
+    }
+
+    if (stream != null) {
+      _subscription = stream.listen(
+        (entities) {
+          if (mounted) {
+            setState(() {
+              _doctors = entities.map((e) => DoctorData.fromEntity(e)).toList();
+              _isLoading = false;
+              _errorMessage = null;
+            });
+          }
+        },
+        onError: (error) {
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+              _errorMessage = error.toString();
+            });
+          }
+        },
+      );
+    } else {
+      _doctors = <DoctorData>[];
+      _isLoading = false;
+    }
   }
 
   @override
   void dispose() {
+    _subscription?.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -167,16 +129,23 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
     if (widget.pageTitle != null && widget.pageTitle!.isNotEmpty) {
       return widget.pageTitle!;
     }
+    final catName = _effectiveCategoryName;
+    if (catName.isNotEmpty && catName.toLowerCase() != 'all doctors') {
+      return catName;
+    }
     return LocaleKeys.allDoctors.tr();
   }
 
   List<DoctorData> get _filteredDoctors {
+    final baseDoctors = _doctors ?? <DoctorData>[];
     final selectedCategory = _effectiveCategoryName;
     final hasCategoryFilter = selectedCategory.isNotEmpty &&
         selectedCategory.toLowerCase() != 'all doctors';
 
-    final categoryFiltered = hasCategoryFilter
-        ? _doctors.where((d) {
+    // If widget.category has an ID, the stream query already filtered by categoryId.
+    // If not, or if initialDoctors was passed, filter by category/specialty.
+    final categoryFiltered = hasCategoryFilter && widget.category?.id == null
+        ? baseDoctors.where((d) {
             final cat = d.category?.toLowerCase() ?? '';
             final spec = d.specialty.toLowerCase();
             final target = selectedCategory.toLowerCase();
@@ -184,7 +153,7 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
                 spec.contains(target) ||
                 target.contains(cat);
           }).toList()
-        : _doctors;
+        : baseDoctors;
 
     final query = _searchQuery.trim().toLowerCase();
     if (query.isEmpty) {
@@ -202,21 +171,15 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
     if (widget.resultsCount != null) {
       return widget.resultsCount!;
     }
-    final selectedCategory = _effectiveCategoryName;
-    final hasCategoryFilter = selectedCategory.isNotEmpty &&
-        selectedCategory.toLowerCase() != 'all doctors';
-
-    if (hasCategoryFilter || _searchQuery.trim().isNotEmpty) {
-      return _filteredDoctors.length;
-    }
-    return 532;
+    return _filteredDoctors.length;
   }
 
   void _toggleFavorite(DoctorData doctor) {
+    if (_doctors == null) return;
     setState(() {
-      final index = _doctors.indexWhere((d) => d.id == doctor.id);
+      final index = _doctors!.indexWhere((d) => d.id == doctor.id);
       if (index != -1) {
-        _doctors[index] = doctor.copyWith(isFavorite: !doctor.isFavorite);
+        _doctors![index] = doctor.copyWith(isFavorite: !doctor.isFavorite);
       }
     });
   }
@@ -274,10 +237,34 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
                 },
               ),
               SizedBox(height: 16.h),
-              CategoryDoctorsList(
-                doctors: doctors,
-                onFavoriteTap: _toggleFavorite,
-              ),
+              if (_errorMessage != null)
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(vertical: 32.h),
+                  alignment: Alignment.center,
+                  child: Text(
+                    _errorMessage!,
+                    style: AppTextStyles.withColor(
+                      AppTextStyles.inter14W400,
+                      Colors.red,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                )
+              else if (_isLoading && _doctors == null)
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(vertical: 48.h),
+                  alignment: Alignment.center,
+                  child: const CircularProgressIndicator(
+                    color: AppColors.darkTeal,
+                  ),
+                )
+              else
+                CategoryDoctorsList(
+                  doctors: doctors,
+                  onFavoriteTap: _toggleFavorite,
+                ),
             ],
           ),
         ),

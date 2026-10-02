@@ -12,6 +12,8 @@ import 'package:medical_app/features/doctor/data/datasources/doctor_remote_data_
 import 'package:medical_app/features/doctor/data/repositories/doctor_repository_impl.dart';
 import 'package:medical_app/features/doctor/domain/repositories/doctor_repository.dart';
 import 'package:medical_app/features/doctor/domain/usecases/add_doctor.dart';
+import 'package:medical_app/features/doctor/domain/usecases/get_doctors_stream.dart';
+import 'package:medical_app/features/doctor/domain/usecases/get_doctors_by_category_stream.dart';
 import 'package:medical_app/features/home/domain/usecases/add_banner.dart';
 import 'package:medical_app/features/home/domain/usecases/add_category.dart';
 import 'package:medical_app/features/home/domain/usecases/update_category.dart';
@@ -83,9 +85,14 @@ void setupServiceLocator() {
     () => DoctorRepositoryImpl(getIt<DoctorRemoteDataSource>()),
   );
 
-  // Use Cases
   getIt.registerLazySingleton<AddDoctor>(
     () => AddDoctor(getIt<DoctorRepository>()),
+  );
+  getIt.registerLazySingleton<GetDoctorsStream>(
+    () => GetDoctorsStream(getIt<DoctorRepository>()),
+  );
+  getIt.registerLazySingleton<GetDoctorsByCategoryStream>(
+    () => GetDoctorsByCategoryStream(getIt<DoctorRepository>()),
   );
   getIt.registerLazySingleton<AddBanner>(
     () => AddBanner(getIt<HomeRepository>()),

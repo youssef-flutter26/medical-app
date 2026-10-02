@@ -29,11 +29,7 @@ class DoctorRemoteDataSourceImpl implements DoctorRemoteDataSource {
 
   @override
   Stream<List<DoctorModel>> getDoctorsStream() {
-    return firestore
-        .collection('doctors')
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map(
+    return firestore.collection('doctors').snapshots().map(
       (snapshot) {
         debugPrint(
           'DoctorRemoteDataSource: received ${snapshot.docs.length} docs from doctors',
@@ -47,6 +43,12 @@ class DoctorRemoteDataSourceImpl implements DoctorRemoteDataSource {
             debugPrint('Error parsing doctor doc ${doc.id}: $e\n$stack');
           }
         }
+        list.sort((a, b) {
+          if (a.createdAt == null && b.createdAt == null) return 0;
+          if (a.createdAt == null) return 1;
+          if (b.createdAt == null) return -1;
+          return b.createdAt!.compareTo(a.createdAt!);
+        });
         return list;
       },
     );
@@ -72,6 +74,12 @@ class DoctorRemoteDataSourceImpl implements DoctorRemoteDataSource {
             debugPrint('Error parsing doctor doc ${doc.id}: $e\n$stack');
           }
         }
+        list.sort((a, b) {
+          if (a.createdAt == null && b.createdAt == null) return 0;
+          if (a.createdAt == null) return 1;
+          if (b.createdAt == null) return -1;
+          return b.createdAt!.compareTo(a.createdAt!);
+        });
         return list;
       },
     );
