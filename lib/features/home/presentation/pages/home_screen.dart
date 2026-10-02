@@ -9,6 +9,7 @@ import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
+import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_banner_page.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_medical_center_page.dart';
@@ -18,6 +19,7 @@ import 'package:medical_app/features/auth/data/models/user_model.dart';
 import 'package:medical_app/features/home/data/datasources/home_remote_data_source_impl.dart';
 import 'package:medical_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:medical_app/features/home/domain/usecases/get_banners_stream.dart';
+import 'package:medical_app/features/home/domain/usecases/get_categories_stream.dart';
 import 'package:medical_app/features/home/domain/usecases/get_medical_centers_stream.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_banner.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_banner_slider.dart';
@@ -32,6 +34,7 @@ class HomeScreen extends StatefulWidget {
   final FirebaseFirestore? firestore;
   final GetBannersStream? getBannersStream;
   final GetMedicalCentersStream? getMedicalCentersStream;
+  final GetCategoriesStream? getCategoriesStream;
 
   const HomeScreen({
     super.key,
@@ -40,6 +43,7 @@ class HomeScreen extends StatefulWidget {
     this.firestore,
     this.getBannersStream,
     this.getMedicalCentersStream,
+    this.getCategoriesStream,
   });
 
   @override
@@ -49,6 +53,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   Stream<List<BannerEntity>>? _bannersStream;
   Stream<List<MedicalCenterEntity>>? _medicalCentersStream;
+  Stream<List<CategoryEntity>>? _categoriesStream;
 
   FirebaseAuth? get _auth {
     if (widget.auth != null) return widget.auth;
@@ -83,6 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.didUpdateWidget(oldWidget);
     if (widget.getBannersStream != oldWidget.getBannersStream ||
         widget.getMedicalCentersStream != oldWidget.getMedicalCentersStream ||
+        widget.getCategoriesStream != oldWidget.getCategoriesStream ||
         widget.firestore != oldWidget.firestore) {
       _initStreams();
     }
@@ -120,6 +126,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _medicalCentersStream = centersUseCase?.call() ??
         Stream.value(const <MedicalCenterEntity>[]);
+
+    final categoriesUseCase = widget.getCategoriesStream ??
+        (getIt.isRegistered<GetCategoriesStream>()
+            ? getIt<GetCategoriesStream>()
+            : (widget.firestore != null || getIt.isRegistered<FirebaseFirestore>())
+                ? GetCategoriesStream(
+                    HomeRepositoryImpl(
+                      HomeRemoteDataSourceImpl(
+                        widget.firestore ?? getIt<FirebaseFirestore>(),
+                      ),
+                    ),
+                  )
+                : null);
+
+    _categoriesStream = categoriesUseCase?.call() ??
+        Stream.value(const <CategoryEntity>[]);
   }
 
   @override
@@ -196,9 +218,84 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
               ),
               SizedBox(height: 22.h),
-              HomeCategories(
-                onSeeAllPressed: () {
-                  Navigator.pushNamed(context, Routes.category);
+              StreamBuilder<List<CategoryEntity>>(
+                stream: _categoriesStream,
+                builder: (context, categorySnapshot) {
+                  // 1. Error state - Do NOT hide errors
+                  if (categorySnapshot.hasError) {
+                    final errorMsg = '${categorySnapshot.error}';
+                    debugPrint(
+                      'HomeScreen: Categories stream error: $errorMsg',
+                    );
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          LocaleKeys.categories.tr(),
+                          style: AppTextStyles.inter16W500.copyWith(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w700,
+                            height: 1.5,
+                            color: AppColors.darkTeal,
+                          ),
+                        ),
+                        SizedBox(height: 12.h),
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(vertical: 24.h),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Error loading categories: $errorMsg',
+                            style: AppTextStyles.withColor(
+                              AppTextStyles.inter14W400,
+                              Colors.red,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+
+                  // 2. Loading state
+                  if (categorySnapshot.connectionState ==
+                          ConnectionState.waiting &&
+                      !categorySnapshot.hasData) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          LocaleKeys.categories.tr(),
+                          style: AppTextStyles.inter16W500.copyWith(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w700,
+                            height: 1.5,
+                            color: AppColors.darkTeal,
+                          ),
+                        ),
+                        SizedBox(height: 12.h),
+                        SizedBox(
+                          height: 88.h,
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              color: AppColors.darkTeal,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+
+                  // 3. Success state showing only Firestore categories (or empty)
+                  final categories =
+                      categorySnapshot.data ?? const <CategoryEntity>[];
+
+                  return HomeCategories(
+                    categories: categories,
+                    onSeeAllPressed: () {
+                      Navigator.pushNamed(context, Routes.category);
+                    },
+                  );
                 },
               ),
               SizedBox(height: 24.h),

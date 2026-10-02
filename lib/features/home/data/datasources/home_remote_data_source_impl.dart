@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:medical_app/features/home/data/models/banner_model.dart';
+import 'package:medical_app/features/home/data/models/category_model.dart';
 import 'package:medical_app/features/home/data/models/medical_center_model.dart';
 import 'home_remote_data_source.dart';
 
@@ -105,6 +106,40 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       rethrow;
     } catch (e) {
       debugPrint('Firestore updateMedicalCenter error: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Stream<List<CategoryModel>> getCategoriesStream() {
+    return firestore.collection('categories').snapshots().map(
+      (snapshot) {
+        debugPrint(
+          'HomeRemoteDataSource: received ${snapshot.docs.length} docs from categories',
+        );
+        final list = <CategoryModel>[];
+        for (final doc in snapshot.docs) {
+          try {
+            final model = CategoryModel.fromFirestore(doc.data(), doc.id);
+            list.add(model);
+          } catch (e, stack) {
+            debugPrint('Error parsing category doc ${doc.id}: $e\n$stack');
+          }
+        }
+        return list;
+      },
+    );
+  }
+
+  @override
+  Future<void> addCategory(CategoryModel category) async {
+    try {
+      final data = category.toFirestore();
+      debugPrint('Firestore adding to categories: $data');
+      await firestore.collection('categories').add(data);
+      debugPrint('Firestore successfully added document to categories');
+    } catch (e) {
+      debugPrint('Firestore addCategory error: $e');
       rethrow;
     }
   }

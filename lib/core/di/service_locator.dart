@@ -8,8 +8,10 @@ import 'package:medical_app/features/home/data/datasources/home_remote_data_sour
 import 'package:medical_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
 import 'package:medical_app/features/home/domain/usecases/add_banner.dart';
+import 'package:medical_app/features/home/domain/usecases/add_category.dart';
 import 'package:medical_app/features/home/domain/usecases/add_medical_center.dart';
 import 'package:medical_app/features/home/domain/usecases/get_banners_stream.dart';
+import 'package:medical_app/features/home/domain/usecases/get_categories_stream.dart';
 import 'package:medical_app/features/home/domain/usecases/get_medical_centers_stream.dart';
 import 'package:medical_app/features/home/domain/usecases/update_banner.dart';
 import 'package:medical_app/features/home/domain/usecases/update_medical_center.dart';
@@ -85,6 +87,12 @@ void setupServiceLocator() {
   );
   getIt.registerLazySingleton<GetMedicalCentersStream>(
     () => GetMedicalCentersStream(getIt<HomeRepository>()),
+  );
+  getIt.registerLazySingleton<AddCategory>(
+    () => AddCategory(getIt<HomeRepository>()),
+  );
+  getIt.registerLazySingleton<GetCategoriesStream>(
+    () => GetCategoriesStream(getIt<HomeRepository>()),
   );
   getIt.registerLazySingleton<Login>(() => Login(getIt<AuthRepository>()));
 

@@ -4,16 +4,21 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
+import 'package:medical_app/core/di/service_locator.dart';
+import 'package:medical_app/features/home/domain/entities/category_entity.dart';
+import 'package:medical_app/features/home/domain/usecases/add_category.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_category/add_category_button.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_category/category_image_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_category/category_name_field.dart';
 
 class AddCategoryPage extends StatefulWidget {
   final Future<void> Function(String name, String imageName)? onSubmit;
+  final AddCategory? addCategory;
 
   const AddCategoryPage({
     super.key,
     this.onSubmit,
+    this.addCategory,
   });
 
   @override
@@ -24,6 +29,7 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
   late final TextEditingController _imageNameController;
+  late final AddCategory? _addCategoryUseCase;
 
   bool _isLoading = false;
   AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
@@ -33,6 +39,8 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
     super.initState();
     _nameController = TextEditingController();
     _imageNameController = TextEditingController();
+    _addCategoryUseCase = widget.addCategory ??
+        (getIt.isRegistered<AddCategory>() ? getIt<AddCategory>() : null);
   }
 
   @override
@@ -61,8 +69,24 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
         ? trimmedName.substring('assets/images/'.length)
         : trimmedName;
 
+    final categoryName = _nameController.text.trim();
     if (widget.onSubmit != null) {
-      await widget.onSubmit!(_nameController.text.trim(), cleanImageName);
+      await widget.onSubmit!(categoryName, cleanImageName);
+    } else {
+      final imagePath = cleanImageName.isNotEmpty
+          ? 'assets/images/$cleanImageName'
+          : '';
+      final addUseCase = _addCategoryUseCase ??
+          (getIt.isRegistered<AddCategory>() ? getIt<AddCategory>() : null);
+      if (addUseCase != null) {
+        await addUseCase(
+          CategoryEntity(
+            name: categoryName,
+            imagePath: imagePath,
+            createdAt: DateTime.now(),
+          ),
+        );
+      }
     }
 
     if (!mounted) return;

@@ -6,9 +6,11 @@ import 'package:medical_app/core/error/result.dart';
 import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
+import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
 import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
 import 'package:medical_app/features/home/domain/usecases/get_banners_stream.dart';
+import 'package:medical_app/features/home/domain/usecases/get_categories_stream.dart';
 import 'package:medical_app/features/home/domain/usecases/get_medical_centers_stream.dart';
 import 'package:medical_app/features/home/presentation/pages/home_screen.dart';
 import 'package:medical_app/features/home/presentation/widgets/category_item.dart';
@@ -45,12 +47,14 @@ class HomeTestAssetLoader extends AssetLoader {
       "vaccination": "Vaccination",
       "nearbyMedicalCenters": "Nearby Medical Centers",
       "contentNotFound": "Content not found",
+      "noCategoriesFound": "No categories found",
     };
   }
 }
 
 Widget createHomeScreenTestWidget({
   GetMedicalCentersStream? getMedicalCentersStream,
+  GetCategoriesStream? getCategoriesStream,
 }) {
   return EasyLocalization(
     supportedLocales: const [Locale('en')],
@@ -63,6 +67,7 @@ Widget createHomeScreenTestWidget({
         builder: (context) => _buildMaterialApp(
           context,
           getMedicalCentersStream: getMedicalCentersStream,
+          getCategoriesStream: getCategoriesStream,
         ),
       ),
     ),
@@ -72,6 +77,7 @@ Widget createHomeScreenTestWidget({
 Widget _buildMaterialApp(
   BuildContext context, {
   GetMedicalCentersStream? getMedicalCentersStream,
+  GetCategoriesStream? getCategoriesStream,
 }) {
   return MaterialApp(
     localizationsDelegates: context.localizationDelegates,
@@ -79,6 +85,7 @@ Widget _buildMaterialApp(
     locale: context.locale,
     home: HomeScreen(
       getMedicalCentersStream: getMedicalCentersStream,
+      getCategoriesStream: getCategoriesStream,
     ),
   );
 }
@@ -114,14 +121,27 @@ void main() {
         imagePath: 'assets/images/clinic2.png',
       ),
     ];
+    final categories = [
+      const CategoryEntity(name: 'Pediatrics'),
+      const CategoryEntity(name: 'Cardiology'),
+      const CategoryEntity(name: 'Pulmonology'),
+      const CategoryEntity(name: 'General'),
+      const CategoryEntity(name: 'Neurology'),
+      const CategoryEntity(name: 'Gastro...'),
+      const CategoryEntity(name: 'Laboratory'),
+      const CategoryEntity(name: 'Vaccination'),
+    ];
     final fakeRepo = _FakeHomeRepository(
       const Stream.empty(),
       Stream.value(centers),
+      Stream.value(categories),
     );
     final getCentersStream = GetMedicalCentersStream(fakeRepo);
+    final getCategoriesStream = GetCategoriesStream(fakeRepo);
 
     await tester.pumpWidget(createHomeScreenTestWidget(
       getMedicalCentersStream: getCentersStream,
+      getCategoriesStream: getCategoriesStream,
     ));
     await tester.pumpAndSettle();
 
@@ -142,14 +162,16 @@ void main() {
     expect(find.byType(HomeCategories), findsOneWidget);
     expect(find.text('Categories'), findsOneWidget);
     expect(find.byType(CategoryItem), findsNWidgets(8));
-    expect(find.text('Dentistry'), findsOneWidget);
-    expect(find.text('Cardiology'), findsOneWidget);
-    expect(find.text('Pulmonology'), findsOneWidget);
+    expect(find.text('Pediatr..'), findsOneWidget);
+    expect(find.text('Dentist'), findsNothing);
+    expect(find.text('Dentistry'), findsNothing);
+    expect(find.text('Cardiol..'), findsOneWidget);
+    expect(find.text('Pulmono..'), findsOneWidget);
     expect(find.text('General'), findsOneWidget);
     expect(find.text('Neurology'), findsOneWidget);
     expect(find.text('Gastro...'), findsOneWidget);
-    expect(find.text('Laboratory'), findsOneWidget);
-    expect(find.text('Vaccination'), findsOneWidget);
+    expect(find.text('Laborat..'), findsOneWidget);
+    expect(find.text('Vaccina..'), findsOneWidget);
 
     // 5. Nearby Medical Centers section
     expect(find.byType(NearbyMedicalCenters), findsOneWidget);
@@ -527,15 +549,76 @@ void main() {
     // Loops back to Banner 1
     expect(find.text('Banner 1'), findsOneWidget);
   });
+
+  testWidgets(
+      'Home Categories displays empty state and never shows Dentist when Firestore stream is empty',
+      (tester) async {
+    tester.view.physicalSize = const Size(1080, 4000);
+    tester.view.devicePixelRatio = 3.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    final fakeRepo = _FakeHomeRepository(
+      const Stream.empty(),
+      const Stream.empty(),
+      Stream.value(const <CategoryEntity>[]),
+    );
+    final getCentersStream = GetMedicalCentersStream(fakeRepo);
+    final getCategoriesStream = GetCategoriesStream(fakeRepo);
+
+    await tester.pumpWidget(createHomeScreenTestWidget(
+      getMedicalCentersStream: getCentersStream,
+      getCategoriesStream: getCategoriesStream,
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(HomeCategories), findsOneWidget);
+    expect(find.text('No categories found'), findsOneWidget);
+    expect(find.byType(CategoryItem), findsNothing);
+    expect(find.text('Dentist'), findsNothing);
+    expect(find.text('Dentistry'), findsNothing);
+  });
+
+  testWidgets(
+      'Home Categories displays ONLY categories emitted from Firestore stream',
+      (tester) async {
+    final categories = [
+      const CategoryEntity(name: 'General'),
+      const CategoryEntity(name: 'Neurology'),
+    ];
+    final fakeRepo = _FakeHomeRepository(
+      const Stream.empty(),
+      const Stream.empty(),
+      Stream.value(categories),
+    );
+    final getCentersStream = GetMedicalCentersStream(fakeRepo);
+    final getCategoriesStream = GetCategoriesStream(fakeRepo);
+
+    await tester.pumpWidget(createHomeScreenTestWidget(
+      getMedicalCentersStream: getCentersStream,
+      getCategoriesStream: getCategoriesStream,
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CategoryItem), findsNWidgets(2));
+    expect(find.text('General'), findsOneWidget);
+    expect(find.text('Neurology'), findsOneWidget);
+    expect(find.text('Dentist'), findsNothing);
+    expect(find.text('Dentistry'), findsNothing);
+  });
 }
 
 class _FakeHomeRepository implements HomeRepository {
   final Stream<List<BannerEntity>> _stream;
   final Stream<List<MedicalCenterEntity>> _medicalCentersStream;
+  final Stream<List<CategoryEntity>> _categoriesStream;
 
   _FakeHomeRepository(
     this._stream, [
     this._medicalCentersStream = const Stream.empty(),
+    this._categoriesStream = const Stream.empty(),
   ]);
 
   @override
@@ -544,6 +627,13 @@ class _FakeHomeRepository implements HomeRepository {
   @override
   Stream<List<MedicalCenterEntity>> getMedicalCentersStream() =>
       _medicalCentersStream;
+
+  @override
+  Stream<List<CategoryEntity>> getCategoriesStream() => _categoriesStream;
+
+  @override
+  Future<Result<void>> addCategory(CategoryEntity category) async =>
+      const SuccessAPI(null);
 
   @override
   Future<Result<void>> addMedicalCenter(MedicalCenterEntity center) async =>

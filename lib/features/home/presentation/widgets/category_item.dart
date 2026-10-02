@@ -7,17 +7,66 @@ class CategoryItem extends StatelessWidget {
   const CategoryItem({
     super.key,
     required this.title,
-    required this.icon,
+    this.icon = Icons.local_hospital_rounded,
+    this.imagePath,
     this.backgroundColor,
     this.iconColor,
     this.onTap,
   });
 
   final String title;
-  final IconData icon;
+  final IconData? icon;
+  final String? imagePath;
   final Color? backgroundColor;
   final Color? iconColor;
   final VoidCallback? onTap;
+
+  String get _displayTitle {
+    if (title.length > 9) {
+      return '${title.substring(0, 7)}..';
+    }
+    return title;
+  }
+
+  Widget _buildContent() {
+    final path = imagePath?.trim() ?? '';
+    if (path.isNotEmpty) {
+      if (path.startsWith('http://') || path.startsWith('https://')) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(16.r),
+          child: Image.network(
+            path,
+            width: 64.w,
+            height: 64.h,
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) => _buildIcon(),
+          ),
+        );
+      }
+      final assetPath = path.startsWith('assets/images/')
+          ? path
+          : (path.startsWith('assets/') ? path : 'assets/images/$path');
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(16.r),
+        child: Image.asset(
+          assetPath,
+          width: 64.w,
+          height: 64.h,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) => _buildIcon(),
+        ),
+      );
+    }
+    return _buildIcon();
+  }
+
+  Widget _buildIcon() {
+    return Icon(
+      icon ?? Icons.local_hospital_rounded,
+      size: 26.r,
+      color: iconColor ?? AppColors.darkTeal,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,30 +78,26 @@ class CategoryItem extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 52.r,
-            height: 52.r,
+            width: 64.w,
+            height: 64.h,
             decoration: BoxDecoration(
               color: backgroundColor ?? AppColors.gray100,
               borderRadius: BorderRadius.circular(16.r),
             ),
             alignment: Alignment.center,
-            child: Icon(
-              icon,
-              size: 26.r,
-              color: iconColor ?? AppColors.darkTeal,
-            ),
+            child: _buildContent(),
           ),
           SizedBox(height: 6.h),
           Text(
-            title,
+            _displayTitle,
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.withColor(
-              AppTextStyles.inter10W500.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-              AppColors.gray700,
+            style: AppTextStyles.inter12W500.copyWith(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w700,
+              height: 1.5,
+              color: AppColors.gray700,
             ),
           ),
         ],

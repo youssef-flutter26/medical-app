@@ -7,6 +7,7 @@ import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_medical_center_page.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
+import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
 import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
 import 'package:medical_app/features/home/domain/usecases/add_medical_center.dart';
@@ -77,6 +78,13 @@ class FakeMedicalCenterRepository implements HomeRepository {
   MedicalCenterEntity? savedCenter;
 
   MedicalCenterEntity? updatedCenter;
+
+  @override
+  Stream<List<CategoryEntity>> getCategoriesStream() => const Stream.empty();
+
+  @override
+  Future<Result<void>> addCategory(CategoryEntity category) async =>
+      const SuccessAPI(null);
 
   @override
   Stream<List<BannerEntity>> getBannersStream() => const Stream.empty();

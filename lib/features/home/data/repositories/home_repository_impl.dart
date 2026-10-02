@@ -4,8 +4,10 @@ import 'package:medical_app/core/error/firebase_failure.dart';
 import 'package:medical_app/core/error/result.dart';
 import 'package:medical_app/features/home/data/datasources/home_remote_data_source.dart';
 import 'package:medical_app/features/home/data/models/banner_model.dart';
+import 'package:medical_app/features/home/data/models/category_model.dart';
 import 'package:medical_app/features/home/data/models/medical_center_model.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
+import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
 import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
 
@@ -90,6 +92,28 @@ class HomeRepositoryImpl implements HomeRepository {
       return ErrorAPI(FirebaseFailure.fromException(e));
     } catch (e) {
       debugPrint('HomeRepository updateMedicalCenter error: $e');
+      return ErrorAPI(FirebaseFailure.fromException(e));
+    }
+  }
+
+  @override
+  Stream<List<CategoryEntity>> getCategoriesStream() {
+    return remoteDataSource.getCategoriesStream().map(
+          (models) => models.cast<CategoryEntity>().toList(),
+        );
+  }
+
+  @override
+  Future<Result<void>> addCategory(CategoryEntity category) async {
+    try {
+      final model = CategoryModel(
+        name: category.name,
+        imagePath: category.imagePath,
+        createdAt: category.createdAt,
+      );
+      await remoteDataSource.addCategory(model);
+      return const SuccessAPI(null);
+    } catch (e) {
       return ErrorAPI(FirebaseFailure.fromException(e));
     }
   }
