@@ -120,4 +120,115 @@ abstract final class ValidatorApp {
     }
     return null;
   }
+
+  static String? validateTitle(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.titleCannotBeEmpty.tr();
+    }
+    return null;
+  }
+
+  static String? validateDescription(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.descriptionCannotBeEmpty.tr();
+    }
+    return null;
+  }
+
+  static String? validateImageUrl(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.imageUrlCannotBeEmpty.tr();
+    }
+    return null;
+  }
+
+  static String? validateImageName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.imageNameCannotBeEmpty.tr();
+    }
+    return null;
+  }
+
+  static String? validateMedicalCenterName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.nameCannotBeEmpty.tr();
+    }
+    return null;
+  }
+
+  static String? validateAddress(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.addressCannotBeEmpty.tr();
+    }
+    return null;
+  }
+
+  static String? validateRating(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.ratingCannotBeEmpty.tr();
+    }
+    final rating = double.tryParse(value.trim().replaceAll(',', '.'));
+    if (rating == null || rating < 0.0 || rating > 5.0) {
+      return LocaleKeys.invalidRating.tr();
+    }
+    return null;
+  }
+
+  static String? validateReviewsCount(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.reviewsCountCannotBeEmpty.tr();
+    }
+    final count = int.tryParse(value.trim());
+    if (count == null || count < 0) {
+      return LocaleKeys.invalidReviewsCount.tr();
+    }
+    return null;
+  }
+
+  static String? validateDistance(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.distanceCannotBeEmpty.tr();
+    }
+    final clean = value.replaceAll(RegExp(r'[^\d.]'), '').trim();
+    final distance = double.tryParse(clean);
+    if (distance == null || distance < 0) {
+      return LocaleKeys.invalidDistance.tr();
+    }
+    return null;
+  }
+
+  static String? validateDuration(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.durationCannotBeEmpty.tr();
+    }
+    final clean = value.replaceAll(RegExp(r'[^\d]'), '').trim();
+    final duration = int.tryParse(clean);
+    if (duration == null || duration < 0) {
+      return LocaleKeys.invalidDuration.tr();
+    }
+    return null;
+  }
+
+  static String? validateCategoryName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.categoryNameCannotBeEmpty.tr();
+    }
+    return null;
+  }
+
+  static String? validateDoctorName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.doctorNameCannotBeEmpty.tr();
+    }
+    return null;
+  }
+
+  static String? validateSpecialty(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.specialtyCannotBeEmpty.tr();
+    }
+    return null;
+  }
 }
+
+

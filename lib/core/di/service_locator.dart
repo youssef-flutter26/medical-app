@@ -4,11 +4,6 @@ import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:medical_app/core/routing/app_router.dart';
-
-// ==========================================
-// AUTH - DATA SOURCES
-// ==========================================
-
 import 'package:medical_app/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:medical_app/features/auth/data/datasources/auth_remote_data_source_impl.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
@@ -112,6 +107,14 @@ void setupServiceLocator() {
         ),
   );
 
+  getIt.registerLazySingleton<HomeRemoteDataSource>(
+    () => HomeRemoteDataSourceImpl(getIt<FirebaseFirestore>()),
+  );
+
+  getIt.registerLazySingleton<DoctorRemoteDataSource>(
+    () => DoctorRemoteDataSourceImpl(getIt<FirebaseFirestore>()),
+  );
+
   // ------------------------------------------
   // Repository
   // ------------------------------------------
@@ -124,16 +127,8 @@ void setupServiceLocator() {
     ),
   );
 
-  // ------------------------------------------
   // Use Cases
-  // ------------------------------------------
-
-  getIt.registerLazySingleton<Login>(
-        () =>
-        Login(
-          getIt<AuthRepository>(),
-        ),
-  );
+  getIt.registerLazySingleton<Login>(() => Login(getIt<AuthRepository>()));
 
   getIt.registerLazySingleton<LoginWithGoogle>(
         () =>

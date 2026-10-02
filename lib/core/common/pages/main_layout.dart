@@ -4,6 +4,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
+import 'package:medical_app/features/home/presentation/pages/home_screen.dart';
+import 'package:medical_app/features/profile/presentation/pages/profile_screen.dart';
 
 import '../../../features/location/presentation/pages/location_screen.dart';
 
@@ -17,15 +19,13 @@ class MainLayout extends StatefulWidget {
 class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = [
-    // HomeScreen(),
+  final List<Widget> _screens = [ 
+    const HomeScreen(),
     // LocationScreen(),
     // AppointmentScreen(),
-    // ProfileScreen(),
-    Center(child: Text('home'.tr())),
-    const LocationScreen(),
-    Center(child: Text('appointment'.tr())),
-    Center(child: Text('profile'.tr())),
+    Center(child: Text(LocaleKeys.location.tr())),
+    Center(child: Text(LocaleKeys.appointment.tr())),
+    const ProfileScreen(),
   ];
 
   @override

@@ -26,4 +26,20 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
 
     return UserModel.fromFirestore(snapshot.data()!);
   }
+
+  @override
+  Stream<UserModel?> getUserStream(String uid) {
+    return firestore
+        .collection('users')
+        .doc(uid)
+        .snapshots()
+        .map((snapshot) {
+          if (!snapshot.exists || snapshot.data() == null) {
+            return null;
+          }
+
+          return UserModel.fromFirestore(snapshot.data()!);
+        })
+        .handleError((_) => null);
+  }
 }

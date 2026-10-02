@@ -1,12 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:medical_app/core/common/pages/main_layout.dart';
 import 'package:medical_app/core/routing/routes.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_banner_page.dart';
+import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
+import 'package:medical_app/features/home/domain/entities/category_entity.dart';
+import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_category_page.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_data_page.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_doctor_page.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_medical_center_page.dart';
 import 'package:medical_app/features/auth/presentation/pages/forget_password_screen.dart';
 import 'package:medical_app/features/auth/presentation/pages/login_screen.dart';
 import 'package:medical_app/features/auth/presentation/pages/register_screen .dart';
 import 'package:medical_app/features/auth/presentation/widgets/fill_profile.dart';
-import 'package:medical_app/features/onboarding/presentation/views/onboarding_screen.dart';
-import 'package:medical_app/features/splash/presentation/views/splash_screen.dart';
+import 'package:medical_app/features/onboarding/presentation/pages/onboarding_screen.dart';
+import 'package:medical_app/features/category/presentation/pages/category_doctors_page.dart';
+import 'package:medical_app/features/category/presentation/pages/category_page.dart';
+import 'package:medical_app/features/category/presentation/widgets/category_doctors/doctor_card.dart';
+import 'package:medical_app/features/doctor/domain/entities/doctor_entity.dart';
+import 'package:medical_app/features/doctor/presentation/pages/doctor_details_page.dart';
+import 'package:medical_app/features/profile/presentation/pages/profile_screen.dart';
+import 'package:medical_app/features/splash/presentation/pages/splash_screen.dart';
 
 class AppRouter {
   Route<dynamic>? generateRoute(RouteSettings settings) {
@@ -60,6 +74,101 @@ class AppRouter {
       case Routes.mainLayout:
         return MaterialPageRoute(
           builder: (_) => const MainLayout(),
+          settings: settings,
+        );
+
+      case Routes.adminDataSelection:
+        return MaterialPageRoute(
+          builder: (_) => const AddDataPage(),
+          settings: settings,
+        );
+
+      case Routes.addBanner:
+        final initialBanner = settings.arguments is BannerEntity
+            ? settings.arguments as BannerEntity
+            : null;
+        return MaterialPageRoute(
+          builder: (_) => AddBannerPage(initialBanner: initialBanner),
+          settings: settings,
+        );
+
+      case Routes.addCategory:
+        final initialCategory = settings.arguments is CategoryEntity
+            ? settings.arguments as CategoryEntity
+            : null;
+        return MaterialPageRoute(
+          builder: (_) => AddCategoryPage(initialCategory: initialCategory),
+          settings: settings,
+        );
+
+      case Routes.addMedicalCenter:
+        final initialMedicalCenter = settings.arguments is MedicalCenterEntity
+            ? settings.arguments as MedicalCenterEntity
+            : null;
+        return MaterialPageRoute(
+          builder: (_) => AddMedicalCenterPage(
+            initialMedicalCenter: initialMedicalCenter,
+          ),
+          settings: settings,
+        );
+
+      case Routes.category:
+        return MaterialPageRoute(
+          builder: (_) => const CategoryPage(),
+          settings: settings,
+        );
+
+      case Routes.categoryDoctors:
+        final categoryEntity = settings.arguments is CategoryEntity
+            ? settings.arguments as CategoryEntity
+            : null;
+        final categoryName = settings.arguments is String
+            ? settings.arguments as String
+            : categoryEntity?.name;
+        return MaterialPageRoute(
+          builder: (_) => CategoryDoctorsPage(
+            category: categoryEntity,
+            categoryName: categoryName,
+          ),
+          settings: settings,
+        );
+
+      case Routes.doctorDetails:
+        final doctorArg = settings.arguments;
+        DoctorEntity? doctorEntity;
+        DoctorData? doctorData;
+
+        if (doctorArg is DoctorEntity) {
+          doctorEntity = doctorArg;
+        } else if (doctorArg is DoctorData) {
+          doctorData = doctorArg;
+          doctorEntity = doctorArg.toEntity();
+        }
+
+        return MaterialPageRoute(
+          builder: (_) => DoctorDetailsPage(
+            doctor: doctorEntity,
+            doctorData: doctorData,
+          ),
+          settings: settings,
+        );
+
+      case Routes.addDoctor:
+        final doctorArg = settings.arguments;
+        DoctorEntity? initialDoctor;
+        if (doctorArg is DoctorEntity) {
+          initialDoctor = doctorArg;
+        } else if (doctorArg is DoctorData) {
+          initialDoctor = doctorArg.toEntity();
+        }
+        return MaterialPageRoute(
+          builder: (_) => AddDoctorPage(initialDoctor: initialDoctor),
+          settings: settings,
+        );
+
+      case Routes.profile:
+        return MaterialPageRoute(
+          builder: (_) => const ProfileScreen(),
           settings: settings,
         );
 

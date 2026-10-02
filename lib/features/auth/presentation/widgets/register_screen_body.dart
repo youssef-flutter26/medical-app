@@ -10,6 +10,7 @@ import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
 import 'package:medical_app/core/validators/validator_app.dart';
+import 'package:medical_app/core/common/widgets/app_button.dart';
 import 'package:medical_app/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:medical_app/features/auth/presentation/cubit/auth_state.dart';
 import 'package:medical_app/features/auth/presentation/widgets/auth_text_field.dart';
@@ -77,8 +78,12 @@ class _RegisterScreenBodyState extends State<RegisterScreenBody> {
           if (FirebaseAuth.instance.currentUser != null) {
             Navigator.pushNamedAndRemoveUntil(
               context,
-              Routes.mainLayout,
+              Routes.fillProfile,
               (route) => false,
+              arguments: {
+                'name': nameController.text.trim(),
+                'email': emailController.text.trim(),
+              },
             );
           }
         } else if (state is GoogleLoginSuccess) {

@@ -1,0 +1,13 @@
+import 'package:medical_app/core/error/result.dart';
+import 'package:medical_app/features/home/domain/entities/category_entity.dart';
+import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
+
+class UpdateCategory {
+  final HomeRepository repository;
+
+  UpdateCategory(this.repository);
+
+  Future<Result<void>> call(CategoryEntity category) {
+    return repository.updateCategory(category);
+  }
+}

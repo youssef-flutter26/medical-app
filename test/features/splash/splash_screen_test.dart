@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
 import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
-import 'package:medical_app/features/splash/presentation/views/splash_screen.dart';
+import 'package:medical_app/features/splash/presentation/pages/splash_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
