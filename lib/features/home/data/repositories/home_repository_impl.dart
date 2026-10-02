@@ -117,4 +117,26 @@ class HomeRepositoryImpl implements HomeRepository {
       return ErrorAPI(FirebaseFailure.fromException(e));
     }
   }
+
+  @override
+  Future<Result<void>> updateCategory(CategoryEntity category) async {
+    try {
+      final model = CategoryModel(
+        id: category.id,
+        name: category.name,
+        imagePath: category.imagePath,
+        createdAt: category.createdAt,
+      );
+      await remoteDataSource.updateCategory(model);
+      return const SuccessAPI(null);
+    } on FirebaseException catch (e) {
+      debugPrint(
+        'HomeRepository updateCategory FirebaseException: [${e.code}] ${e.message}',
+      );
+      return ErrorAPI(FirebaseFailure.fromException(e));
+    } catch (e) {
+      debugPrint('HomeRepository updateCategory error: $e');
+      return ErrorAPI(FirebaseFailure.fromException(e));
+    }
+  }
 }

@@ -13,4 +13,5 @@ abstract class HomeRepository {
   Future<Result<void>> updateMedicalCenter(MedicalCenterEntity center);
   Stream<List<CategoryEntity>> getCategoriesStream();
   Future<Result<void>> addCategory(CategoryEntity category);
+  Future<Result<void>> updateCategory(CategoryEntity category);
 }

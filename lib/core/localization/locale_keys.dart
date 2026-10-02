@@ -211,6 +211,11 @@ abstract class LocaleKeys {
   static const categoryImageHint = 'categoryImageHint';
   static const categoryAddedSuccessfully = 'categoryAddedSuccessfully';
   static const failedToAddCategory = 'failedToAddCategory';
+  static const editCategory = 'editCategory';
+  static const updateCategory = 'updateCategory';
+  static const editCategoryInformation = 'editCategoryInformation';
+  static const categoryUpdatedSuccessfully = 'categoryUpdatedSuccessfully';
+  static const failedToUpdateCategory = 'failedToUpdateCategory';
 }
 
 

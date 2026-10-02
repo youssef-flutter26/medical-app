@@ -36,13 +36,13 @@ class CategoryModel extends CategoryEntity {
     );
   }
 
-  Map<String, dynamic> toFirestore() {
+  Map<String, dynamic> toFirestore({bool isNew = false}) {
     return {
       'name': name,
       'imagePath': imagePath,
-      'createdAt': createdAt != null
-          ? Timestamp.fromDate(createdAt!)
-          : Timestamp.now(),
+      'createdAt': isNew || createdAt == null
+          ? FieldValue.serverTimestamp()
+          : Timestamp.fromDate(createdAt!),
     };
   }
 }

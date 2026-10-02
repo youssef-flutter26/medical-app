@@ -11,4 +11,5 @@ abstract class HomeRemoteDataSource {
   Future<void> updateMedicalCenter(MedicalCenterModel center);
   Stream<List<CategoryModel>> getCategoriesStream();
   Future<void> addCategory(CategoryModel category);
+  Future<void> updateCategory(CategoryModel category);
 }

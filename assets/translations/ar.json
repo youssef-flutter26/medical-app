@@ -190,5 +190,20 @@
   "updateMedicalCenter": "تحديث المركز الطبي",
   "editMedicalCenterInformation": "تعديل معلومات هذا المركز الطبي.",
   "medicalCenterUpdatedSuccessfully": "تم تحديث المركز الطبي بنجاح",
-  "failedToUpdateMedicalCenter": "فشل في تحديث المركز الطبي"
+  "failedToUpdateMedicalCenter": "فشل في تحديث المركز الطبي",
+  "addCategory": "إضافة فئة",
+  "categoryDetails": "تفاصيل الفئة",
+  "addCategoryInformation": "أدخل تفاصيل الفئة الطبية الجديدة.",
+  "categoryName": "اسم الفئة",
+  "enterCategoryName": "أدخل اسم الفئة",
+  "categoryNameHint": "طبيب أسنان",
+  "categoryNameCannotBeEmpty": "اسم الفئة لا يمكن أن يكون فارغاً",
+  "categoryImageHint": "dentist.png",
+  "categoryAddedSuccessfully": "تمت إضافة الفئة بنجاح",
+  "failedToAddCategory": "فشل في إضافة الفئة",
+  "editCategory": "تعديل الفئة",
+  "updateCategory": "تحديث الفئة",
+  "editCategoryInformation": "تعديل معلومات هذه الفئة الطبية.",
+  "categoryUpdatedSuccessfully": "تم تحديث الفئة بنجاح",
+  "failedToUpdateCategory": "فشل في تحديث الفئة"
 }

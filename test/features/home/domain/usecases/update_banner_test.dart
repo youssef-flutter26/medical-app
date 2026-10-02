@@ -19,6 +19,10 @@ class FakeHomeRepository implements HomeRepository {
       const SuccessAPI(null);
 
   @override
+  Future<Result<void>> updateCategory(CategoryEntity category) async =>
+      const SuccessAPI(null);
+
+  @override
   Stream<List<BannerEntity>> getBannersStream() => const Stream.empty();
 
   @override

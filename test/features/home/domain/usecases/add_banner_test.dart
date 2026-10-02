@@ -26,6 +26,10 @@ class FakeHomeRepository implements HomeRepository {
       const SuccessAPI(null);
 
   @override
+  Future<Result<void>> updateCategory(CategoryEntity category) async =>
+      const SuccessAPI(null);
+
+  @override
   Future<Result<void>> addMedicalCenter(MedicalCenterEntity center) async {
     return const SuccessAPI(null);
   }

@@ -112,7 +112,11 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
 
   @override
   Stream<List<CategoryModel>> getCategoriesStream() {
-    return firestore.collection('categories').snapshots().map(
+    return firestore
+        .collection('categories')
+        .orderBy('createdAt', descending: false)
+        .snapshots()
+        .map(
       (snapshot) {
         debugPrint(
           'HomeRemoteDataSource: received ${snapshot.docs.length} docs from categories',
@@ -134,12 +138,49 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   @override
   Future<void> addCategory(CategoryModel category) async {
     try {
-      final data = category.toFirestore();
+      final data = <String, dynamic>{
+        'name': category.name,
+        'imagePath': category.imagePath,
+        'createdAt': FieldValue.serverTimestamp(),
+      };
       debugPrint('Firestore adding to categories: $data');
       await firestore.collection('categories').add(data);
       debugPrint('Firestore successfully added document to categories');
     } catch (e) {
       debugPrint('Firestore addCategory error: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> updateCategory(CategoryModel category) async {
+    if (category.id == null || category.id!.isEmpty) {
+      throw ArgumentError(
+        'Category ID cannot be null or empty when updating',
+      );
+    }
+    try {
+      final data = <String, dynamic>{
+        'name': category.name,
+        'imagePath': category.imagePath,
+      };
+      if (category.createdAt != null) {
+        data['createdAt'] = Timestamp.fromDate(category.createdAt!);
+      }
+      debugPrint(
+        'Firestore updating document ${category.id} in categories: $data',
+      );
+      await firestore.collection('categories').doc(category.id).update(data);
+      debugPrint(
+        'Firestore successfully updated document ${category.id} in categories',
+      );
+    } on FirebaseException catch (e) {
+      debugPrint(
+        'Firestore updateCategory FirebaseException: [${e.code}] ${e.message}',
+      );
+      rethrow;
+    } catch (e) {
+      debugPrint('Firestore updateCategory error: $e');
       rethrow;
     }
   }

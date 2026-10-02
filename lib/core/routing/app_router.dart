@@ -3,6 +3,7 @@ import 'package:medical_app/core/common/pages/main_layout.dart';
 import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_banner_page.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
+import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_category_page.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_data_page.dart';
@@ -88,8 +89,11 @@ class AppRouter {
         );
 
       case Routes.addCategory:
+        final initialCategory = settings.arguments is CategoryEntity
+            ? settings.arguments as CategoryEntity
+            : null;
         return MaterialPageRoute(
-          builder: (_) => const AddCategoryPage(),
+          builder: (_) => AddCategoryPage(initialCategory: initialCategory),
           settings: settings,
         );
 

@@ -608,6 +608,114 @@ void main() {
     expect(find.text('Dentist'), findsNothing);
     expect(find.text('Dentistry'), findsNothing);
   });
+
+  testWidgets(
+      'CategoryItem displays edit pencil icon for Admin and hides it for normal users',
+      (WidgetTester tester) async {
+    bool editTapped = false;
+
+    // 1. Normal user (isAdmin = false)
+    await tester.pumpWidget(
+      EasyLocalization(
+        supportedLocales: const [Locale('en')],
+        path: 'assets/translations',
+        assetLoader: const HomeTestAssetLoader(),
+        fallbackLocale: const Locale('en'),
+        startLocale: const Locale('en'),
+        child: const AppScreenUtilScope(
+          child: MaterialApp(
+            home: Scaffold(
+              body: CategoryItem(
+                title: 'Cardiology',
+                icon: Icons.favorite,
+                isAdmin: false,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Normal users must NOT see edit controls
+    expect(find.byKey(const Key('category_edit_button')), findsNothing);
+
+    // 2. Admin user (isAdmin = true with onEdit callback)
+    await tester.pumpWidget(
+      EasyLocalization(
+        supportedLocales: const [Locale('en')],
+        path: 'assets/translations',
+        assetLoader: const HomeTestAssetLoader(),
+        fallbackLocale: const Locale('en'),
+        startLocale: const Locale('en'),
+        child: AppScreenUtilScope(
+          child: MaterialApp(
+            home: Scaffold(
+              body: CategoryItem(
+                title: 'Cardiology',
+                icon: Icons.favorite,
+                isAdmin: true,
+                onEdit: () {
+                  editTapped = true;
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Admin MUST see the edit pencil icon
+    expect(find.byKey(const Key('category_edit_button')), findsOneWidget);
+
+    // Tapping triggers onEdit
+    await tester.tap(find.byKey(const Key('category_edit_button')));
+    await tester.pumpAndSettle();
+    expect(editTapped, isTrue);
+  });
+
+  testWidgets(
+      'HomeCategories passes onEditCategory callback with category entity',
+      (WidgetTester tester) async {
+    CategoryEntity? editedCategory;
+    final categories = [
+      const CategoryEntity(id: 'cat_1', name: 'Cardiology'),
+      const CategoryEntity(id: 'cat_2', name: 'Dermatology'),
+    ];
+
+    await tester.pumpWidget(
+      EasyLocalization(
+        supportedLocales: const [Locale('en')],
+        path: 'assets/translations',
+        assetLoader: const HomeTestAssetLoader(),
+        fallbackLocale: const Locale('en'),
+        startLocale: const Locale('en'),
+        child: AppScreenUtilScope(
+          child: MaterialApp(
+            home: Scaffold(
+              body: HomeCategories(
+                categories: categories,
+                isAdmin: true,
+                onEditCategory: (category) {
+                  editedCategory = category;
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('category_edit_button')), findsNWidgets(2));
+
+    await tester.tap(find.byKey(const Key('category_edit_button')).first);
+    await tester.pumpAndSettle();
+
+    expect(editedCategory?.id, equals('cat_1'));
+    expect(editedCategory?.name, equals('Cardiology'));
+  });
 }
 
 class _FakeHomeRepository implements HomeRepository {
@@ -633,6 +741,10 @@ class _FakeHomeRepository implements HomeRepository {
 
   @override
   Future<Result<void>> addCategory(CategoryEntity category) async =>
+      const SuccessAPI(null);
+
+  @override
+  Future<Result<void>> updateCategory(CategoryEntity category) async =>
       const SuccessAPI(null);
 
   @override

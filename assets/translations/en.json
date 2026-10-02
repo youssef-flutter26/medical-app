@@ -200,5 +200,10 @@
   "categoryNameCannotBeEmpty": "Category name cannot be empty",
   "categoryImageHint": "dentist.png",
   "categoryAddedSuccessfully": "Category added successfully",
-  "failedToAddCategory": "Failed to add category"
+  "failedToAddCategory": "Failed to add category",
+  "editCategory": "Edit Category",
+  "updateCategory": "Update Category",
+  "editCategoryInformation": "Modify the information for this category.",
+  "categoryUpdatedSuccessfully": "Category updated successfully",
+  "failedToUpdateCategory": "Failed to update category"
 }

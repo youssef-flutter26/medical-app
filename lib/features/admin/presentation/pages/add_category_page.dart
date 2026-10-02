@@ -1,24 +1,30 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:medical_app/core/error/result.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/core/di/service_locator.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 import 'package:medical_app/features/home/domain/usecases/add_category.dart';
+import 'package:medical_app/features/home/domain/usecases/update_category.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_category/add_category_button.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_category/category_image_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_category/category_name_field.dart';
 
 class AddCategoryPage extends StatefulWidget {
   final Future<void> Function(String name, String imageName)? onSubmit;
+  final CategoryEntity? initialCategory;
   final AddCategory? addCategory;
+  final UpdateCategory? updateCategory;
 
   const AddCategoryPage({
     super.key,
     this.onSubmit,
+    this.initialCategory,
     this.addCategory,
+    this.updateCategory,
   });
 
   @override
@@ -30,17 +36,32 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
   late final TextEditingController _nameController;
   late final TextEditingController _imageNameController;
   late final AddCategory? _addCategoryUseCase;
+  late final UpdateCategory? _updateCategoryUseCase;
 
   bool _isLoading = false;
   AutovalidateMode _autoValidateMode = AutovalidateMode.disabled;
 
+  bool get isEditMode => widget.initialCategory != null;
+
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController();
-    _imageNameController = TextEditingController();
+    final initial = widget.initialCategory;
+    _nameController = TextEditingController(text: initial?.name ?? '');
+
+    String initialImageName = '';
+    if (initial != null && initial.imagePath.isNotEmpty) {
+      final path = initial.imagePath;
+      initialImageName = path.startsWith('assets/images/')
+          ? path.substring('assets/images/'.length)
+          : path;
+    }
+    _imageNameController = TextEditingController(text: initialImageName);
+
     _addCategoryUseCase = widget.addCategory ??
         (getIt.isRegistered<AddCategory>() ? getIt<AddCategory>() : null);
+    _updateCategoryUseCase = widget.updateCategory ??
+        (getIt.isRegistered<UpdateCategory>() ? getIt<UpdateCategory>() : null);
   }
 
   @override
@@ -76,16 +97,67 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
       final imagePath = cleanImageName.isNotEmpty
           ? 'assets/images/$cleanImageName'
           : '';
-      final addUseCase = _addCategoryUseCase ??
-          (getIt.isRegistered<AddCategory>() ? getIt<AddCategory>() : null);
-      if (addUseCase != null) {
-        await addUseCase(
-          CategoryEntity(
-            name: categoryName,
-            imagePath: imagePath,
-            createdAt: DateTime.now(),
-          ),
-        );
+      if (isEditMode) {
+        final updateUseCase = _updateCategoryUseCase ??
+            (getIt.isRegistered<UpdateCategory>()
+                ? getIt<UpdateCategory>()
+                : null);
+        if (updateUseCase != null) {
+          final res = await updateUseCase(
+            CategoryEntity(
+              id: widget.initialCategory!.id,
+              name: categoryName,
+              imagePath: imagePath,
+              createdAt: widget.initialCategory!.createdAt,
+            ),
+          );
+          if (res is ErrorAPI) {
+            if (!mounted) return;
+            setState(() => _isLoading = false);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  LocaleKeys.failedToUpdateCategory.tr(),
+                  style: AppTextStyles.withColor(
+                    AppTextStyles.inter14W500,
+                    AppColors.white,
+                  ),
+                ),
+                backgroundColor: AppColors.red,
+              ),
+            );
+            return;
+          }
+        }
+      } else {
+        final addUseCase = _addCategoryUseCase ??
+            (getIt.isRegistered<AddCategory>() ? getIt<AddCategory>() : null);
+        if (addUseCase != null) {
+          final res = await addUseCase(
+            CategoryEntity(
+              name: categoryName,
+              imagePath: imagePath,
+              createdAt: DateTime.now(),
+            ),
+          );
+          if (res is ErrorAPI) {
+            if (!mounted) return;
+            setState(() => _isLoading = false);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  LocaleKeys.failedToAddCategory.tr(),
+                  style: AppTextStyles.withColor(
+                    AppTextStyles.inter14W500,
+                    AppColors.white,
+                  ),
+                ),
+                backgroundColor: AppColors.red,
+              ),
+            );
+            return;
+          }
+        }
       }
     }
 
@@ -98,7 +170,9 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          LocaleKeys.categoryAddedSuccessfully.tr(),
+          isEditMode
+              ? LocaleKeys.categoryUpdatedSuccessfully.tr()
+              : LocaleKeys.categoryAddedSuccessfully.tr(),
           style: AppTextStyles.withColor(
             AppTextStyles.inter14W500,
             AppColors.white,
@@ -127,7 +201,9 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          LocaleKeys.addCategory.tr(),
+          isEditMode
+              ? LocaleKeys.editCategory.tr()
+              : LocaleKeys.addCategory.tr(),
           style: AppTextStyles.inter16W500,
         ),
       ),
@@ -141,7 +217,9 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  LocaleKeys.categoryDetails.tr(),
+                  isEditMode
+                      ? LocaleKeys.editCategory.tr()
+                      : LocaleKeys.categoryDetails.tr(),
                   style: AppTextStyles.withColor(
                     AppTextStyles.inter20W600,
                     AppColors.darkTeal,
@@ -149,7 +227,9 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
                 ),
                 SizedBox(height: 4.h),
                 Text(
-                  LocaleKeys.addCategoryInformation.tr(),
+                  isEditMode
+                      ? LocaleKeys.editCategoryInformation.tr()
+                      : LocaleKeys.addCategoryInformation.tr(),
                   style: AppTextStyles.withColor(
                     AppTextStyles.inter14W400,
                     AppColors.gray500,
@@ -166,6 +246,12 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
                 SizedBox(height: 32.h),
                 AddCategoryButton(
                   isLoading: _isLoading,
+                  text: isEditMode
+                      ? LocaleKeys.updateCategory.tr()
+                      : LocaleKeys.addCategory.tr(),
+                  icon: isEditMode
+                      ? Icons.check_circle_outline_rounded
+                      : Icons.add_circle_outline_rounded,
                   onPressed: _saveCategory,
                 ),
                 SizedBox(height: 24.h),

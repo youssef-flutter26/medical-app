@@ -12,6 +12,8 @@ class CategoryItem extends StatelessWidget {
     this.backgroundColor,
     this.iconColor,
     this.onTap,
+    this.isAdmin = false,
+    this.onEdit,
   });
 
   final String title;
@@ -20,6 +22,8 @@ class CategoryItem extends StatelessWidget {
   final Color? backgroundColor;
   final Color? iconColor;
   final VoidCallback? onTap;
+  final bool isAdmin;
+  final VoidCallback? onEdit;
 
   String get _displayTitle {
     if (title.length > 9) {
@@ -85,7 +89,38 @@ class CategoryItem extends StatelessWidget {
               borderRadius: BorderRadius.circular(16.r),
             ),
             alignment: Alignment.center,
-            child: _buildContent(),
+            child: Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: [
+                _buildContent(),
+                if (isAdmin && onEdit != null)
+                  Positioned(
+                    top: 2.h,
+                    right: 2.w,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        key: const Key('category_edit_button'),
+                        onTap: onEdit,
+                        borderRadius: BorderRadius.circular(20.r),
+                        child: Container(
+                          padding: EdgeInsets.all(4.r),
+                          decoration: BoxDecoration(
+                            color: AppColors.darkTeal.withValues(alpha: 0.45),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.edit_rounded,
+                            color: AppColors.white,
+                            size: 12.r,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
           SizedBox(height: 6.h),
           Text(

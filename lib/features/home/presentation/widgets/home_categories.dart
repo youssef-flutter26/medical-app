@@ -29,11 +29,15 @@ class HomeCategories extends StatelessWidget {
     this.categories,
     this.onSeeAllPressed,
     this.onCategoryTap,
+    this.isAdmin = false,
+    this.onEditCategory,
   });
 
   final List<CategoryEntity>? categories;
   final VoidCallback? onSeeAllPressed;
   final ValueChanged<String>? onCategoryTap;
+  final bool isAdmin;
+  final ValueChanged<CategoryEntity>? onEditCategory;
 
   @override
   Widget build(BuildContext context) {
@@ -104,6 +108,10 @@ class HomeCategories extends StatelessWidget {
               return CategoryItem(
                 title: category.name,
                 imagePath: category.imagePath,
+                isAdmin: isAdmin,
+                onEdit: onEditCategory != null
+                    ? () => onEditCategory!(category)
+                    : null,
                 onTap: () => onCategoryTap?.call(category.name),
               );
             },
