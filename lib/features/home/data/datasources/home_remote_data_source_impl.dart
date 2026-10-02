@@ -43,9 +43,21 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   @override
   Stream<List<MedicalCenterModel>> getMedicalCentersStream() {
     return firestore.collection('medical_centers').snapshots().map(
-      (snapshot) => snapshot.docs
-          .map((doc) => MedicalCenterModel.fromFirestore(doc.data(), doc.id))
-          .toList(),
+      (snapshot) {
+        debugPrint(
+          'HomeRemoteDataSource: received ${snapshot.docs.length} docs from medical_centers',
+        );
+        final list = <MedicalCenterModel>[];
+        for (final doc in snapshot.docs) {
+          try {
+            final model = MedicalCenterModel.fromFirestore(doc.data(), doc.id);
+            list.add(model);
+          } catch (e, stack) {
+            debugPrint('Error parsing medical_center doc ${doc.id}: $e\n$stack');
+          }
+        }
+        return list;
+      },
     );
   }
 

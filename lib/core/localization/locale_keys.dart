@@ -202,6 +202,15 @@ abstract class LocaleKeys {
   static const editMedicalCenterInformation = 'editMedicalCenterInformation';
   static const medicalCenterUpdatedSuccessfully = 'medicalCenterUpdatedSuccessfully';
   static const failedToUpdateMedicalCenter = 'failedToUpdateMedicalCenter';
+  static const categoryDetails = 'categoryDetails';
+  static const addCategoryInformation = 'addCategoryInformation';
+  static const categoryName = 'categoryName';
+  static const enterCategoryName = 'enterCategoryName';
+  static const categoryNameHint = 'categoryNameHint';
+  static const categoryNameCannotBeEmpty = 'categoryNameCannotBeEmpty';
+  static const categoryImageHint = 'categoryImageHint';
+  static const categoryAddedSuccessfully = 'categoryAddedSuccessfully';
+  static const failedToAddCategory = 'failedToAddCategory';
 }
 
 

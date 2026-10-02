@@ -15,51 +15,69 @@ class MedicalCenterModel extends MedicalCenterEntity {
     super.createdAt,
   });
 
+  static double _parseDouble(dynamic value, [double defaultValue = 0.0]) {
+    if (value == null) return defaultValue;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is num) return value.toDouble();
+    if (value is String) {
+      final trimmed = value.trim();
+      if (trimmed.isEmpty) return defaultValue;
+      final match = RegExp(r'[0-9]+(?:\.[0-9]+)?').firstMatch(trimmed);
+      if (match != null) {
+        return double.tryParse(match.group(0)!) ?? defaultValue;
+      }
+      return double.tryParse(trimmed) ?? defaultValue;
+    }
+    return defaultValue;
+  }
+
+  static int _parseInt(dynamic value, [int defaultValue = 0]) {
+    if (value == null) return defaultValue;
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is num) return value.toInt();
+    if (value is String) {
+      final trimmed = value.trim();
+      if (trimmed.isEmpty) return defaultValue;
+      final match = RegExp(r'[0-9]+').firstMatch(trimmed);
+      if (match != null) {
+        return int.tryParse(match.group(0)!) ?? defaultValue;
+      }
+      return int.tryParse(trimmed) ?? defaultValue;
+    }
+    return defaultValue;
+  }
+
   factory MedicalCenterModel.fromFirestore(
     Map<String, dynamic> json, [
     String? docId,
   ]) {
-    final rawDistance = json['distance'];
-    final double parsedDistance;
-    if (rawDistance is num) {
-      parsedDistance = rawDistance.toDouble();
-    } else if (rawDistance is String && rawDistance.isNotEmpty) {
-      final match = RegExp(r'[0-9]+(?:\.[0-9]+)?').firstMatch(rawDistance);
-      parsedDistance =
-          match != null ? (double.tryParse(match.group(0)!) ?? 0.0) : 0.0;
-    } else {
-      parsedDistance = 0.0;
-    }
-
-    final rawDuration = json['duration'];
-    final int parsedDuration;
-    if (rawDuration is num) {
-      parsedDuration = rawDuration.toInt();
-    } else if (rawDuration is String && rawDuration.isNotEmpty) {
-      final match = RegExp(r'[0-9]+').firstMatch(rawDuration);
-      parsedDuration =
-          match != null ? (int.tryParse(match.group(0)!) ?? 0) : 0;
-    } else {
-      parsedDuration = 0;
+    DateTime? parsedCreatedAt;
+    final rawCreatedAt = json['createdAt'];
+    if (rawCreatedAt is Timestamp) {
+      parsedCreatedAt = rawCreatedAt.toDate();
+    } else if (rawCreatedAt is String) {
+      parsedCreatedAt = DateTime.tryParse(rawCreatedAt);
+    } else if (rawCreatedAt is int) {
+      parsedCreatedAt = DateTime.fromMillisecondsSinceEpoch(rawCreatedAt);
     }
 
     return MedicalCenterModel(
       id: docId,
-      name: json['name'] as String? ?? '',
-      address: json['address'] as String? ?? '',
-      rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
-      reviewsCount: (json['reviewsCount'] as num?)?.toInt() ??
-          (json['reviewCount'] as num?)?.toInt() ??
-          0,
-      distance: parsedDistance,
-      duration: parsedDuration,
-      type: json['type'] as String? ?? 'Hospital',
-      imagePath: (json['imagePath'] as String?) ??
-          (json['imageUrl'] as String?) ??
+      name: json['name']?.toString() ?? '',
+      address: json['address']?.toString() ?? '',
+      rating: _parseDouble(json['rating']),
+      reviewsCount: _parseInt(json['reviewsCount'] ?? json['reviewCount']),
+      distance: _parseDouble(json['distance']),
+      duration: _parseInt(json['duration']),
+      type: json['type']?.toString() ??
+          json['category']?.toString() ??
+          'Hospital',
+      imagePath: json['imagePath']?.toString() ??
+          json['imageUrl']?.toString() ??
           '',
-      createdAt: json['createdAt'] != null
-          ? (json['createdAt'] as Timestamp).toDate()
-          : null,
+      createdAt: parsedCreatedAt,
     );
   }
 

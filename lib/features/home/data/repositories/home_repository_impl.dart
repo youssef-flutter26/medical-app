@@ -55,7 +55,9 @@ class HomeRepositoryImpl implements HomeRepository {
 
   @override
   Stream<List<MedicalCenterEntity>> getMedicalCentersStream() {
-    return remoteDataSource.getMedicalCentersStream();
+    return remoteDataSource.getMedicalCentersStream().map(
+          (models) => models.cast<MedicalCenterEntity>().toList(),
+        );
   }
 
   @override

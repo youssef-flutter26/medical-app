@@ -190,5 +190,15 @@
   "updateMedicalCenter": "Update Medical Center",
   "editMedicalCenterInformation": "Modify the information for this medical center.",
   "medicalCenterUpdatedSuccessfully": "Medical center updated successfully",
-  "failedToUpdateMedicalCenter": "Failed to update medical center"
+  "failedToUpdateMedicalCenter": "Failed to update medical center",
+  "addCategory": "Add Category",
+  "categoryDetails": "Category Details",
+  "addCategoryInformation": "Enter the details for the new medical category.",
+  "categoryName": "Category Name",
+  "enterCategoryName": "Enter category name",
+  "categoryNameHint": "Dentist",
+  "categoryNameCannotBeEmpty": "Category name cannot be empty",
+  "categoryImageHint": "dentist.png",
+  "categoryAddedSuccessfully": "Category added successfully",
+  "failedToAddCategory": "Failed to add category"
 }

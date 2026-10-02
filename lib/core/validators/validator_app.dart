@@ -208,6 +208,13 @@ abstract final class ValidatorApp {
     }
     return null;
   }
+
+  static String? validateCategoryName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocaleKeys.categoryNameCannotBeEmpty.tr();
+    }
+    return null;
+  }
 }
 
 

@@ -1,10 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medical_app/core/di/service_locator.dart';
+import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
+import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
 import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_banner/add_banner_page.dart';
@@ -23,7 +26,7 @@ import 'package:medical_app/features/home/presentation/widgets/home_location.dar
 import 'package:medical_app/features/home/presentation/widgets/home_search.dart';
 import 'package:medical_app/features/home/presentation/widgets/nearby_medical_centers.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   final FirebaseAuth? auth;
   final UserRemoteDataSource? userRemoteDataSource;
   final FirebaseFirestore? firestore;
@@ -39,8 +42,16 @@ class HomeScreen extends StatelessWidget {
     this.getMedicalCentersStream,
   });
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  Stream<List<BannerEntity>>? _bannersStream;
+  Stream<List<MedicalCenterEntity>>? _medicalCentersStream;
+
   FirebaseAuth? get _auth {
-    if (auth != null) return auth;
+    if (widget.auth != null) return widget.auth;
     try {
       return getIt.isRegistered<FirebaseAuth>()
           ? getIt<FirebaseAuth>()
@@ -51,7 +62,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   UserRemoteDataSource? get _userRemoteDataSource {
-    if (userRemoteDataSource != null) return userRemoteDataSource;
+    if (widget.userRemoteDataSource != null) return widget.userRemoteDataSource;
     try {
       return getIt.isRegistered<UserRemoteDataSource>()
           ? getIt<UserRemoteDataSource>()
@@ -61,40 +72,54 @@ class HomeScreen extends StatelessWidget {
     }
   }
 
-  GetBannersStream? get _getBannersStream {
-    if (getBannersStream != null) return getBannersStream;
-    try {
-      if (getIt.isRegistered<GetBannersStream>()) {
-        return getIt<GetBannersStream>();
-      }
-      if (firestore != null || getIt.isRegistered<FirebaseFirestore>()) {
-        final fs = firestore ?? getIt<FirebaseFirestore>();
-        return GetBannersStream(
-          HomeRepositoryImpl(HomeRemoteDataSourceImpl(fs)),
-        );
-      }
-      return null;
-    } catch (_) {
-      return null;
+  @override
+  void initState() {
+    super.initState();
+    _initStreams();
+  }
+
+  @override
+  void didUpdateWidget(covariant HomeScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.getBannersStream != oldWidget.getBannersStream ||
+        widget.getMedicalCentersStream != oldWidget.getMedicalCentersStream ||
+        widget.firestore != oldWidget.firestore) {
+      _initStreams();
     }
   }
 
-  GetMedicalCentersStream? get _getMedicalCentersStream {
-    if (getMedicalCentersStream != null) return getMedicalCentersStream;
-    try {
-      if (getIt.isRegistered<GetMedicalCentersStream>()) {
-        return getIt<GetMedicalCentersStream>();
-      }
-      if (firestore != null || getIt.isRegistered<FirebaseFirestore>()) {
-        final fs = firestore ?? getIt<FirebaseFirestore>();
-        return GetMedicalCentersStream(
-          HomeRepositoryImpl(HomeRemoteDataSourceImpl(fs)),
-        );
-      }
-      return null;
-    } catch (_) {
-      return null;
-    }
+  void _initStreams() {
+    final bannersUseCase = widget.getBannersStream ??
+        (getIt.isRegistered<GetBannersStream>()
+            ? getIt<GetBannersStream>()
+            : (widget.firestore != null || getIt.isRegistered<FirebaseFirestore>())
+                ? GetBannersStream(
+                    HomeRepositoryImpl(
+                      HomeRemoteDataSourceImpl(
+                        widget.firestore ?? getIt<FirebaseFirestore>(),
+                      ),
+                    ),
+                  )
+                : null);
+
+    _bannersStream = bannersUseCase?.call() ??
+        Stream.value(const <BannerEntity>[]);
+
+    final centersUseCase = widget.getMedicalCentersStream ??
+        (getIt.isRegistered<GetMedicalCentersStream>()
+            ? getIt<GetMedicalCentersStream>()
+            : (widget.firestore != null || getIt.isRegistered<FirebaseFirestore>())
+                ? GetMedicalCentersStream(
+                    HomeRepositoryImpl(
+                      HomeRemoteDataSourceImpl(
+                        widget.firestore ?? getIt<FirebaseFirestore>(),
+                      ),
+                    ),
+                  )
+                : null);
+
+    _medicalCentersStream = centersUseCase?.call() ??
+        Stream.value(const <MedicalCenterEntity>[]);
   }
 
   @override
@@ -149,8 +174,7 @@ class HomeScreen extends StatelessWidget {
               const HomeSearch(),
               SizedBox(height: 20.h),
               StreamBuilder<List<BannerEntity>>(
-                stream: _getBannersStream?.call() ??
-                    Stream.value(const <BannerEntity>[]),
+                stream: _bannersStream,
                 builder: (context, bannerSnapshot) {
                   final banners = bannerSnapshot.data;
                   if (banners == null || banners.isEmpty) {
@@ -179,15 +203,92 @@ class HomeScreen extends StatelessWidget {
               ),
               SizedBox(height: 24.h),
               StreamBuilder<List<MedicalCenterEntity>>(
-                stream: _getMedicalCentersStream?.call() ??
-                    Stream.value(const <MedicalCenterEntity>[]),
+                stream: _medicalCentersStream,
                 builder: (context, centerSnapshot) {
-                  final centers =
+                  // 1. Error state - Do NOT hide errors
+                  if (centerSnapshot.hasError) {
+                    final errorMsg = '${centerSnapshot.error}';
+                    debugPrint(
+                      'HomeScreen: Medical centers stream error: $errorMsg',
+                    );
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          LocaleKeys.nearbyMedicalCenters.tr(),
+                          style: AppTextStyles.inter16W500.copyWith(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w700,
+                            height: 1.5,
+                            color: AppColors.darkTeal,
+                          ),
+                        ),
+                        SizedBox(height: 12.h),
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(vertical: 24.h),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Error loading medical centers: $errorMsg',
+                            style: AppTextStyles.withColor(
+                              AppTextStyles.inter14W400,
+                              Colors.red,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+
+                  // 2. Loading state
+                  if (centerSnapshot.connectionState ==
+                          ConnectionState.waiting &&
+                      !centerSnapshot.hasData) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          LocaleKeys.nearbyMedicalCenters.tr(),
+                          style: AppTextStyles.inter16W500.copyWith(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w700,
+                            height: 1.5,
+                            color: AppColors.darkTeal,
+                          ),
+                        ),
+                        SizedBox(height: 12.h),
+                        SizedBox(
+                          height: 218.h,
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              color: AppColors.darkTeal,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+
+                  // 3. Success with data & empty data
+                  final medicalCenters =
                       centerSnapshot.data ?? const <MedicalCenterEntity>[];
+
+                  // Temporarily log as requested
+                  // ignore: avoid_print
+                  print('MEDICAL CENTERS COUNT: ${medicalCenters.length}');
+                  if (medicalCenters.isNotEmpty) {
+                    final first = medicalCenters.first;
+                    // ignore: avoid_print
+                    print(
+                      'FIRST MEDICAL CENTER: id=${first.id}, name="${first.name}", rating=${first.rating}, reviewsCount=${first.reviewsCount}, distance=${first.distance}, duration=${first.duration}, type="${first.type}", imagePath="${first.imagePath}"',
+                    );
+                  }
+
                   return NearbyMedicalCenters(
                     isAdmin: isAdmin,
                     onEditCenter: (centerData) {
-                      final entity = centers.firstWhere(
+                      final entity = medicalCenters.firstWhere(
                         (c) =>
                             (centerData.id != null && c.id == centerData.id) ||
                             (c.name == centerData.name &&
@@ -213,7 +314,7 @@ class HomeScreen extends StatelessWidget {
                         ),
                       );
                     },
-                    medicalCenters: centers
+                    medicalCenters: medicalCenters
                         .map(
                           (c) => MedicalCenterData(
                             id: c.id,
