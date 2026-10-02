@@ -20,7 +20,7 @@ class DoctorEntity {
     required this.experience,
     required this.rating,
     required this.reviewsCount,
-    required this.about,
+    this.about = '',
     required this.imagePath,
     this.createdAt,
   });

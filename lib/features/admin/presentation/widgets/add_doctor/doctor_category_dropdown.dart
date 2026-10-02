@@ -39,12 +39,12 @@ class DoctorCategoryDropdown extends StatelessWidget {
           ),
         ),
         SizedBox(height: 8.h),
-        _buildContent(),
+        _buildContent(context),
       ],
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context) {
     if (isLoading) {
       return _buildLoadingState();
     }
@@ -85,12 +85,14 @@ class DoctorCategoryDropdown extends StatelessWidget {
         Icons.keyboard_arrow_down_rounded,
         color: AppColors.gray500,
       ),
-      style: AppTextStyles.withColor(
-        AppTextStyles.inter14W400,
-        AppColors.gray700,
-      ),
+      elevation: 3,
+      menuMaxHeight: 300.h,
       dropdownColor: AppColors.white,
-      borderRadius: BorderRadius.circular(12.r),
+      borderRadius: BorderRadius.circular(16.r),
+      style: AppTextStyles.withColor(
+        AppTextStyles.inter14W500,
+        AppColors.darkTeal,
+      ),
       decoration: InputDecoration(
         hintText: LocaleKeys.selectCategory.tr(),
         hintStyle: AppTextStyles.withColor(
@@ -143,13 +145,55 @@ class DoctorCategoryDropdown extends StatelessWidget {
         ),
       ),
       items: catList.map((cat) {
+        final isSelected =
+            (currentValue?.id != null && currentValue!.id == cat.id) ||
+                currentValue?.name == cat.name;
+
         return DropdownMenuItem<CategoryEntity>(
           value: cat,
-          child: Text(
-            cat.name,
-            style: AppTextStyles.withColor(
-              AppTextStyles.inter14W400,
-              AppColors.gray700,
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 2.h),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 30.r,
+                  height: 30.r,
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColors.lightTeal.withValues(alpha: 0.15)
+                        : AppColors.gray400.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Center(
+                    child: Icon(
+                      Icons.medical_services_rounded,
+                      size: 16.r,
+                      color: isSelected
+                          ? AppColors.lightTeal
+                          : AppColors.gray500,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                Text(
+                  cat.name,
+                  style: AppTextStyles.withColor(
+                    isSelected
+                        ? AppTextStyles.inter14W500
+                        : AppTextStyles.inter14W400,
+                    isSelected ? AppColors.darkTeal : AppColors.gray700,
+                  ),
+                ),
+                if (isSelected) ...[
+                  SizedBox(width: 8.w),
+                  Icon(
+                    Icons.check_circle_rounded,
+                    size: 18.r,
+                    color: AppColors.lightTeal,
+                  ),
+                ],
+              ],
             ),
           ),
         );

@@ -11,7 +11,7 @@ class DoctorModel extends DoctorEntity {
     required super.experience,
     required super.rating,
     required super.reviewsCount,
-    required super.about,
+    super.about = '',
     required super.imagePath,
     super.createdAt,
   });

@@ -9,7 +9,6 @@ import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/add_doctor_button.dart';
-import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_about_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_category_dropdown.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_experience_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_header_section.dart';
@@ -17,7 +16,6 @@ import 'package:medical_app/features/admin/presentation/widgets/add_doctor/docto
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_name_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_rating_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_reviews_field.dart';
-import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_specialty_field.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
 import 'package:medical_app/features/doctor/domain/entities/doctor_entity.dart';
 import 'package:medical_app/features/doctor/domain/usecases/add_doctor.dart';
@@ -51,11 +49,9 @@ class AddDoctorPage extends StatefulWidget {
 class _AddDoctorPageState extends State<AddDoctorPage> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
-  late final TextEditingController _specialtyController;
   late final TextEditingController _experienceController;
   late final TextEditingController _ratingController;
   late final TextEditingController _reviewsCountController;
-  late final TextEditingController _aboutController;
   late final TextEditingController _imageNameController;
 
   late final AddDoctor? _addDoctorUseCase;
@@ -77,11 +73,9 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
   void initState() {
     super.initState();
     _nameController = TextEditingController();
-    _specialtyController = TextEditingController();
     _experienceController = TextEditingController();
     _ratingController = TextEditingController();
     _reviewsCountController = TextEditingController();
-    _aboutController = TextEditingController();
     _imageNameController = TextEditingController();
 
     if (widget.initialCategories != null) {
@@ -135,11 +129,9 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
   void dispose() {
     _categoriesSubscription?.cancel();
     _nameController.dispose();
-    _specialtyController.dispose();
     _experienceController.dispose();
     _ratingController.dispose();
     _reviewsCountController.dispose();
-    _aboutController.dispose();
     _imageNameController.dispose();
     super.dispose();
   }
@@ -225,15 +217,16 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
     final reviewsCount = int.parse(_reviewsCountController.text.trim());
     final experience = int.parse(_experienceController.text.trim());
 
+    // The selected Category represents the Specialty, so categoryName is used directly.
     final doctor = DoctorEntity(
       name: _nameController.text.trim(),
-      specialty: _specialtyController.text.trim(),
+      specialty: _selectedCategory!.name,
       categoryId: _selectedCategory!.id ?? '',
       categoryName: _selectedCategory!.name,
       experience: experience,
       rating: rating,
       reviewsCount: reviewsCount,
-      about: _aboutController.text.trim(),
+      about: '',
       imagePath: imagePath,
       createdAt: DateTime.now(),
     );
@@ -323,8 +316,6 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
                 SizedBox(height: 20.h),
                 DoctorNameField(controller: _nameController),
                 SizedBox(height: 16.h),
-                DoctorSpecialtyField(controller: _specialtyController),
-                SizedBox(height: 16.h),
                 DoctorCategoryDropdown(
                   categories: _categories,
                   isLoading: _isCategoriesLoading,
@@ -349,8 +340,6 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
                     ),
                   ],
                 ),
-                SizedBox(height: 16.h),
-                DoctorAboutField(controller: _aboutController),
                 SizedBox(height: 16.h),
                 DoctorImageField(controller: _imageNameController),
                 SizedBox(height: 28.h),

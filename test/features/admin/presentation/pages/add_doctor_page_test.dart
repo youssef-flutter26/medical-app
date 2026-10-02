@@ -5,14 +5,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_doctor_page.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/add_doctor_button.dart';
-import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_about_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_category_dropdown.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_experience_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_image_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_name_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_rating_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_reviews_field.dart';
-import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_specialty_field.dart';
 import 'package:medical_app/features/doctor/domain/entities/doctor_entity.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,9 +27,6 @@ class TestDoctorAssetLoader extends AssetLoader {
       "doctorName": "Doctor Name",
       "enterDoctorName": "Enter doctor name",
       "doctorNameCannotBeEmpty": "Doctor name cannot be empty",
-      "specialty": "Specialty",
-      "enterSpecialty": "Enter doctor specialty",
-      "specialtyCannotBeEmpty": "Specialty cannot be empty",
       "category": "Category",
       "selectCategory": "Select Category",
       "categoryCannotBeEmpty": "Please select a category",
@@ -50,9 +45,6 @@ class TestDoctorAssetLoader extends AssetLoader {
       "reviewsCountHint": "120",
       "reviewsCountCannotBeEmpty": "Reviews count cannot be empty",
       "invalidReviewsCount": "Please enter a valid number of reviews",
-      "aboutDoctor": "About Doctor",
-      "enterAboutDoctor": "Enter doctor biography and information",
-      "aboutDoctorCannotBeEmpty": "About doctor cannot be empty",
       "imageName": "Image Name",
       "doctorImageHint": "doctor1.png",
       "imageNameCannotBeEmpty": "Image name cannot be empty",
@@ -156,12 +148,10 @@ void main() {
       );
 
       expect(find.byType(DoctorNameField), findsOneWidget);
-      expect(find.byType(DoctorSpecialtyField), findsOneWidget);
       expect(find.byType(DoctorCategoryDropdown), findsOneWidget);
       expect(find.byType(DoctorExperienceField), findsOneWidget);
       expect(find.byType(DoctorRatingField), findsOneWidget);
       expect(find.byType(DoctorReviewsField), findsOneWidget);
-      expect(find.byType(DoctorAboutField), findsOneWidget);
       expect(find.byType(DoctorImageField), findsOneWidget);
       expect(find.byType(AddDoctorButton), findsOneWidget);
     });
@@ -218,15 +208,13 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Doctor name cannot be empty'), findsOneWidget);
-      expect(find.text('Specialty cannot be empty'), findsOneWidget);
       expect(find.text('Experience cannot be empty'), findsOneWidget);
       expect(find.text('Rating cannot be empty'), findsOneWidget);
       expect(find.text('Reviews count cannot be empty'), findsOneWidget);
-      expect(find.text('About doctor cannot be empty'), findsOneWidget);
       expect(find.text('Image name cannot be empty'), findsOneWidget);
     });
 
-    testWidgets('submits doctor data successfully and formats imagePath', (
+    testWidgets('submits doctor data successfully and derives specialty from category', (
       WidgetTester tester,
     ) async {
       tester.view.physicalSize = const Size(1080, 2400);
@@ -246,10 +234,6 @@ void main() {
       await tester.enterText(
         find.byKey(const Key('doctor_name_input')),
         'Dr. John Smith',
-      );
-      await tester.enterText(
-        find.byKey(const Key('doctor_specialty_input')),
-        'Cardiologist',
       );
 
       // Select category from dropdown
@@ -271,10 +255,6 @@ void main() {
         '350',
       );
       await tester.enterText(
-        find.byKey(const Key('doctor_about_input')),
-        'Top cardiologist with extensive surgical experience.',
-      );
-      await tester.enterText(
         find.byKey(const Key('doctor_image_name_input')),
         'doctor1.png',
       );
@@ -288,14 +268,13 @@ void main() {
 
       expect(savedDoctor, isNotNull);
       expect(savedDoctor!.name, 'Dr. John Smith');
-      expect(savedDoctor!.specialty, 'Cardiologist');
+      // Specialty is automatically derived from the selected category
+      expect(savedDoctor!.specialty, 'Cardiology');
       expect(savedDoctor!.categoryId, 'cat1');
       expect(savedDoctor!.categoryName, 'Cardiology');
       expect(savedDoctor!.experience, 12);
       expect(savedDoctor!.rating, 4.9);
       expect(savedDoctor!.reviewsCount, 350);
-      expect(savedDoctor!.about,
-          'Top cardiologist with extensive surgical experience.');
       expect(savedDoctor!.imagePath, 'assets/images/doctor1.png');
     });
 
