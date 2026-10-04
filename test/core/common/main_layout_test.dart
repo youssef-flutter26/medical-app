@@ -43,7 +43,7 @@ class TestAssetLoader extends AssetLoader {
   }
 }
 
-Widget createMainLayoutTestWidget() {
+Widget createMainLayoutTestWidget({List<Widget>? screens}) {
   return EasyLocalization(
     supportedLocales: const [Locale('en')],
     path: 'assets/translations',
@@ -57,7 +57,7 @@ Widget createMainLayoutTestWidget() {
             localizationsDelegates: context.localizationDelegates,
             supportedLocales: context.supportedLocales,
             locale: context.locale,
-            home: const MainLayout(),
+            home: MainLayout(screens: screens),
           );
         },
       ),
@@ -74,7 +74,14 @@ void main() {
   testWidgets('MainLayout renders with 4 tabs and switches screens on tap', (
     tester,
   ) async {
-    await tester.pumpWidget(createMainLayoutTestWidget());
+    await tester.pumpWidget(createMainLayoutTestWidget(
+      screens: const [
+        HomeScreen(),
+        Center(child: Text('Location')),
+        Center(child: Text('Appointment')),
+        ProfileScreen(),
+      ],
+    ));
     await tester.pumpAndSettle();
 
     // Initial tab should be Home

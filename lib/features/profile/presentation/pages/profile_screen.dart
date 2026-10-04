@@ -4,23 +4,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:medical_app/core/di/service_locator.dart';
+import 'package:medical_app/core/error/result.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
 import 'package:medical_app/features/auth/data/models/user_model.dart';
+import 'package:medical_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:medical_app/features/profile/presentation/widgets/profile_header.dart';
 import 'package:medical_app/features/profile/presentation/widgets/profile_menu_item.dart';
 
 class ProfileScreen extends StatelessWidget {
   final FirebaseAuth? auth;
   final UserRemoteDataSource? userRemoteDataSource;
+  final AuthRepository? authRepository;
+  final Stream<UserModel?>? userModelStream;
+  final User? currentUser;
 
   const ProfileScreen({
     super.key,
     this.auth,
     this.userRemoteDataSource,
+    this.authRepository,
+    this.userModelStream,
+    this.currentUser,
   });
 
   FirebaseAuth? get _auth {
@@ -39,6 +47,17 @@ class ProfileScreen extends StatelessWidget {
     try {
       return getIt.isRegistered<UserRemoteDataSource>()
           ? getIt<UserRemoteDataSource>()
+          : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  AuthRepository? get _authRepository {
+    if (authRepository != null) return authRepository;
+    try {
+      return getIt.isRegistered<AuthRepository>()
+          ? getIt<AuthRepository>()
           : null;
     } catch (_) {
       return null;
@@ -94,12 +113,19 @@ class ProfileScreen extends StatelessWidget {
     if (shouldLogout != true) return;
 
     try {
-      final authToUse = _auth ?? FirebaseAuth.instance;
-      await authToUse.signOut();
-      try {
-        await GoogleSignIn.instance.signOut();
-      } catch (_) {
-        // Ignore if Google sign-in was not used
+      if (_authRepository != null) {
+        final result = await _authRepository!.logout();
+        if (result is ErrorAPI) {
+          throw Exception(result.failure.message);
+        }
+      } else {
+        final authToUse = _auth ?? FirebaseAuth.instance;
+        await authToUse.signOut();
+        try {
+          await GoogleSignIn.instance.signOut();
+        } catch (_) {
+          // Ignore if Google sign-in was not used
+        }
       }
 
       if (context.mounted) {
@@ -123,6 +149,19 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (userModelStream != null) {
+      return StreamBuilder<UserModel?>(
+        stream: userModelStream,
+        builder: (context, userSnapshot) {
+          return _buildScaffold(
+            context,
+            user: currentUser,
+            userModel: userSnapshot.data,
+          );
+        },
+      );
+    }
+
     final firebaseAuth = _auth;
     final remoteDataSource = _userRemoteDataSource;
 

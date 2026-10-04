@@ -23,7 +23,6 @@ class _MainLayoutState extends State<MainLayout> {
     const HomeScreen(),
     LocationScreen(),
     // AppointmentScreen(),
-    Center(child: Text(LocaleKeys.location.tr())),
     Center(child: Text(LocaleKeys.appointment.tr())),
     const ProfileScreen(),
   ];
