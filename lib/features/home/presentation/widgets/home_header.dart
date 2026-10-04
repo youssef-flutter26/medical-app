@@ -4,7 +4,18 @@ import 'package:medical_app/features/home/presentation/widgets/home_location.dar
 import 'package:medical_app/features/home/presentation/widgets/home_search.dart';
 
 class HomeHeader extends StatelessWidget {
-  const HomeHeader({super.key});
+  final VoidCallback? onSearchTap;
+  final TextEditingController? searchController;
+  final ValueChanged<String>? onSearchChanged;
+  final VoidCallback? onSearchClear;
+
+  const HomeHeader({
+    super.key,
+    this.onSearchTap,
+    this.searchController,
+    this.onSearchChanged,
+    this.onSearchClear,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +24,12 @@ class HomeHeader extends StatelessWidget {
       children: [
         const HomeLocation(),
         SizedBox(height: 18.h),
-        const HomeSearch(),
+        HomeSearch(
+          controller: searchController,
+          onChanged: onSearchChanged,
+          onClear: onSearchClear,
+          onTap: onSearchTap,
+        ),
       ],
     );
   }

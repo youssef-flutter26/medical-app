@@ -5,7 +5,6 @@ import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
 import 'package:medical_app/features/home/presentation/pages/home_screen.dart';
-import 'package:medical_app/features/profile/presentation/pages/profile_screen.dart';
 
 import '../../../features/location/presentation/pages/location_screen.dart';
 
@@ -21,11 +20,9 @@ class _MainLayoutState extends State<MainLayout> {
 
   final List<Widget> _screens = [ 
     const HomeScreen(),
-    // LocationScreen(),
+    const LocationScreen(),
     // AppointmentScreen(),
-    Center(child: Text(LocaleKeys.location.tr())),
     Center(child: Text(LocaleKeys.appointment.tr())),
-    const ProfileScreen(),
   ];
 
   @override
@@ -113,28 +110,6 @@ class _MainLayoutState extends State<MainLayout> {
               ),
             ),
             label: LocaleKeys.appointment.tr(),
-          ),
-          BottomNavigationBarItem(
-            icon: SvgPicture.asset(
-              AppAssets.iconsProfile,
-              colorFilter: const ColorFilter.mode(
-                AppColors.gray400,
-                BlendMode.srcIn,
-              ),
-            ),
-            activeIcon: Container(
-              width: 48,
-              height: 48,
-              decoration: const BoxDecoration(
-                color: AppColors.gray100,
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: SvgPicture.asset(
-                AppAssets.iconsProfile2,
-              ),
-            ),
-            label: LocaleKeys.profile.tr(),
           ),
         ],
       ),

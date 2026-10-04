@@ -17,11 +17,12 @@ import 'package:medical_app/features/admin/presentation/widgets/add_doctor/docto
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_rating_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_reviews_field.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
-import 'package:medical_app/features/doctor/domain/entities/doctor_entity.dart';
-import 'package:medical_app/features/doctor/domain/repositories/doctor_repository.dart';
-import 'package:medical_app/features/doctor/domain/usecases/add_doctor.dart';
-import 'package:medical_app/features/doctor/domain/usecases/update_doctor.dart';
+import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
+import 'package:medical_app/features/home/domain/repositories/doctor_repository.dart';
+import 'package:medical_app/features/home/domain/usecases/add_doctor.dart';
+import 'package:medical_app/features/home/domain/usecases/update_doctor.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
+import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
 import 'package:medical_app/features/home/domain/usecases/get_categories_stream.dart';
 
 class AddDoctorPage extends StatefulWidget {
@@ -126,7 +127,9 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
         (widget.getCategoriesStream?.call() ??
             (getIt.isRegistered<GetCategoriesStream>()
                 ? getIt<GetCategoriesStream>()()
-                : const Stream.empty()));
+                : (getIt.isRegistered<HomeRepository>()
+                    ? getIt<HomeRepository>().getCategoriesStream()
+                    : const Stream.empty())));
 
     _categoriesSubscription = _categoriesStream.listen(
       (categories) {
@@ -158,6 +161,13 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
           setState(() {
             _isCategoriesLoading = false;
             _categoriesError = error.toString();
+          });
+        }
+      },
+      onDone: () {
+        if (mounted && _isCategoriesLoading) {
+          setState(() {
+            _isCategoriesLoading = false;
           });
         }
       },
@@ -317,6 +327,8 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
           (getIt.isRegistered<AddDoctor>() ? getIt<AddDoctor>() : null);
       if (addUseCase != null) {
         result = await addUseCase(doctor);
+      } else if (getIt.isRegistered<DoctorRepository>()) {
+        result = await getIt<DoctorRepository>().addDoctor(doctor);
       } else {
         if (!mounted) return;
         setState(() => _isLoading = false);

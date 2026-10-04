@@ -16,5 +16,5 @@ abstract final class Routes {
   static const String category = '/category';
   static const String categoryDoctors = '/category-doctors';
   static const String doctorDetails = '/doctor-details';
-  static const String profile = '/profile';
+  static const String nearbyMedicalCenters = '/nearby-medical-centers';
 }

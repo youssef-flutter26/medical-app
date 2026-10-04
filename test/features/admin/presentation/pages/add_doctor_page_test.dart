@@ -11,7 +11,7 @@ import 'package:medical_app/features/admin/presentation/widgets/add_doctor/docto
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_name_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_rating_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_reviews_field.dart';
-import 'package:medical_app/features/doctor/domain/entities/doctor_entity.dart';
+import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

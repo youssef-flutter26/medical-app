@@ -7,7 +7,6 @@ import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
 import 'package:medical_app/features/home/presentation/pages/home_screen.dart';
-import 'package:medical_app/features/profile/presentation/pages/profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TestAssetLoader extends AssetLoader {
@@ -43,7 +42,7 @@ class TestAssetLoader extends AssetLoader {
   }
 }
 
-Widget createMainLayoutTestWidget() {
+Widget createMainLayoutTestWidget({List<Widget>? screens}) {
   return EasyLocalization(
     supportedLocales: const [Locale('en')],
     path: 'assets/translations',
@@ -57,7 +56,7 @@ Widget createMainLayoutTestWidget() {
             localizationsDelegates: context.localizationDelegates,
             supportedLocales: context.supportedLocales,
             locale: context.locale,
-            home: const MainLayout(),
+            home: MainLayout(screens: screens),
           );
         },
       ),
@@ -71,10 +70,16 @@ void main() {
     await EasyLocalization.ensureInitialized();
   });
 
-  testWidgets('MainLayout renders with 4 tabs and switches screens on tap', (
+  testWidgets('MainLayout renders with 3 tabs and switches screens on tap', (
     tester,
   ) async {
-    await tester.pumpWidget(createMainLayoutTestWidget());
+    await tester.pumpWidget(createMainLayoutTestWidget(
+      screens: const [
+        HomeScreen(),
+        Center(child: Text('Location')),
+        Center(child: Text('Appointment')),
+      ],
+    ));
     await tester.pumpAndSettle();
 
     // Initial tab should be Home
@@ -87,18 +92,16 @@ void main() {
       find.descendant(of: find.byType(Center), matching: find.text('Appointment')),
       findsNothing,
     );
-    expect(find.byType(ProfileScreen), findsNothing);
 
     // Check BottomNavigationBar items
     final bottomNavBarFinder = find.byType(BottomNavigationBar);
     expect(bottomNavBarFinder, findsOneWidget);
 
     final BottomNavigationBar bottomNavBar = tester.widget(bottomNavBarFinder);
-    expect(bottomNavBar.items.length, 4);
+    expect(bottomNavBar.items.length, 3);
     expect(bottomNavBar.items[0].label, 'Home');
     expect(bottomNavBar.items[1].label, 'Location');
     expect(bottomNavBar.items[2].label, 'Appointment');
-    expect(bottomNavBar.items[3].label, 'Profile');
 
     // Tap Location (second item)
     await tester.tap(find.byType(InkResponse).at(1));
@@ -118,12 +121,6 @@ void main() {
       find.descendant(of: find.byType(Center), matching: find.text('Appointment')),
       findsOneWidget,
     );
-
-    // Tap Profile (fourth item)
-    await tester.tap(find.byType(InkResponse).at(3));
-    await tester.pumpAndSettle();
-
-    expect(find.byType(ProfileScreen), findsOneWidget);
 
     // Tap Home (first item)
     await tester.tap(find.byType(InkResponse).at(0));
@@ -150,7 +147,6 @@ void main() {
       AppAssets.iconsHome2,
       AppAssets.iconsLocation2,
       AppAssets.iconsCalendar2,
-      AppAssets.iconsProfile2,
     ];
 
     for (int i = 0; i < bottomNavBar.items.length; i++) {
