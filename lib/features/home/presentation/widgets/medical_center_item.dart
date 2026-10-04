@@ -20,6 +20,7 @@ class MedicalCenterItem extends StatelessWidget {
     this.imageUrl,
     this.isFavorite = false,
     this.isAdmin = false,
+    this.isFullWidth = false,
     this.onTap,
     this.onFavoriteTap,
     this.onEdit,
@@ -37,6 +38,7 @@ class MedicalCenterItem extends StatelessWidget {
   final String? imageUrl;
   final bool isFavorite;
   final bool isAdmin;
+  final bool isFullWidth;
   final VoidCallback? onTap;
   final VoidCallback? onFavoriteTap;
   final VoidCallback? onEdit;
@@ -73,7 +75,7 @@ class MedicalCenterItem extends StatelessWidget {
     }
 
     return Container(
-      width: 232.w,
+      width: isFullWidth ? double.infinity : 232.w,
       height: 121.h,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
@@ -104,7 +106,7 @@ class MedicalCenterItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 232.w,
+      width: isFullWidth ? double.infinity : 232.w,
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12.r),

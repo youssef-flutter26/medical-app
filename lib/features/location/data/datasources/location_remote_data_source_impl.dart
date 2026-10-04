@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:medical_app/features/doctor/data/models/doctor_model.dart';
 import 'package:medical_app/features/home/data/models/medical_center_model.dart';
 import 'package:medical_app/features/location/data/models/medical_place_model.dart';
 import 'package:medical_app/features/location/domain/entities/medical_place.dart';
 
+import '../../../home/data/models/doctor_model.dart';
 import 'location_remote_data_source.dart';
 
 class LocationRemoteDataSourceImpl implements LocationRemoteDataSource {

@@ -32,14 +32,6 @@ import 'package:medical_app/features/home/domain/repositories/home_repository.da
 
 import 'package:medical_app/features/home/domain/usecases/add_medical_center.dart';
 
-import 'package:medical_app/features/doctor/data/datasources/doctor_remote_data_source.dart';
-import 'package:medical_app/features/doctor/data/datasources/doctor_remote_data_source_impl.dart';
-
-import 'package:medical_app/features/doctor/data/repositories/doctor_repository_impl.dart';
-import 'package:medical_app/features/doctor/domain/repositories/doctor_repository.dart';
-
-import 'package:medical_app/features/doctor/domain/usecases/add_doctor.dart';
-import 'package:medical_app/features/doctor/domain/usecases/get_doctors_by_category_stream.dart';
 
 import 'package:medical_app/features/location/data/datasources/location_remote_data_source.dart';
 import 'package:medical_app/features/location/data/datasources/location_remote_data_source_impl.dart';
@@ -52,10 +44,15 @@ import 'package:medical_app/features/location/domain/usecases/search_nearby_plac
 
 import 'package:medical_app/features/location/presentation/cubit/location_cubit.dart';
 
-import '../../features/doctor/data/datasources/doctor_remote_data_source.dart';
-import '../../features/doctor/data/datasources/doctor_remote_data_source_impl.dart';
+
+import '../../features/home/data/datasources/doctor_remote_data_source.dart';
+import '../../features/home/data/datasources/doctor_remote_data_source_impl.dart';
 import '../../features/home/data/datasources/home_remote_data_source.dart';
 import '../../features/home/data/datasources/home_remote_data_source_impl.dart';
+import '../../features/home/data/repositories/doctor_repository_impl.dart';
+import '../../features/home/domain/repositories/doctor_repository.dart';
+import '../../features/home/domain/usecases/add_doctor.dart';
+import '../../features/home/domain/usecases/get_doctors_by_category_stream.dart';
 
 final GetIt getIt = GetIt.instance;
 

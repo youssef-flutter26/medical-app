@@ -18,15 +18,16 @@ import 'package:medical_app/features/admin/presentation/widgets/add_doctor/docto
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_rating_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_reviews_field.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
-import 'package:medical_app/features/doctor/domain/entities/doctor_entity.dart';
-import 'package:medical_app/features/doctor/domain/repositories/doctor_repository.dart';
-import 'package:medical_app/features/doctor/domain/usecases/add_doctor.dart';
-import 'package:medical_app/features/doctor/domain/usecases/update_doctor.dart';
 import 'package:medical_app/features/home/data/datasources/home_remote_data_source_impl.dart';
 import 'package:medical_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 import 'package:medical_app/features/home/domain/usecases/get_categories_stream.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../../../home/domain/entities/doctor_entity.dart';
+import '../../../home/domain/repositories/doctor_repository.dart';
+import '../../../home/domain/usecases/add_doctor.dart';
+import '../../../home/domain/usecases/update_doctor.dart';
 
 class AddDoctorPage extends StatefulWidget {
   final DoctorEntity? initialDoctor;
