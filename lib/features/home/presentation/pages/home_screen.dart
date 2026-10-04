@@ -1,14 +1,11 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medical_app/core/di/service_locator.dart';
-import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
-import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_banner_page.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_category_page.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_doctor_page.dart';
@@ -33,6 +30,7 @@ import 'package:medical_app/features/home/presentation/widgets/banner_section.da
 import 'package:medical_app/features/home/presentation/widgets/categories_section.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_header.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_search_results.dart';
+import 'package:medical_app/features/home/presentation/widgets/medical_center_details_sheet.dart';
 import 'package:medical_app/features/home/presentation/widgets/medical_centers_section.dart';
 
 
@@ -456,108 +454,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _showMedicalCenterDetails(
     BuildContext context,
-    MedicalCenterEntity center,
-  ) {
-    showModalBottomSheet(
-      context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
-      ),
-      backgroundColor: AppColors.white,
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40.w,
-                height: 4.h,
-                decoration: BoxDecoration(
-                  color: AppColors.gray400.withValues(alpha: 0.4),
-                  borderRadius: BorderRadius.circular(2.r),
-                ),
-              ),
-            ),
-            SizedBox(height: 16.h),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    center.name,
-                    style: AppTextStyles.inter16W500.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.darkTeal,
-                      fontSize: 18.sp,
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                  decoration: BoxDecoration(
-                    color: AppColors.lightTeal.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Text(
-                    center.type,
-                    style: AppTextStyles.inter12W500.copyWith(
-                      color: AppColors.lightTeal,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 8.h),
-            Row(
-              children: [
-                Icon(Icons.location_on_outlined, size: 16.r, color: AppColors.gray500),
-                SizedBox(width: 4.w),
-                Expanded(
-                  child: Text(
-                    center.address,
-                    style: AppTextStyles.inter14W400.copyWith(
-                      color: AppColors.gray600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 12.h),
-            Row(
-              children: [
-                Icon(Icons.star_rounded, size: 18.r, color: AppColors.amber),
-                SizedBox(width: 4.w),
-                Text(
-                  center.rating.toStringAsFixed(1),
-                  style: AppTextStyles.inter14W500.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.darkTeal,
-                  ),
-                ),
-                SizedBox(width: 4.w),
-                Text(
-                  '(${center.reviewsCount} ${LocaleKeys.reviews.tr()})',
-                  style: AppTextStyles.inter12W400.copyWith(
-                    color: AppColors.gray500,
-                  ),
-                ),
-                const Spacer(),
-                Icon(Icons.directions_walk_rounded, size: 16.r, color: AppColors.gray500),
-                SizedBox(width: 4.w),
-                Text(
-                  center.formattedDistance,
-                  style: AppTextStyles.inter12W500.copyWith(
-                    color: AppColors.gray600,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20.h),
-          ],
-        ),
-      ),
+    MedicalCenterEntity center, {
+    bool isAdmin = false,
+  }) {
+    showMedicalCenterDetailsSheet(
+      context,
+      center,
+      isAdmin: isAdmin,
+      onEdit: () => _navigateToEditMedicalCenter(context, center),
     );
   }
 
@@ -646,8 +550,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         'HomeScreen: Categories stream error: ${categorySnapshot.error}',
                       );
                     }
+                    final allCategories = categorySnapshot.data;
+                    final previewCategories = allCategories != null &&
+                            allCategories.length > 8
+                        ? allCategories.take(8).toList()
+                        : allCategories;
+
                     return CategoriesSection(
-                      categories: categorySnapshot.data,
+                      categories: previewCategories,
                       isLoading: categorySnapshot.connectionState ==
                               ConnectionState.waiting &&
                           !categorySnapshot.hasData,
@@ -674,8 +584,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         'HomeScreen: Medical centers stream error: ${centerSnapshot.error}',
                       );
                     }
+                    final allCenters = centerSnapshot.data;
+                    final previewCenters = allCenters != null &&
+                            allCenters.length > 5
+                        ? allCenters.take(5).toList()
+                        : allCenters;
+
                     return MedicalCentersSection(
-                      medicalCenters: centerSnapshot.data,
+                      medicalCenters: previewCenters,
                       isLoading: centerSnapshot.connectionState ==
                               ConnectionState.waiting &&
                           !centerSnapshot.hasData,
@@ -685,6 +601,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       isAdmin: isAdmin,
                       onEditCenter: (center) =>
                           _navigateToEditMedicalCenter(context, center),
+                      onCenterTap: (center) =>
+                          _showMedicalCenterDetails(context, center, isAdmin: isAdmin),
+                      onSeeAll: () {
+                        Navigator.pushNamed(
+                          context,
+                          Routes.nearbyMedicalCenters,
+                        );
+                      },
                     );
                   },
                 ),

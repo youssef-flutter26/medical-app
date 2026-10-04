@@ -14,6 +14,7 @@ class MedicalCentersSection extends StatelessWidget {
   final bool isAdmin;
   final ValueChanged<MedicalCenterEntity>? onEditCenter;
   final VoidCallback? onSeeAll;
+  final ValueChanged<MedicalCenterEntity>? onCenterTap;
 
   const MedicalCentersSection({
     super.key,
@@ -23,6 +24,7 @@ class MedicalCentersSection extends StatelessWidget {
     this.isAdmin = false,
     this.onEditCenter,
     this.onSeeAll,
+    this.onCenterTap,
   });
 
   void _handleEditCenter(BuildContext context, MedicalCenterData centerData) {
@@ -128,6 +130,39 @@ class MedicalCentersSection extends StatelessWidget {
     return NearbyMedicalCenters(
       isAdmin: isAdmin,
       onSeeAllPressed: onSeeAll,
+      onCenterTap: (centerData) {
+        if (onCenterTap != null) {
+          final matched = list.firstWhere(
+            (c) =>
+                (centerData.id != null && c.id == centerData.id) ||
+                (c.name == centerData.name && c.address == centerData.address),
+            orElse: () => MedicalCenterEntity(
+              id: centerData.id,
+              name: centerData.name,
+              address: centerData.address,
+              rating: centerData.rating,
+              reviewsCount: centerData.reviewCount,
+              distance: double.tryParse(
+                    RegExp(r'[0-9]+(?:\.[0-9]+)?')
+                            .firstMatch(centerData.distance)
+                            ?.group(0) ??
+                        '',
+                  ) ??
+                  0.0,
+              duration: int.tryParse(
+                    RegExp(r'[0-9]+')
+                            .firstMatch(centerData.duration ?? '')
+                            ?.group(0) ??
+                        '',
+                  ) ??
+                  0,
+              type: centerData.type ?? centerData.category,
+              imagePath: centerData.imagePath ?? '',
+            ),
+          );
+          onCenterTap!(matched);
+        }
+      },
       onEditCenter: (centerData) => _handleEditCenter(context, centerData),
       medicalCenters: list
           .map(

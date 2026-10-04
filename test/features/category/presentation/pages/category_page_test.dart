@@ -6,6 +6,7 @@ import 'package:medical_app/features/category/presentation/pages/category_page.d
 import 'package:medical_app/features/category/presentation/widgets/category_card.dart';
 import 'package:medical_app/features/category/presentation/widgets/category_empty_state.dart';
 import 'package:medical_app/features/category/presentation/widgets/category_search_field.dart';
+import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -32,7 +33,21 @@ class _FakeAssetLoader extends AssetLoader {
   }
 }
 
-Widget createCategoryPageTestWidget({ValueChanged<String>? onCategoryTap}) {
+const _testCategories = [
+  CategoryEntity(id: 'cat_1', name: 'Dentistry'),
+  CategoryEntity(id: 'cat_2', name: 'Cardiology'),
+  CategoryEntity(id: 'cat_3', name: 'Pulmonology'),
+  CategoryEntity(id: 'cat_4', name: 'General'),
+  CategoryEntity(id: 'cat_5', name: 'Neurology'),
+  CategoryEntity(id: 'cat_6', name: 'Gastro...'),
+  CategoryEntity(id: 'cat_7', name: 'Laboratory'),
+  CategoryEntity(id: 'cat_8', name: 'Vaccination'),
+];
+
+Widget createCategoryPageTestWidget({
+  ValueChanged<String>? onCategoryTap,
+  Stream<List<CategoryEntity>>? categoriesStream,
+}) {
   return EasyLocalization(
     supportedLocales: const [Locale('en')],
     path: 'assets/translations',
@@ -49,7 +64,11 @@ Widget createCategoryPageTestWidget({ValueChanged<String>? onCategoryTap}) {
             locale: context.locale,
             supportedLocales: context.supportedLocales,
             localizationsDelegates: context.localizationDelegates,
-            home: CategoryPage(onCategoryTap: onCategoryTap),
+            home: CategoryPage(
+              onCategoryTap: onCategoryTap,
+              categoriesStream:
+                  categoriesStream ?? Stream.value(_testCategories),
+            ),
           ),
         );
       },

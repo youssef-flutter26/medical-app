@@ -11,11 +11,13 @@ class CategorySearchField extends StatelessWidget {
     required this.controller,
     this.onChanged,
     this.onClear,
+    this.hintText,
   });
 
   final TextEditingController controller;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onClear;
+  final String? hintText;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +32,7 @@ class CategorySearchField extends StatelessWidget {
         onChanged: onChanged,
         style: AppTextStyles.inter14W400,
         decoration: InputDecoration(
-          hintText: LocaleKeys.searchCategory.tr(),
+          hintText: hintText ?? LocaleKeys.searchCategory.tr(),
           hintStyle: AppTextStyles.withColor(
             AppTextStyles.inter14W400,
             AppColors.gray400,

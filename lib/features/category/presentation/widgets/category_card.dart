@@ -7,19 +7,59 @@ class CategoryCard extends StatelessWidget {
   const CategoryCard({
     super.key,
     required this.title,
-    required this.icon,
-    required this.backgroundColor,
-    required this.iconColor,
+    this.icon = Icons.local_hospital_rounded,
+    this.imagePath,
+    this.backgroundColor = const Color(0xFFF0FDF4),
+    this.iconColor = AppColors.darkTeal,
     this.specialistsCount,
     this.onTap,
   });
 
   final String title;
   final IconData icon;
+  final String? imagePath;
   final Color backgroundColor;
   final Color iconColor;
   final int? specialistsCount;
   final VoidCallback? onTap;
+
+  Widget _buildIcon() {
+    final path = imagePath?.trim() ?? '';
+    if (path.isNotEmpty) {
+      if (path.startsWith('http://') || path.startsWith('https://')) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(12.r),
+          child: Image.network(
+            path,
+            width: 32.r,
+            height: 32.r,
+            fit: BoxFit.contain,
+            errorBuilder: (_, _, _) =>
+                Icon(icon, size: 28.r, color: iconColor),
+          ),
+        );
+      }
+      final assetPath = path.startsWith('assets/images/')
+          ? path
+          : (path.startsWith('assets/') ? path : 'assets/images/$path');
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(12.r),
+        child: Image.asset(
+          assetPath,
+          width: 32.r,
+          height: 32.r,
+          fit: BoxFit.contain,
+          errorBuilder: (_, _, _) =>
+              Icon(icon, size: 28.r, color: iconColor),
+        ),
+      );
+    }
+    return Icon(
+      icon,
+      size: 28.r,
+      color: iconColor,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,11 +90,7 @@ class CategoryCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16.r),
                 ),
                 alignment: Alignment.center,
-                child: Icon(
-                  icon,
-                  size: 28.r,
-                  color: iconColor,
-                ),
+                child: _buildIcon(),
               ),
               SizedBox(height: 12.h),
               Text(
