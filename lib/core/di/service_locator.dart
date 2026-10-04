@@ -52,6 +52,11 @@ import 'package:medical_app/features/location/domain/usecases/search_nearby_plac
 
 import 'package:medical_app/features/location/presentation/cubit/location_cubit.dart';
 
+import '../../features/doctor/data/datasources/doctor_remote_data_source.dart';
+import '../../features/doctor/data/datasources/doctor_remote_data_source_impl.dart';
+import '../../features/home/data/datasources/home_remote_data_source.dart';
+import '../../features/home/data/datasources/home_remote_data_source_impl.dart';
+
 final GetIt getIt = GetIt.instance;
 
 void setupServiceLocator() {
