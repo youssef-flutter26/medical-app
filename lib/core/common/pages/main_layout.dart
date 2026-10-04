@@ -23,6 +23,8 @@ class _MainLayoutState extends State<MainLayout> {
     const LocationScreen(),
     // AppointmentScreen(),
     Center(child: Text(LocaleKeys.appointment.tr())),
+    // ProfileScreen(),
+    Center(child: Text(LocaleKeys.profile.tr())),
   ];
 
   @override
@@ -110,6 +112,28 @@ class _MainLayoutState extends State<MainLayout> {
               ),
             ),
             label: LocaleKeys.appointment.tr(),
+          ),
+          BottomNavigationBarItem(
+            icon: SvgPicture.asset(
+              AppAssets.iconsProfile,
+              colorFilter: const ColorFilter.mode(
+                AppColors.gray400,
+                BlendMode.srcIn,
+              ),
+            ),
+            activeIcon: Container(
+              width: 48,
+              height: 48,
+              decoration: const BoxDecoration(
+                color: AppColors.gray100,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: SvgPicture.asset(
+                AppAssets.iconsProfile2,
+              ),
+            ),
+            label: LocaleKeys.profile.tr(),
           ),
         ],
       ),
