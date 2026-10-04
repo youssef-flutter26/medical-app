@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_location.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_search.dart';
 
 class HomeHeader extends StatelessWidget {
   final VoidCallback? onSearchTap;
-  const HomeHeader({super.key, this.onSearchTap});
+  final TextEditingController? searchController;
+  final ValueChanged<String>? onSearchChanged;
+  final VoidCallback? onSearchClear;
+
+  const HomeHeader({
+    super.key,
+    this.onSearchTap,
+    this.searchController,
+    this.onSearchChanged,
+    this.onSearchClear,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,10 +25,10 @@ class HomeHeader extends StatelessWidget {
         const HomeLocation(),
         SizedBox(height: 18.h),
         HomeSearch(
-          onTap: onSearchTap ??
-              () {
-                Navigator.pushNamed(context, Routes.categoryDoctors);
-              },
+          controller: searchController,
+          onChanged: onSearchChanged,
+          onClear: onSearchClear,
+          onTap: onSearchTap,
         ),
       ],
     );

@@ -112,11 +112,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
 
   @override
   Stream<List<CategoryModel>> getCategoriesStream() {
-    return firestore
-        .collection('categories')
-        .orderBy('createdAt', descending: false)
-        .snapshots()
-        .map(
+    return firestore.collection('categories').snapshots().map(
       (snapshot) {
         debugPrint(
           'HomeRemoteDataSource: received ${snapshot.docs.length} docs from categories',
@@ -130,6 +126,12 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
             debugPrint('Error parsing category doc ${doc.id}: $e\n$stack');
           }
         }
+        list.sort((a, b) {
+          if (a.createdAt == null && b.createdAt == null) return 0;
+          if (a.createdAt == null) return 1;
+          if (b.createdAt == null) return -1;
+          return a.createdAt!.compareTo(b.createdAt!);
+        });
         return list;
       },
     );

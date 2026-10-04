@@ -76,16 +76,22 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
       return;
     }
 
-    final categoryId = widget.category?.id;
     Stream<List<DoctorEntity>>? stream = widget.doctorsStream;
 
     if (stream == null) {
-      if (categoryId != null && categoryId.isNotEmpty) {
+      final categoryName = _effectiveCategoryName.trim();
+      final categoryId = widget.category?.id?.trim();
+      final filterParam = (categoryName.isNotEmpty &&
+              categoryName.toLowerCase() != 'all doctors')
+          ? categoryName
+          : (categoryId != null && categoryId.isNotEmpty ? categoryId : null);
+
+      if (filterParam != null) {
         final useCase = widget.getDoctorsByCategoryStream ??
             (getIt.isRegistered<GetDoctorsByCategoryStream>()
                 ? getIt<GetDoctorsByCategoryStream>()
                 : null);
-        stream = useCase?.call(categoryId);
+        stream = useCase?.call(filterParam);
       } else {
         final useCase = widget.getDoctorsStream ??
             (getIt.isRegistered<GetDoctorsStream>()
@@ -97,8 +103,15 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
 
     if (stream == null && getIt.isRegistered<DoctorRepository>()) {
       final repo = getIt<DoctorRepository>();
-      stream = (categoryId != null && categoryId.isNotEmpty)
-          ? repo.getDoctorsByCategoryStream(categoryId)
+      final categoryName = _effectiveCategoryName.trim();
+      final categoryId = widget.category?.id?.trim();
+      final filterParam = (categoryName.isNotEmpty &&
+              categoryName.toLowerCase() != 'all doctors')
+          ? categoryName
+          : (categoryId != null && categoryId.isNotEmpty ? categoryId : null);
+
+      stream = filterParam != null
+          ? repo.getDoctorsByCategoryStream(filterParam)
           : repo.getDoctorsStream();
     }
 
@@ -158,29 +171,31 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
 
   List<DoctorData> get _filteredDoctors {
     final baseDoctors = _doctors ?? <DoctorData>[];
-    final selectedCategory = _effectiveCategoryName;
+    final selectedCategory = _effectiveCategoryName.trim();
     final hasCategoryFilter = selectedCategory.isNotEmpty &&
         selectedCategory.toLowerCase() != 'all doctors';
 
-    final targetId = widget.category?.id;
+    final targetId = widget.category?.id?.trim();
+    final target = selectedCategory.toLowerCase();
+
     final categoryFiltered = hasCategoryFilter
         ? baseDoctors.where((d) {
-            final catId = d.rawEntity?.categoryId ?? '';
-            final cat = (d.category ?? '').trim().toLowerCase();
+            final catId = (d.rawEntity?.categoryId ?? '').trim();
+            final cat = (d.category ?? d.rawEntity?.categoryName ?? '').trim().toLowerCase();
             final spec = d.specialty.trim().toLowerCase();
-            final target = selectedCategory.trim().toLowerCase();
 
             final matchesId = targetId != null &&
                 targetId.isNotEmpty &&
                 catId.isNotEmpty &&
-                catId == targetId;
+                (catId == targetId || catId.toLowerCase() == targetId.toLowerCase());
 
             final matchesName = cat == target ||
                 spec == target ||
-                cat.contains(target) ||
-                target.contains(cat) ||
-                spec.contains(target) ||
-                target.contains(spec);
+                (target.length >= 3 &&
+                    (cat.contains(target) ||
+                        target.contains(cat) ||
+                        spec.contains(target) ||
+                        target.contains(spec)));
 
             return matchesId || matchesName;
           }).toList()

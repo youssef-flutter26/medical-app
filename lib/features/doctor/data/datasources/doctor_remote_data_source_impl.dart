@@ -91,13 +91,22 @@ class DoctorRemoteDataSourceImpl implements DoctorRemoteDataSource {
         for (final doc in snapshot.docs) {
           try {
             final model = DoctorModel.fromFirestore(doc.data(), doc.id);
-            final matches = model.categoryId == categoryId ||
-                model.categoryName.trim().toLowerCase() == target ||
-                model.specialty.trim().toLowerCase() == target ||
-                model.categoryName.trim().toLowerCase().contains(target) ||
-                target.contains(model.categoryName.trim().toLowerCase()) ||
-                model.specialty.trim().toLowerCase().contains(target) ||
-                target.contains(model.specialty.trim().toLowerCase());
+            final docCat = model.categoryName.trim().toLowerCase();
+            final docSpec = model.specialty.trim().toLowerCase();
+            final docCatId = model.categoryId.trim();
+
+            final matches = target.isEmpty ||
+                target == 'all doctors' ||
+                (docCatId.isNotEmpty &&
+                    (docCatId == categoryId.trim() ||
+                        docCatId.toLowerCase() == target)) ||
+                docCat == target ||
+                docSpec == target ||
+                (target.length >= 3 &&
+                    (docCat.contains(target) ||
+                        target.contains(docCat) ||
+                        docSpec.contains(target) ||
+                        target.contains(docSpec)));
             if (matches) {
               list.add(model);
             }

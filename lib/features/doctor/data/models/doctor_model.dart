@@ -64,12 +64,18 @@ class DoctorModel extends DoctorEntity {
       parsedCreatedAt = DateTime.fromMillisecondsSinceEpoch(rawCreatedAt);
     }
 
+    final rawCategory = json['category']?.toString() ??
+        json['categoryName']?.toString() ??
+        '';
+    final rawSpecialty = json['specialty']?.toString() ?? rawCategory;
+    final effectiveCategoryName = rawCategory.isNotEmpty ? rawCategory : rawSpecialty;
+
     return DoctorModel(
       id: docId,
       name: json['name']?.toString() ?? '',
-      specialty: json['specialty']?.toString() ?? '',
+      specialty: rawSpecialty,
       categoryId: json['categoryId']?.toString() ?? '',
-      categoryName: json['categoryName']?.toString() ?? '',
+      categoryName: effectiveCategoryName,
       address: json['address']?.toString() ??
           json['location']?.toString() ??
           '',
@@ -91,6 +97,7 @@ class DoctorModel extends DoctorEntity {
       'specialty': specialty,
       'categoryId': categoryId,
       'categoryName': categoryName,
+      'category': categoryName,
       'address': address,
       'location': address,
       'rating': rating,

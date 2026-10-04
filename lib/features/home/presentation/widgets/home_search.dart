@@ -15,6 +15,7 @@ class HomeSearch extends StatelessWidget {
     this.onChanged,
     this.onTap,
     this.onFilterTap,
+    this.onClear,
   });
 
   final String? hintText;
@@ -22,6 +23,7 @@ class HomeSearch extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final VoidCallback? onTap;
   final VoidCallback? onFilterTap;
+  final VoidCallback? onClear;
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +64,22 @@ class HomeSearch extends StatelessWidget {
               ),
             ),
           ),
+          if (controller != null && controller!.text.isNotEmpty)
+            GestureDetector(
+              onTap: () {
+                controller!.clear();
+                onChanged?.call('');
+                onClear?.call();
+              },
+              child: Padding(
+                padding: EdgeInsets.only(left: 8.w),
+                child: Icon(
+                  Icons.close_rounded,
+                  size: 20.r,
+                  color: AppColors.gray400,
+                ),
+              ),
+            ),
         ],
       ),
     );

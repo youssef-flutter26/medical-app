@@ -22,6 +22,7 @@ import 'package:medical_app/features/doctor/domain/repositories/doctor_repositor
 import 'package:medical_app/features/doctor/domain/usecases/add_doctor.dart';
 import 'package:medical_app/features/doctor/domain/usecases/update_doctor.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
+import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
 import 'package:medical_app/features/home/domain/usecases/get_categories_stream.dart';
 
 class AddDoctorPage extends StatefulWidget {
@@ -126,7 +127,9 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
         (widget.getCategoriesStream?.call() ??
             (getIt.isRegistered<GetCategoriesStream>()
                 ? getIt<GetCategoriesStream>()()
-                : const Stream.empty()));
+                : (getIt.isRegistered<HomeRepository>()
+                    ? getIt<HomeRepository>().getCategoriesStream()
+                    : const Stream.empty())));
 
     _categoriesSubscription = _categoriesStream.listen(
       (categories) {
@@ -158,6 +161,13 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
           setState(() {
             _isCategoriesLoading = false;
             _categoriesError = error.toString();
+          });
+        }
+      },
+      onDone: () {
+        if (mounted && _isCategoriesLoading) {
+          setState(() {
+            _isCategoriesLoading = false;
           });
         }
       },
