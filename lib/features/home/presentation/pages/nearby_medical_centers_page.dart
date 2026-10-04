@@ -190,7 +190,6 @@ class _NearbyMedicalCentersPageState extends State<NearbyMedicalCentersPage> {
                         rating: center.rating,
                         reviewCount: center.reviewsCount,
                         distance: center.formattedDistance,
-                        duration: center.formattedDuration,
                         type: center.type,
                         imagePath: center.imagePath,
                         imageUrl: center.imagePath.startsWith('http')

@@ -8,21 +8,33 @@ class FirebaseFailure extends Failure {
 
   factory FirebaseFailure.fromException(Object error) {
     if (error is FirebaseAuthException) {
-      debugPrint('[FirebaseFailure] FirebaseAuthException: [${error.code}] ${error.message}');
+      debugPrint(
+        '[FirebaseFailure] FirebaseAuthException: '
+            '[${error.code}] ${error.message}',
+      );
+
       return FirebaseFailure(_getAuthMessage(error.code));
     }
 
     if (error is FirebaseException) {
-      debugPrint('[FirebaseFailure] FirebaseException: [${error.code}] ${error.message}');
+      debugPrint(
+        '[FirebaseFailure] FirebaseException: '
+            '[${error.code}] ${error.message}',
+      );
+
       final base = _getFirebaseMessage(error.code);
       final msg = error.message;
+
       return FirebaseFailure(
         msg != null && msg.isNotEmpty ? '$base ($msg)' : base,
       );
     }
 
     debugPrint('[FirebaseFailure] Unknown Exception: $error');
-    return FirebaseFailure('Something went wrong. Please try again.');
+
+    return FirebaseFailure(
+      'Something went wrong. Please try again.',
+    );
   }
 
   static String _getAuthMessage(String code) {
@@ -60,20 +72,50 @@ class FirebaseFailure extends Failure {
       case 'permission-denied':
         return 'You do not have permission to perform this action.';
 
+      case 'unauthenticated':
+        return 'Please sign in again.';
+
       case 'not-found':
         return 'The requested data was not found.';
 
       case 'already-exists':
         return 'The data already exists.';
 
-      case 'unavailable':
-        return 'The service is temporarily unavailable.';
+      case 'failed-precondition':
+        return 'Firebase is not configured correctly for this operation.';
 
-      case 'unauthenticated':
-        return 'Please sign in again.';
+      case 'unavailable':
+        return 'The Firebase service is temporarily unavailable.';
+
+      case 'deadline-exceeded':
+        return 'The request took too long. Please try again.';
+
+      case 'cancelled':
+        return 'The operation was cancelled.';
+
+      case 'aborted':
+        return 'The operation was interrupted. Please try again.';
+
+      case 'resource-exhausted':
+        return 'Firebase resources are temporarily exhausted.';
+
+      case 'data-loss':
+        return 'A data error occurred in Firebase.';
+
+      case 'invalid-argument':
+        return 'Some of the entered data is invalid.';
+
+      case 'out-of-range':
+        return 'The provided data is out of range.';
+
+      case 'internal':
+        return 'An internal Firebase error occurred.';
+
+      case 'unknown':
+        return 'An unknown Firebase error occurred.';
 
       default:
-        return 'Something went wrong. Please try again.';
+        return 'Firebase error: $code';
     }
   }
 }

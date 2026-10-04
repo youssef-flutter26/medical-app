@@ -22,6 +22,7 @@ class _LocationScreenState extends State<LocationScreen>
   late final LocationCubit _locationCubit;
 
   bool _openedSettings = false;
+  int _mapLocationRequest = 0;
 
   @override
   void initState() {
@@ -45,7 +46,7 @@ class _LocationScreenState extends State<LocationScreen>
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state,) {
+  void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
 
     if (state != AppLifecycleState.resumed) {
@@ -92,12 +93,22 @@ class _LocationScreenState extends State<LocationScreen>
     }
   }
 
+  void _goToMyLocation() {
+    _locationCubit.goToMyLocation();
+
+    setState(() {
+      _mapLocationRequest++;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _locationCubit,
       child: _LocationView(
         onOpenLocationSettings: _openLocationSettings,
+        mapLocationRequest: _mapLocationRequest,
+        onGoToMyLocation: _goToMyLocation,
       ),
     );
   }
@@ -106,9 +117,13 @@ class _LocationScreenState extends State<LocationScreen>
 class _LocationView extends StatelessWidget {
   const _LocationView({
     required this.onOpenLocationSettings,
+    required this.mapLocationRequest,
+    required this.onGoToMyLocation,
   });
 
   final Future<void> Function() onOpenLocationSettings;
+  final int mapLocationRequest;
+  final VoidCallback onGoToMyLocation;
 
   @override
   Widget build(BuildContext context) {
@@ -226,6 +241,7 @@ class _LocationView extends StatelessWidget {
                   longitude: state.longitude!,
                   places: state.places,
                   selectedPlace: state.selectedPlace,
+                  locationRequest: mapLocationRequest,
                   onPlaceSelected: (place) {
                     context
                         .read<LocationCubit>()
@@ -307,11 +323,7 @@ class _LocationView extends StatelessWidget {
                   child: InkWell(
                     borderRadius:
                     BorderRadius.circular(14.r),
-                    onTap: () {
-                      context
-                          .read<LocationCubit>()
-                          .goToMyLocation();
-                    },
+                    onTap: onGoToMyLocation,
                     child: SizedBox(
                       width: 48.w,
                       height: 48.w,
