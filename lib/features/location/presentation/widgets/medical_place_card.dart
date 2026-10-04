@@ -12,6 +12,45 @@ class MedicalPlaceCard extends StatelessWidget {
   final MedicalPlace place;
   final VoidCallback? onTap;
 
+  Widget _buildImage() {
+    final image = place.imageUrl?.trim() ?? '';
+
+    if (image.isEmpty) {
+      return _buildPlaceholder();
+    }
+
+    if (image.startsWith('http://') ||
+        image.startsWith('https://')) {
+      return Image.network(
+        image,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) {
+          return _buildPlaceholder();
+        },
+      );
+    }
+
+    return Image.asset(
+      image,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) {
+        return _buildPlaceholder();
+      },
+    );
+  }
+
+  Widget _buildPlaceholder() {
+    return Container(
+      color: Colors.grey.shade200,
+      alignment: Alignment.center,
+      child: const Icon(
+        Icons.local_hospital,
+        size: 40,
+        color: Colors.grey,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -42,21 +81,7 @@ class MedicalPlaceCard extends StatelessWidget {
                   SizedBox(
                     height: 105.h,
                     width: double.infinity,
-                    child: Image.asset(
-                      place.imageUrl!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) {
-                        return Container(
-                          color: Colors.grey.shade200,
-                          alignment: Alignment.center,
-                          child: const Icon(
-                            Icons.local_hospital,
-                            size: 40,
-                            color: Colors.grey,
-                          ),
-                        );
-                      },
-                    ),
+                    child: _buildImage(),
                   ),
                 Expanded(
                   child: Padding(

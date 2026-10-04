@@ -14,74 +14,159 @@ class DoctorModel extends DoctorEntity {
     required super.imagePath,
     super.availableTime = 'Mon - Sat: 09:00 AM - 05:00 PM',
     super.createdAt,
+    super.latitude,
+    super.longitude,
   });
 
-  static double _parseDouble(dynamic value, [double defaultValue = 0.0]) {
+  static double _parseDouble(dynamic value, [
+    double defaultValue = 0.0,
+  ]) {
     if (value == null) return defaultValue;
-    if (value is double) return value;
-    if (value is int) return value.toDouble();
-    if (value is num) return value.toDouble();
-    if (value is String) {
-      final normalized = value.trim().replaceAll(',', '.');
-      if (normalized.isEmpty) return defaultValue;
-      final match = RegExp(r'[0-9]+(?:\.[0-9]+)?').firstMatch(normalized);
-      if (match != null) {
-        return double.tryParse(match.group(0)!) ?? defaultValue;
-      }
-      return double.tryParse(normalized) ?? defaultValue;
+
+    if (value is num) {
+      return value.toDouble();
     }
+
+    if (value is String) {
+      final normalized =
+      value.trim().replaceAll(',', '.');
+
+      if (normalized.isEmpty) {
+        return defaultValue;
+      }
+
+      final parsed = double.tryParse(normalized);
+
+      if (parsed != null) {
+        return parsed;
+      }
+
+      final match = RegExp(
+        r'-?[0-9]+(?:\.[0-9]+)?',
+      ).firstMatch(normalized);
+
+      if (match != null) {
+        return double.tryParse(
+          match.group(0)!,
+        ) ??
+            defaultValue;
+      }
+    }
+
     return defaultValue;
   }
 
-  static int _parseInt(dynamic value, [int defaultValue = 0]) {
+  static double? _parseNullableDouble(dynamic value,) {
+    if (value == null) return null;
+
+    if (value is num) {
+      return value.toDouble();
+    }
+
+    if (value is String) {
+      final normalized =
+      value.trim().replaceAll(',', '.');
+
+      if (normalized.isEmpty) return null;
+
+      return double.tryParse(normalized);
+    }
+
+    return null;
+  }
+
+  static int _parseInt(dynamic value, [
+    int defaultValue = 0,
+  ]) {
     if (value == null) return defaultValue;
+
     if (value is int) return value;
-    if (value is double) return value.toInt();
+
     if (value is num) return value.toInt();
+
     if (value is String) {
       final trimmed = value.trim();
+
       if (trimmed.isEmpty) return defaultValue;
-      final match = RegExp(r'[0-9]+').firstMatch(trimmed);
-      if (match != null) {
-        return int.tryParse(match.group(0)!) ?? defaultValue;
+
+      final parsed = int.tryParse(trimmed);
+
+      if (parsed != null) {
+        return parsed;
       }
-      return int.tryParse(trimmed) ?? defaultValue;
+
+      final match = RegExp(
+        r'-?[0-9]+',
+      ).firstMatch(trimmed);
+
+      if (match != null) {
+        return int.tryParse(
+          match.group(0)!,
+        ) ??
+            defaultValue;
+      }
     }
+
     return defaultValue;
   }
 
-  factory DoctorModel.fromFirestore(
-    Map<String, dynamic> json, [
+  factory DoctorModel.fromFirestore(Map<String, dynamic> json, [
     String? docId,
   ]) {
     DateTime? parsedCreatedAt;
+
     final rawCreatedAt = json['createdAt'];
+
     if (rawCreatedAt is Timestamp) {
       parsedCreatedAt = rawCreatedAt.toDate();
     } else if (rawCreatedAt is String) {
-      parsedCreatedAt = DateTime.tryParse(rawCreatedAt);
+      parsedCreatedAt = DateTime.tryParse(
+        rawCreatedAt,
+      );
     } else if (rawCreatedAt is int) {
-      parsedCreatedAt = DateTime.fromMillisecondsSinceEpoch(rawCreatedAt);
+      parsedCreatedAt =
+          DateTime.fromMillisecondsSinceEpoch(
+            rawCreatedAt,
+          );
     }
 
     return DoctorModel(
       id: docId,
       name: json['name']?.toString() ?? '',
-      specialty: json['specialty']?.toString() ?? '',
-      categoryId: json['categoryId']?.toString() ?? '',
-      categoryName: json['categoryName']?.toString() ?? '',
-      address: json['address']?.toString() ??
+      specialty:
+      json['specialty']?.toString() ?? '',
+      categoryId:
+      json['categoryId']?.toString() ?? '',
+      categoryName:
+      json['categoryName']?.toString() ?? '',
+      address:
+      json['address']?.toString() ??
           json['location']?.toString() ??
           '',
-      rating: _parseDouble(json['rating']),
-      reviewsCount: _parseInt(json['reviewsCount'] ?? json['reviewCount']),
-      imagePath: json['imagePath']?.toString() ??
+      rating: _parseDouble(
+        json['rating'],
+      ),
+      reviewsCount: _parseInt(
+        json['reviewsCount'] ??
+            json['reviewCount'],
+      ),
+      imagePath:
+      json['imagePath']?.toString() ??
           json['imageUrl']?.toString() ??
           '',
-      availableTime: json['availableTime']?.toString() ??
+      availableTime:
+      json['availableTime']?.toString() ??
           json['schedule']?.toString() ??
           'Mon - Sat: 09:00 AM - 05:00 PM',
       createdAt: parsedCreatedAt,
+      latitude: _parseNullableDouble(
+        json['latitude'] ?? json['lat'],
+      ),
+      longitude: _parseNullableDouble(
+        json['longitude'] ??
+            json['lng'] ??
+            json['lon'],
+      ),
     );
   }
 
@@ -102,10 +187,19 @@ class DoctorModel extends DoctorEntity {
           ? Timestamp.fromDate(createdAt!)
           : FieldValue.serverTimestamp(),
     };
+
+    if (latitude != null) {
+      data['latitude'] = latitude;
+    }
+
+    if (longitude != null) {
+      data['longitude'] = longitude;
+    }
+
     return data;
   }
 
-  factory DoctorModel.fromEntity(DoctorEntity entity) {
+  factory DoctorModel.fromEntity(DoctorEntity entity,) {
     return DoctorModel(
       id: entity.id,
       name: entity.name,
@@ -118,6 +212,8 @@ class DoctorModel extends DoctorEntity {
       imagePath: entity.imagePath,
       availableTime: entity.availableTime,
       createdAt: entity.createdAt,
+      latitude: entity.latitude,
+      longitude: entity.longitude,
     );
   }
 }

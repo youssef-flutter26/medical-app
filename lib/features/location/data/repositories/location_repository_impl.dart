@@ -1,17 +1,18 @@
 import 'package:geolocator/geolocator.dart';
-import 'package:medical_app/features/location/data/datasources/location_local_data_source.dart';
+import 'package:medical_app/features/location/data/datasources/location_remote_data_source.dart';
 import 'package:medical_app/features/location/domain/entities/medical_location_result.dart';
 import 'package:medical_app/features/location/domain/entities/medical_place.dart';
 import 'package:medical_app/features/location/domain/repositories/location_repository.dart';
 
 class LocationRepositoryImpl implements LocationRepository {
-  LocationRepositoryImpl(this.localDataSource);
+  LocationRepositoryImpl(this.remoteDataSource);
 
-  final LocationLocalDataSource localDataSource;
+  final LocationRemoteDataSource remoteDataSource;
 
   @override
   Future<MedicalLocationResult> getCurrentLocation() async {
-    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    final serviceEnabled =
+    await Geolocator.isLocationServiceEnabled();
 
     if (!serviceEnabled) {
       throw const LocationServiceDisabledException();
@@ -24,7 +25,9 @@ class LocationRepositoryImpl implements LocationRepository {
     }
 
     if (permission == LocationPermission.denied) {
-      throw const PermissionDeniedException('Location permission was denied.');
+      throw const PermissionDeniedException(
+        'Location permission was denied.',
+      );
     }
 
     if (permission == LocationPermission.deniedForever) {
@@ -34,7 +37,9 @@ class LocationRepositoryImpl implements LocationRepository {
     }
 
     final position = await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+      ),
     );
 
     return MedicalLocationResult(
@@ -49,55 +54,61 @@ class LocationRepositoryImpl implements LocationRepository {
     required double longitude,
     String? query,
   }) async {
-    final places = await localDataSource.getMedicalPlaces();
+    final places = await remoteDataSource.getMedicalPlaces();
 
-    final normalizedQuery = query?.trim().toLowerCase();
+    final normalizedQuery =
+        query?.trim().toLowerCase() ?? '';
 
-    final filteredPlaces = places.where((place) {
-      if (normalizedQuery == null || normalizedQuery.isEmpty) {
-        return true;
+    final result = <MedicalPlace>[];
+
+    for (final place in places) {
+      if (normalizedQuery.isNotEmpty) {
+        final name = place.name.toLowerCase();
+        final address = place.address.toLowerCase();
+        final specialty =
+            place.specialty?.toLowerCase() ?? '';
+        final type = place.type.name.toLowerCase();
+
+        final matches =
+            name.contains(normalizedQuery) ||
+                address.contains(normalizedQuery) ||
+                specialty.contains(normalizedQuery) ||
+                type.contains(normalizedQuery);
+
+        if (!matches) {
+          continue;
+        }
       }
 
-      final name = place.name.toLowerCase();
-      final address = place.address.toLowerCase();
-      final specialty = place.specialty?.toLowerCase() ?? '';
-      final type = place.type.name.toLowerCase();
-
-      return name.contains(normalizedQuery) ||
-          address.contains(normalizedQuery) ||
-          specialty.contains(normalizedQuery) ||
-          type.contains(normalizedQuery);
-    }).toList();
-
-    final result = filteredPlaces.map((place) {
-      final distanceInMeters = Geolocator.distanceBetween(
+      final distanceInMeters =
+      Geolocator.distanceBetween(
         latitude,
         longitude,
         place.latitude,
         place.longitude,
       );
 
-      return _copyWithDistance(place, distanceInMeters / 1000);
-    }).toList();
+      result.add(
+        MedicalPlace(
+          id: place.id,
+          name: place.name,
+          address: place.address,
+          latitude: place.latitude,
+          longitude: place.longitude,
+          rating: place.rating,
+          reviewsCount: place.reviewsCount,
+          distance: distanceInMeters / 1000,
+          type: place.type,
+          imageUrl: place.imageUrl,
+          specialty: place.specialty,
+        ),
+      );
+    }
 
-    result.sort((a, b) => a.distance.compareTo(b.distance));
+    result.sort(
+          (a, b) => a.distance.compareTo(b.distance),
+    );
 
     return result;
-  }
-
-  MedicalPlace _copyWithDistance(MedicalPlace place, double distance) {
-    return MedicalPlace(
-      id: place.id,
-      name: place.name,
-      address: place.address,
-      latitude: place.latitude,
-      longitude: place.longitude,
-      rating: place.rating,
-      reviewsCount: place.reviewsCount,
-      distance: distance,
-      type: place.type,
-      imageUrl: place.imageUrl,
-      specialty: place.specialty,
-    );
   }
 }

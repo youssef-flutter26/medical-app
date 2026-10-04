@@ -21,9 +21,8 @@ class _MainLayoutState extends State<MainLayout> {
 
   final List<Widget> _screens = [ 
     const HomeScreen(),
-    // LocationScreen(),
+    const LocationScreen(),
     // AppointmentScreen(),
-    Center(child: Text(LocaleKeys.location.tr())),
     Center(child: Text(LocaleKeys.appointment.tr())),
     const ProfileScreen(),
   ];

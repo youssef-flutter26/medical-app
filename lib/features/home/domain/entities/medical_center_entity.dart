@@ -1,17 +1,6 @@
 import 'package:equatable/equatable.dart';
 
 class MedicalCenterEntity extends Equatable {
-  final String? id;
-  final String name;
-  final String address;
-  final double rating;
-  final int reviewsCount;
-  final double distance;
-  final int duration;
-  final String type;
-  final String imagePath;
-  final DateTime? createdAt;
-
   const MedicalCenterEntity({
     this.id,
     required this.name,
@@ -19,16 +8,35 @@ class MedicalCenterEntity extends Equatable {
     required this.rating,
     required this.reviewsCount,
     required this.distance,
-    required this.duration,
     required this.type,
     required this.imagePath,
     this.createdAt,
+    this.latitude,
+    this.longitude,
   });
 
-  String get formattedDistance =>
-      distance == distance.roundToDouble() ? '${distance.toInt()} km' : '$distance km';
+  final String? id;
+  final String name;
+  final String address;
+  final double rating;
+  final int reviewsCount;
 
-  String get formattedDuration => '$duration min';
+  final double distance;
+
+  final String type;
+  final String imagePath;
+  final DateTime? createdAt;
+
+  final double? latitude;
+  final double? longitude;
+
+  String get formattedDistance {
+    if (distance < 1) {
+      return '${(distance * 1000).round()} m';
+    }
+
+    return '${distance.toStringAsFixed(1)} km';
+  }
 
   MedicalCenterEntity copyWith({
     String? id,
@@ -37,10 +45,11 @@ class MedicalCenterEntity extends Equatable {
     double? rating,
     int? reviewsCount,
     double? distance,
-    int? duration,
     String? type,
     String? imagePath,
     DateTime? createdAt,
+    double? latitude,
+    double? longitude,
   }) {
     return MedicalCenterEntity(
       id: id ?? this.id,
@@ -49,24 +58,26 @@ class MedicalCenterEntity extends Equatable {
       rating: rating ?? this.rating,
       reviewsCount: reviewsCount ?? this.reviewsCount,
       distance: distance ?? this.distance,
-      duration: duration ?? this.duration,
       type: type ?? this.type,
       imagePath: imagePath ?? this.imagePath,
       createdAt: createdAt ?? this.createdAt,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
     );
   }
 
   @override
   List<Object?> get props => [
-        id,
-        name,
-        address,
-        rating,
-        reviewsCount,
-        distance,
-        duration,
-        type,
-        imagePath,
-        createdAt,
-      ];
+    id,
+    name,
+    address,
+    rating,
+    reviewsCount,
+    distance,
+    type,
+    imagePath,
+    createdAt,
+    latitude,
+    longitude,
+  ];
 }

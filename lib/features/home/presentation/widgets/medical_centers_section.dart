@@ -25,36 +25,31 @@ class MedicalCentersSection extends StatelessWidget {
     this.onSeeAll,
   });
 
-  void _handleEditCenter(BuildContext context, MedicalCenterData centerData) {
+  void _handleEditCenter(BuildContext context,
+      MedicalCenterData centerData,) {
     if (onEditCenter == null) return;
 
-    final list = medicalCenters ?? const <MedicalCenterEntity>[];
+    final list =
+        medicalCenters ??
+            const <MedicalCenterEntity>[];
+
     final entity = list.firstWhere(
-      (c) =>
-          (centerData.id != null && c.id == centerData.id) ||
-          (c.name == centerData.name && c.address == centerData.address),
+          (center) =>
+      (centerData.id != null &&
+          center.id == centerData.id) ||
+          (center.name == centerData.name &&
+              center.address == centerData.address),
       orElse: () => MedicalCenterEntity(
         id: centerData.id,
         name: centerData.name,
         address: centerData.address,
         rating: centerData.rating,
         reviewsCount: centerData.reviewCount,
-        distance: double.tryParse(
-              RegExp(r'[0-9]+(?:\.[0-9]+)?')
-                      .firstMatch(centerData.distance)
-                      ?.group(0) ??
-                  '',
-            ) ??
-            0.0,
-        duration: int.tryParse(
-              RegExp(r'[0-9]+')
-                      .firstMatch(centerData.duration ?? '')
-                      ?.group(0) ??
-                  '',
-            ) ??
-            0,
-        type: centerData.type ?? centerData.category,
-        imagePath: centerData.imagePath ?? '',
+        distance: 0.0,
+        type: centerData.type ??
+            centerData.category,
+        imagePath:
+        centerData.imagePath ?? '',
       ),
     );
 
@@ -63,42 +58,10 @@ class MedicalCentersSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 1. Error state
-    if (errorMessage != null) {
+    if (isLoading) {
       return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            LocaleKeys.nearbyMedicalCenters.tr(),
-            style: AppTextStyles.inter16W500.copyWith(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w700,
-              height: 1.5,
-              color: AppColors.darkTeal,
-            ),
-          ),
-          SizedBox(height: 12.h),
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: 24.h),
-            alignment: Alignment.center,
-            child: Text(
-              'Error loading medical centers: $errorMessage',
-              style: AppTextStyles.withColor(
-                AppTextStyles.inter14W400,
-                Colors.red,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      );
-    }
-
-    // 2. Loading state
-    if (isLoading && medicalCenters == null) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
         children: [
           Text(
             LocaleKeys.nearbyMedicalCenters.tr(),
@@ -122,28 +85,70 @@ class MedicalCentersSection extends StatelessWidget {
       );
     }
 
-    // 3. Success state
-    final list = medicalCenters ?? const <MedicalCenterEntity>[];
+    if (errorMessage != null) {
+      return Column(
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
+        children: [
+          Text(
+            LocaleKeys.nearbyMedicalCenters.tr(),
+            style: AppTextStyles.inter16W500.copyWith(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
+              height: 1.5,
+              color: AppColors.darkTeal,
+            ),
+          ),
+          SizedBox(height: 12.h),
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(
+              vertical: 24.h,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              'Unable to load nearby medical centers.\n'
+                  '$errorMessage',
+              style: AppTextStyles.withColor(
+                AppTextStyles.inter14W400,
+                AppColors.gray500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      );
+    }
+
+    final list =
+        medicalCenters ??
+            const <MedicalCenterEntity>[];
 
     return NearbyMedicalCenters(
       isAdmin: isAdmin,
       onSeeAllPressed: onSeeAll,
-      onEditCenter: (centerData) => _handleEditCenter(context, centerData),
+      onEditCenter: (centerData) =>
+          _handleEditCenter(
+            context,
+            centerData,
+          ),
       medicalCenters: list
           .map(
-            (c) => MedicalCenterData(
-              id: c.id,
-              name: c.name,
-              category: c.type,
-              address: c.address,
-              rating: c.rating,
-              reviewCount: c.reviewsCount,
-              distance: c.formattedDistance,
-              duration: c.formattedDuration,
-              type: c.type,
-              imagePath: c.imagePath,
+            (center) =>
+            MedicalCenterData(
+              id: center.id,
+              name: center.name,
+              category: center.type,
+              address: center.address,
+              rating: center.rating,
+              reviewCount:
+              center.reviewsCount,
+              distance:
+              center.formattedDistance,
+              type: center.type,
+              imagePath: center.imagePath,
             ),
-          )
+      )
           .toList(),
     );
   }

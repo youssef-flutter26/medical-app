@@ -20,6 +20,7 @@ class LocationCubit extends Cubit<LocationState> {
         state.copyWith(
           status: LocationStatus.loading,
           isLocationServiceDisabled: false,
+          errorMessage: null,
         ),
       );
 
@@ -40,20 +41,23 @@ class LocationCubit extends Cubit<LocationState> {
       emit(
         state.copyWith(
           status: LocationStatus.failure,
-          isLocationServiceDisabled: _isLocationServiceDisabled(e),
-          errorMessage: _getErrorMessage(e),
+          isLocationServiceDisabled:
+          e is LocationServiceDisabledException,
+          errorMessage: e.toString(),
         ),
       );
     }
   }
 
   Future<void> search([String? query]) async {
-    if (state.latitude == null || state.longitude == null) {
+    if (state.latitude == null ||
+        state.longitude == null) {
       return;
     }
 
     try {
-      final searchQuery = query ?? state.searchQuery;
+      final searchQuery =
+          query ?? state.searchQuery;
 
       final places = await searchNearbyPlaces(
         latitude: state.latitude!,
@@ -73,31 +77,32 @@ class LocationCubit extends Cubit<LocationState> {
       emit(
         state.copyWith(
           status: LocationStatus.failure,
-          errorMessage: _getErrorMessage(e),
+          errorMessage: e.toString(),
         ),
       );
     }
   }
 
   void selectPlace(MedicalPlace place) {
-    emit(state.copyWith(selectedPlace: place, status: LocationStatus.success));
+    emit(
+      state.copyWith(
+        selectedPlace: place,
+        status: LocationStatus.success,
+      ),
+    );
   }
 
   void goToMyLocation() {
-    if (state.latitude == null || state.longitude == null) {
+    if (state.latitude == null ||
+        state.longitude == null) {
       return;
     }
 
     emit(
-      state.copyWith(status: LocationStatus.success, clearSelectedPlace: true),
+      state.copyWith(
+        status: LocationStatus.success,
+        clearSelectedPlace: true,
+      ),
     );
-  }
-
-  String _getErrorMessage(Object error) {
-    return error.toString();
-  }
-
-  bool _isLocationServiceDisabled(Object error) {
-    return error is LocationServiceDisabledException;
   }
 }
