@@ -317,6 +317,8 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
           (getIt.isRegistered<AddDoctor>() ? getIt<AddDoctor>() : null);
       if (addUseCase != null) {
         result = await addUseCase(doctor);
+      } else if (getIt.isRegistered<DoctorRepository>()) {
+        result = await getIt<DoctorRepository>().addDoctor(doctor);
       } else {
         if (!mounted) return;
         setState(() => _isLoading = false);

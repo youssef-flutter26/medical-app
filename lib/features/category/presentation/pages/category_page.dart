@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
+import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/features/category/presentation/widgets/category_app_bar.dart';
 import 'package:medical_app/features/category/presentation/widgets/category_grid_view.dart';
@@ -120,7 +121,17 @@ class _CategoryPageState extends State<CategoryPage> {
               SizedBox(height: 20.h),
               CategoryGridView(
                 categories: filteredCategories,
-                onCategoryTap: widget.onCategoryTap,
+                onCategoryTap: (categoryTitle) {
+                  if (widget.onCategoryTap != null) {
+                    widget.onCategoryTap!(categoryTitle);
+                  } else {
+                    Navigator.pushNamed(
+                      context,
+                      Routes.categoryDoctors,
+                      arguments: categoryTitle,
+                    );
+                  }
+                },
               ),
             ],
           ),

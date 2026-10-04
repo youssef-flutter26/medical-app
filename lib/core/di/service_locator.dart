@@ -8,6 +8,10 @@ import 'package:medical_app/features/auth/data/datasources/auth_remote_data_sour
 import 'package:medical_app/features/auth/data/datasources/auth_remote_data_source_impl.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source_impl.dart';
+import 'package:medical_app/features/home/data/datasources/home_remote_data_source.dart';
+import 'package:medical_app/features/home/data/datasources/home_remote_data_source_impl.dart';
+import 'package:medical_app/features/doctor/data/datasources/doctor_remote_data_source.dart';
+import 'package:medical_app/features/doctor/data/datasources/doctor_remote_data_source_impl.dart';
 
 // ==========================================
 // AUTH - REPOSITORIES
@@ -61,6 +65,31 @@ import 'package:medical_app/features/location/domain/usecases/search_nearby_plac
 // ==========================================
 
 import 'package:medical_app/features/location/presentation/cubit/location_cubit.dart';
+
+// ==========================================
+// HOME - REPOSITORY & USE CASES
+// ==========================================
+import 'package:medical_app/features/home/data/repositories/home_repository_impl.dart';
+import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
+import 'package:medical_app/features/home/domain/usecases/add_banner.dart';
+import 'package:medical_app/features/home/domain/usecases/add_category.dart';
+import 'package:medical_app/features/home/domain/usecases/add_medical_center.dart';
+import 'package:medical_app/features/home/domain/usecases/get_banners_stream.dart';
+import 'package:medical_app/features/home/domain/usecases/get_categories_stream.dart';
+import 'package:medical_app/features/home/domain/usecases/get_medical_centers_stream.dart';
+import 'package:medical_app/features/home/domain/usecases/update_banner.dart';
+import 'package:medical_app/features/home/domain/usecases/update_category.dart';
+import 'package:medical_app/features/home/domain/usecases/update_medical_center.dart';
+
+// ==========================================
+// DOCTOR - REPOSITORY & USE CASES
+// ==========================================
+import 'package:medical_app/features/doctor/data/repositories/doctor_repository_impl.dart';
+import 'package:medical_app/features/doctor/domain/repositories/doctor_repository.dart';
+import 'package:medical_app/features/doctor/domain/usecases/add_doctor.dart';
+import 'package:medical_app/features/doctor/domain/usecases/get_doctors_by_category_stream.dart';
+import 'package:medical_app/features/doctor/domain/usecases/get_doctors_stream.dart';
+import 'package:medical_app/features/doctor/domain/usecases/update_doctor.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -255,5 +284,66 @@ void setupServiceLocator() {
           searchNearbyPlaces:
           getIt<SearchNearbyPlaces>(),
         ),
+  );
+
+  // ==========================================
+  // HOME & DOCTOR REPOSITORIES
+  // ==========================================
+
+  getIt.registerLazySingleton<HomeRepository>(
+    () => HomeRepositoryImpl(getIt<HomeRemoteDataSource>()),
+  );
+
+  getIt.registerLazySingleton<DoctorRepository>(
+    () => DoctorRepositoryImpl(getIt<DoctorRemoteDataSource>()),
+  );
+
+  // ==========================================
+  // HOME USE CASES
+  // ==========================================
+
+  getIt.registerLazySingleton<GetBannersStream>(
+    () => GetBannersStream(getIt<HomeRepository>()),
+  );
+  getIt.registerLazySingleton<GetCategoriesStream>(
+    () => GetCategoriesStream(getIt<HomeRepository>()),
+  );
+  getIt.registerLazySingleton<GetMedicalCentersStream>(
+    () => GetMedicalCentersStream(getIt<HomeRepository>()),
+  );
+  getIt.registerLazySingleton<AddBanner>(
+    () => AddBanner(getIt<HomeRepository>()),
+  );
+  getIt.registerLazySingleton<UpdateBanner>(
+    () => UpdateBanner(getIt<HomeRepository>()),
+  );
+  getIt.registerLazySingleton<AddCategory>(
+    () => AddCategory(getIt<HomeRepository>()),
+  );
+  getIt.registerLazySingleton<UpdateCategory>(
+    () => UpdateCategory(getIt<HomeRepository>()),
+  );
+  getIt.registerLazySingleton<AddMedicalCenter>(
+    () => AddMedicalCenter(getIt<HomeRepository>()),
+  );
+  getIt.registerLazySingleton<UpdateMedicalCenter>(
+    () => UpdateMedicalCenter(getIt<HomeRepository>()),
+  );
+
+  // ==========================================
+  // DOCTOR USE CASES
+  // ==========================================
+
+  getIt.registerLazySingleton<GetDoctorsStream>(
+    () => GetDoctorsStream(getIt<DoctorRepository>()),
+  );
+  getIt.registerLazySingleton<GetDoctorsByCategoryStream>(
+    () => GetDoctorsByCategoryStream(getIt<DoctorRepository>()),
+  );
+  getIt.registerLazySingleton<AddDoctor>(
+    () => AddDoctor(getIt<DoctorRepository>()),
+  );
+  getIt.registerLazySingleton<UpdateDoctor>(
+    () => UpdateDoctor(getIt<DoctorRepository>()),
   );
 }

@@ -80,7 +80,6 @@ class DoctorRemoteDataSourceImpl implements DoctorRemoteDataSource {
   Stream<List<DoctorModel>> getDoctorsByCategoryStream(String categoryId) {
     return firestore
         .collection('doctors')
-        .where('categoryId', isEqualTo: categoryId)
         .snapshots()
         .map(
       (snapshot) {
@@ -88,10 +87,20 @@ class DoctorRemoteDataSourceImpl implements DoctorRemoteDataSource {
           'DoctorRemoteDataSource: received ${snapshot.docs.length} docs for category $categoryId',
         );
         final list = <DoctorModel>[];
+        final target = categoryId.trim().toLowerCase();
         for (final doc in snapshot.docs) {
           try {
             final model = DoctorModel.fromFirestore(doc.data(), doc.id);
-            list.add(model);
+            final matches = model.categoryId == categoryId ||
+                model.categoryName.trim().toLowerCase() == target ||
+                model.specialty.trim().toLowerCase() == target ||
+                model.categoryName.trim().toLowerCase().contains(target) ||
+                target.contains(model.categoryName.trim().toLowerCase()) ||
+                model.specialty.trim().toLowerCase().contains(target) ||
+                target.contains(model.specialty.trim().toLowerCase());
+            if (matches) {
+              list.add(model);
+            }
           } catch (e, stack) {
             debugPrint('Error parsing doctor doc ${doc.id}: $e\n$stack');
           }

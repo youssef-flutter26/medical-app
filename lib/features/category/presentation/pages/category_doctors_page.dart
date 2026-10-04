@@ -17,6 +17,7 @@ import 'package:medical_app/features/category/presentation/widgets/category_doct
 import 'package:medical_app/features/category/presentation/widgets/category_doctors/category_doctors_list.dart';
 import 'package:medical_app/features/category/presentation/widgets/category_doctors/doctor_card.dart';
 import 'package:medical_app/features/doctor/domain/entities/doctor_entity.dart';
+import 'package:medical_app/features/doctor/domain/repositories/doctor_repository.dart';
 import 'package:medical_app/features/doctor/domain/usecases/get_doctors_by_category_stream.dart';
 import 'package:medical_app/features/doctor/domain/usecases/get_doctors_stream.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
@@ -94,6 +95,13 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
       }
     }
 
+    if (stream == null && getIt.isRegistered<DoctorRepository>()) {
+      final repo = getIt<DoctorRepository>();
+      stream = (categoryId != null && categoryId.isNotEmpty)
+          ? repo.getDoctorsByCategoryStream(categoryId)
+          : repo.getDoctorsStream();
+    }
+
     if (stream != null) {
       _subscription = stream.listen(
         (entities) {
@@ -154,16 +162,27 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
     final hasCategoryFilter = selectedCategory.isNotEmpty &&
         selectedCategory.toLowerCase() != 'all doctors';
 
-    // If widget.category has an ID, the stream query already filtered by categoryId.
-    // If not, or if initialDoctors was passed, filter by category/specialty.
-    final categoryFiltered = hasCategoryFilter && widget.category?.id == null
+    final targetId = widget.category?.id;
+    final categoryFiltered = hasCategoryFilter
         ? baseDoctors.where((d) {
-            final cat = d.category?.toLowerCase() ?? '';
-            final spec = d.specialty.toLowerCase();
-            final target = selectedCategory.toLowerCase();
-            return cat == target ||
+            final catId = d.rawEntity?.categoryId ?? '';
+            final cat = (d.category ?? '').trim().toLowerCase();
+            final spec = d.specialty.trim().toLowerCase();
+            final target = selectedCategory.trim().toLowerCase();
+
+            final matchesId = targetId != null &&
+                targetId.isNotEmpty &&
+                catId.isNotEmpty &&
+                catId == targetId;
+
+            final matchesName = cat == target ||
+                spec == target ||
+                cat.contains(target) ||
+                target.contains(cat) ||
                 spec.contains(target) ||
-                target.contains(cat);
+                target.contains(spec);
+
+            return matchesId || matchesName;
           }).toList()
         : baseDoctors;
 
