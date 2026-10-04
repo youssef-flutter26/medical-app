@@ -13,11 +13,11 @@ import 'package:medical_app/features/admin/presentation/pages/add_medical_center
 import 'package:medical_app/features/admin/presentation/widgets/admin_fab.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
 import 'package:medical_app/features/auth/data/models/user_model.dart';
-import 'package:medical_app/features/category/presentation/widgets/category_doctors/doctor_card.dart';
-import 'package:medical_app/features/doctor/data/datasources/doctor_remote_data_source_impl.dart';
-import 'package:medical_app/features/doctor/data/repositories/doctor_repository_impl.dart';
-import 'package:medical_app/features/doctor/domain/entities/doctor_entity.dart';
-import 'package:medical_app/features/doctor/domain/usecases/get_doctors_stream.dart';
+import 'package:medical_app/features/home/presentation/widgets/doctor_card.dart';
+import 'package:medical_app/features/home/data/datasources/doctor_remote_data_source_impl.dart';
+import 'package:medical_app/features/home/data/repositories/doctor_repository_impl.dart';
+import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
+import 'package:medical_app/features/home/domain/usecases/get_doctors_stream.dart';
 import 'package:medical_app/features/home/data/datasources/home_remote_data_source_impl.dart';
 import 'package:medical_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';

@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
-import 'package:medical_app/features/doctor/domain/entities/doctor_entity.dart';
+import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
 
 class DoctorData {
   final String? id;

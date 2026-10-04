@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:medical_app/features/category/presentation/widgets/category_doctors/doctor_card.dart';
+import 'package:medical_app/features/home/presentation/widgets/doctor_card.dart';
 
 class _FakeDoctorCardAssetLoader extends AssetLoader {
   const _FakeDoctorCardAssetLoader();

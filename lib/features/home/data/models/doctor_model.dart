@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:medical_app/features/doctor/domain/entities/doctor_entity.dart';
+import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
 
 class DoctorModel extends DoctorEntity {
   const DoctorModel({

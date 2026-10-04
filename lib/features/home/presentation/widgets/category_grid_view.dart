@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:medical_app/features/category/presentation/widgets/category_card.dart';
-import 'package:medical_app/features/category/presentation/widgets/category_empty_state.dart';
+import 'package:medical_app/features/home/presentation/widgets/category_card.dart';
+import 'package:medical_app/features/home/presentation/widgets/category_empty_state.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_categories.dart';
 

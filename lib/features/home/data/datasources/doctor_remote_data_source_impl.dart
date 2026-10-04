@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:medical_app/features/doctor/data/models/doctor_model.dart';
+import 'package:medical_app/features/home/data/models/doctor_model.dart';
 import 'doctor_remote_data_source.dart';
 
 class DoctorRemoteDataSourceImpl implements DoctorRemoteDataSource {

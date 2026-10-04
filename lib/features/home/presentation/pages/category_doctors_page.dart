@@ -13,13 +13,13 @@ import 'package:medical_app/core/utils/app_assets.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_doctor_page.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
 import 'package:medical_app/features/auth/data/models/user_model.dart';
-import 'package:medical_app/features/category/presentation/widgets/category_doctors/category_doctors_header.dart';
-import 'package:medical_app/features/category/presentation/widgets/category_doctors/category_doctors_list.dart';
-import 'package:medical_app/features/category/presentation/widgets/category_doctors/doctor_card.dart';
-import 'package:medical_app/features/doctor/domain/entities/doctor_entity.dart';
-import 'package:medical_app/features/doctor/domain/repositories/doctor_repository.dart';
-import 'package:medical_app/features/doctor/domain/usecases/get_doctors_by_category_stream.dart';
-import 'package:medical_app/features/doctor/domain/usecases/get_doctors_stream.dart';
+import 'package:medical_app/features/home/presentation/widgets/category_doctors_header.dart';
+import 'package:medical_app/features/home/presentation/widgets/category_doctors_list.dart';
+import 'package:medical_app/features/home/presentation/widgets/doctor_card.dart';
+import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
+import 'package:medical_app/features/home/domain/repositories/doctor_repository.dart';
+import 'package:medical_app/features/home/domain/usecases/get_doctors_by_category_stream.dart';
+import 'package:medical_app/features/home/domain/usecases/get_doctors_stream.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 
 class CategoryDoctorsPage extends StatefulWidget {

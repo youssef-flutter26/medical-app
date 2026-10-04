@@ -10,8 +10,8 @@ import 'package:medical_app/features/auth/data/datasources/user_remote_data_sour
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source_impl.dart';
 import 'package:medical_app/features/home/data/datasources/home_remote_data_source.dart';
 import 'package:medical_app/features/home/data/datasources/home_remote_data_source_impl.dart';
-import 'package:medical_app/features/doctor/data/datasources/doctor_remote_data_source.dart';
-import 'package:medical_app/features/doctor/data/datasources/doctor_remote_data_source_impl.dart';
+import 'package:medical_app/features/home/data/datasources/doctor_remote_data_source.dart';
+import 'package:medical_app/features/home/data/datasources/doctor_remote_data_source_impl.dart';
 
 // ==========================================
 // AUTH - REPOSITORIES
@@ -84,12 +84,12 @@ import 'package:medical_app/features/home/domain/usecases/update_medical_center.
 // ==========================================
 // DOCTOR - REPOSITORY & USE CASES
 // ==========================================
-import 'package:medical_app/features/doctor/data/repositories/doctor_repository_impl.dart';
-import 'package:medical_app/features/doctor/domain/repositories/doctor_repository.dart';
-import 'package:medical_app/features/doctor/domain/usecases/add_doctor.dart';
-import 'package:medical_app/features/doctor/domain/usecases/get_doctors_by_category_stream.dart';
-import 'package:medical_app/features/doctor/domain/usecases/get_doctors_stream.dart';
-import 'package:medical_app/features/doctor/domain/usecases/update_doctor.dart';
+import 'package:medical_app/features/home/data/repositories/doctor_repository_impl.dart';
+import 'package:medical_app/features/home/domain/repositories/doctor_repository.dart';
+import 'package:medical_app/features/home/domain/usecases/add_doctor.dart';
+import 'package:medical_app/features/home/domain/usecases/get_doctors_by_category_stream.dart';
+import 'package:medical_app/features/home/domain/usecases/get_doctors_stream.dart';
+import 'package:medical_app/features/home/domain/usecases/update_doctor.dart';
 
 final GetIt getIt = GetIt.instance;
 

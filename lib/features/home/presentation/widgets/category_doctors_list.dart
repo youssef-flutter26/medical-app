@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
-import 'package:medical_app/features/category/presentation/widgets/category_doctors/doctor_card.dart';
+import 'package:medical_app/features/home/presentation/widgets/doctor_card.dart';
 
 class CategoryDoctorsList extends StatelessWidget {
   final List<DoctorData> doctors;

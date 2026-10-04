@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medical_app/core/routing/app_router.dart';
-import 'package:medical_app/features/category/presentation/pages/category_doctors_page.dart';
-import 'package:medical_app/features/category/presentation/widgets/category_doctors/category_doctors_header.dart';
-import 'package:medical_app/features/category/presentation/widgets/category_doctors/category_doctors_list.dart';
-import 'package:medical_app/features/category/presentation/widgets/category_doctors/doctor_card.dart';
-import 'package:medical_app/features/doctor/domain/entities/doctor_entity.dart';
+import 'package:medical_app/features/home/presentation/pages/category_doctors_page.dart';
+import 'package:medical_app/features/home/presentation/widgets/category_doctors_header.dart';
+import 'package:medical_app/features/home/presentation/widgets/category_doctors_list.dart';
+import 'package:medical_app/features/home/presentation/widgets/doctor_card.dart';
+import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 
 class _FakeCategoryDoctorsAssetLoader extends AssetLoader {

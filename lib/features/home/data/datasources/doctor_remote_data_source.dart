@@ -1,4 +1,4 @@
-import 'package:medical_app/features/doctor/data/models/doctor_model.dart';
+import 'package:medical_app/features/home/data/models/doctor_model.dart';
 
 abstract class DoctorRemoteDataSource {
   Future<void> addDoctor(DoctorModel doctor);

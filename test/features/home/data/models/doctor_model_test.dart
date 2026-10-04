@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:medical_app/features/doctor/data/models/doctor_model.dart';
-import 'package:medical_app/features/doctor/domain/entities/doctor_entity.dart';
+import 'package:medical_app/features/home/data/models/doctor_model.dart';
+import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
 
 void main() {
   group('DoctorModel', () {

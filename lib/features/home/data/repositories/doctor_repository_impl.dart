@@ -1,9 +1,9 @@
 import 'package:medical_app/core/error/firebase_failure.dart';
 import 'package:medical_app/core/error/result.dart';
-import 'package:medical_app/features/doctor/data/datasources/doctor_remote_data_source.dart';
-import 'package:medical_app/features/doctor/data/models/doctor_model.dart';
-import 'package:medical_app/features/doctor/domain/entities/doctor_entity.dart';
-import 'package:medical_app/features/doctor/domain/repositories/doctor_repository.dart';
+import 'package:medical_app/features/home/data/datasources/doctor_remote_data_source.dart';
+import 'package:medical_app/features/home/data/models/doctor_model.dart';
+import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
+import 'package:medical_app/features/home/domain/repositories/doctor_repository.dart';
 
 class DoctorRepositoryImpl implements DoctorRepository {
   final DoctorRemoteDataSource remoteDataSource;

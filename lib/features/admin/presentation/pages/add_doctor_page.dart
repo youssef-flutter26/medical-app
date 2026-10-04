@@ -17,10 +17,10 @@ import 'package:medical_app/features/admin/presentation/widgets/add_doctor/docto
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_rating_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_reviews_field.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
-import 'package:medical_app/features/doctor/domain/entities/doctor_entity.dart';
-import 'package:medical_app/features/doctor/domain/repositories/doctor_repository.dart';
-import 'package:medical_app/features/doctor/domain/usecases/add_doctor.dart';
-import 'package:medical_app/features/doctor/domain/usecases/update_doctor.dart';
+import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
+import 'package:medical_app/features/home/domain/repositories/doctor_repository.dart';
+import 'package:medical_app/features/home/domain/usecases/add_doctor.dart';
+import 'package:medical_app/features/home/domain/usecases/update_doctor.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
 import 'package:medical_app/features/home/domain/usecases/get_categories_stream.dart';

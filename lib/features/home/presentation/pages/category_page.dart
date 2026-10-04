@@ -4,10 +4,10 @@ import 'package:medical_app/core/di/service_locator.dart';
 import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
-import 'package:medical_app/features/category/presentation/widgets/category_app_bar.dart';
-import 'package:medical_app/features/category/presentation/widgets/category_empty_state.dart';
-import 'package:medical_app/features/category/presentation/widgets/category_grid_view.dart';
-import 'package:medical_app/features/category/presentation/widgets/category_search_field.dart';
+import 'package:medical_app/features/home/presentation/widgets/category_app_bar.dart';
+import 'package:medical_app/features/home/presentation/widgets/category_empty_state.dart';
+import 'package:medical_app/features/home/presentation/widgets/category_grid_view.dart';
+import 'package:medical_app/features/home/presentation/widgets/category_search_field.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 import 'package:medical_app/features/home/domain/usecases/get_categories_stream.dart';
 

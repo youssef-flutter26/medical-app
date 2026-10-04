@@ -2,10 +2,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:medical_app/features/category/presentation/pages/category_page.dart';
-import 'package:medical_app/features/category/presentation/widgets/category_card.dart';
-import 'package:medical_app/features/category/presentation/widgets/category_empty_state.dart';
-import 'package:medical_app/features/category/presentation/widgets/category_search_field.dart';
+import 'package:medical_app/features/home/presentation/pages/category_page.dart';
+import 'package:medical_app/features/home/presentation/widgets/category_card.dart';
+import 'package:medical_app/features/home/presentation/widgets/category_empty_state.dart';
+import 'package:medical_app/features/home/presentation/widgets/category_search_field.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';

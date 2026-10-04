@@ -14,11 +14,11 @@ import 'package:medical_app/features/auth/presentation/pages/login_screen.dart';
 import 'package:medical_app/features/auth/presentation/pages/register_screen .dart';
 import 'package:medical_app/features/auth/presentation/widgets/fill_profile.dart';
 import 'package:medical_app/features/onboarding/presentation/pages/onboarding_screen.dart';
-import 'package:medical_app/features/category/presentation/pages/category_doctors_page.dart';
-import 'package:medical_app/features/category/presentation/pages/category_page.dart';
-import 'package:medical_app/features/category/presentation/widgets/category_doctors/doctor_card.dart';
-import 'package:medical_app/features/doctor/domain/entities/doctor_entity.dart';
-import 'package:medical_app/features/doctor/presentation/pages/doctor_details_page.dart';
+import 'package:medical_app/features/home/presentation/pages/category_doctors_page.dart';
+import 'package:medical_app/features/home/presentation/pages/category_page.dart';
+import 'package:medical_app/features/home/presentation/widgets/doctor_card.dart';
+import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
+import 'package:medical_app/features/home/presentation/pages/doctor_details_page.dart';
 import 'package:medical_app/features/home/presentation/pages/nearby_medical_centers_page.dart';
 import 'package:medical_app/features/splash/presentation/pages/splash_screen.dart';
 
