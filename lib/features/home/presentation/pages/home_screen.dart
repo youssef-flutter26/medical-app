@@ -66,7 +66,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Stream<List<BannerEntity>>? _bannersStream;
   Stream<List<MedicalCenterEntity>>? _medicalCentersStream;
   Stream<List<CategoryEntity>>? _categoriesStream;
-  Stream<List<DoctorEntity>>? _doctorsStream;
 
   final List<StreamSubscription> _subscriptions = [];
   final List<StreamController> _controllers = [];
@@ -259,7 +258,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   )
                 : null);
 
-    _doctorsStream = _createSharedStream<DoctorEntity>(
+    _createSharedStream<DoctorEntity>(
       source: doctorsUseCase?.call(),
       onUpdate: (data) => _doctors = data,
     );
@@ -274,7 +273,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _controllers.add(ctrl);
       scheduleMicrotask(() {
         if (!ctrl.isClosed) {
-          ctrl.add(const <T>[]);
+          ctrl.add(<T>[]);
         }
       });
       return ctrl.stream;
@@ -377,14 +376,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildSearchResults(BuildContext context, bool isAdmin) {
     final query = _searchQuery.trim().toLowerCase();
 
-    // 1. Doctors matching (by name, specialization, categoryName, address, degree)
+    // 1. Doctors matching (by name, specialty, categoryName, address)
     final matchingDoctors = (_doctors ?? const <DoctorEntity>[]).where((doctor) {
       final nameMatches = doctor.name.toLowerCase().contains(query);
-      final specMatches = doctor.specialization.toLowerCase().contains(query);
+      final specMatches = doctor.specialty.toLowerCase().contains(query);
       final catMatches = doctor.categoryName.toLowerCase().contains(query);
       final addressMatches = doctor.address.toLowerCase().contains(query);
-      final degreeMatches = doctor.degree.toLowerCase().contains(query);
-      return nameMatches || specMatches || catMatches || addressMatches || degreeMatches;
+      return nameMatches || specMatches || catMatches || addressMatches;
     }).toList();
 
     // 2. Categories matching (by name, id)
@@ -409,12 +407,11 @@ class _HomeScreenState extends State<HomeScreen> {
       return nameMatches || addressMatches || typeMatches;
     }).toList();
 
-    // 4. Banners matching (by title, description, buttonText)
+    // 4. Banners matching (by title, description)
     final matchingBanners = (_banners ?? const <BannerEntity>[]).where((banner) {
       final titleMatches = banner.title.toLowerCase().contains(query);
       final descMatches = banner.description.toLowerCase().contains(query);
-      final btnMatches = banner.buttonText.toLowerCase().contains(query);
-      return titleMatches || descMatches || btnMatches;
+      return titleMatches || descMatches;
     }).toList();
 
     final isLoading = _doctors == null &&

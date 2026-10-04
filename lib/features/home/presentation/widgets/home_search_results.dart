@@ -309,7 +309,7 @@ class HomeSearchResults extends StatelessWidget {
   }
 
   Widget _buildCategoryIcon(CategoryEntity category) {
-    final path = category.imagePath?.trim() ?? '';
+    final path = category.imagePath.trim();
     if (path.isNotEmpty) {
       if (path.startsWith('http://') || path.startsWith('https://')) {
         return ClipRRect(
@@ -319,7 +319,8 @@ class HomeSearchResults extends StatelessWidget {
             width: 40.r,
             height: 40.r,
             fit: BoxFit.contain,
-            errorBuilder: (_, __, ___) => _buildFallbackCategoryIcon(),
+            errorBuilder: (context, error, stackTrace) =>
+                _buildFallbackCategoryIcon(),
           ),
         );
       }
@@ -333,7 +334,8 @@ class HomeSearchResults extends StatelessWidget {
           width: 40.r,
           height: 40.r,
           fit: BoxFit.contain,
-          errorBuilder: (_, __, ___) => _buildFallbackCategoryIcon(),
+          errorBuilder: (context, error, stackTrace) =>
+              _buildFallbackCategoryIcon(),
         ),
       );
     }
