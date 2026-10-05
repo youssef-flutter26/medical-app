@@ -21,6 +21,7 @@ import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
 import 'package:medical_app/features/home/presentation/pages/doctor_details_page.dart';
 import 'package:medical_app/features/home/presentation/pages/nearby_medical_centers_page.dart';
 import 'package:medical_app/features/splash/presentation/pages/splash_screen.dart';
+import 'package:medical_app/features/home/presentation/pages/all_medical_centers_page.dart';
 
 class AppRouter {
   Route<dynamic>? generateRoute(RouteSettings settings) {
@@ -165,13 +166,22 @@ class AppRouter {
           builder: (_) => AddDoctorPage(initialDoctor: initialDoctor),
           settings: settings,
         );
+      case Routes.allMedicalCenters:
+        final medicalCenters =
+        settings.arguments is List<MedicalCenterEntity>
+            ? settings.arguments as List<MedicalCenterEntity>
+            : <MedicalCenterEntity>[];
 
-
-      case Routes.nearbyMedicalCenters:
         return MaterialPageRoute(
-          builder: (_) => const NearbyMedicalCentersPage(),
+          builder: (_) =>
+              AllMedicalCentersPage(
+                medicalCenters: medicalCenters,
+              ),
           settings: settings,
         );
+
+
+
 
       default:
         return null;

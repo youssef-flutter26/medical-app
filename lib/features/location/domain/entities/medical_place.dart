@@ -1,6 +1,10 @@
 import 'package:equatable/equatable.dart';
 
-enum MedicalPlaceType { hospital, doctor }
+enum MedicalPlaceType {
+  hospital,
+  clinic,
+  doctor,
+}
 
 class MedicalPlace extends Equatable {
   const MedicalPlace({
@@ -27,12 +31,22 @@ class MedicalPlace extends Equatable {
   final double rating;
   final int reviewsCount;
 
+  /// Distance in kilometers.
+  /// Calculated at runtime from user's location.
   final double distance;
 
   final MedicalPlaceType type;
 
   final String? imageUrl;
   final String? specialty;
+
+  String get formattedDistance {
+    if (distance < 1) {
+      return '${(distance * 1000).round()} m';
+    }
+
+    return '${distance.toStringAsFixed(1)} km';
+  }
 
   @override
   List<Object?> get props => [

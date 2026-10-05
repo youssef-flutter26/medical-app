@@ -64,7 +64,10 @@ class HomeCategories extends StatelessWidget {
                 onTap: onSeeAllPressed,
                 borderRadius: BorderRadius.circular(4.r),
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 4.w,
+                    vertical: 2.h,
+                  ),
                   child: Text(
                     LocaleKeys.seeAll.tr(),
                     style: AppTextStyles.inter14W500.copyWith(
@@ -82,7 +85,9 @@ class HomeCategories extends StatelessWidget {
         if (list.isEmpty)
           Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: 24.h),
+            padding: EdgeInsets.symmetric(
+              vertical: 24.h,
+            ),
             alignment: Alignment.center,
             child: Text(
               LocaleKeys.noCategoriesFound.tr(),
@@ -97,7 +102,8 @@ class HomeCategories extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: list.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate:
+            SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 4,
               crossAxisSpacing: 10.w,
               mainAxisSpacing: 12.h,
@@ -105,6 +111,7 @@ class HomeCategories extends StatelessWidget {
             ),
             itemBuilder: (context, index) {
               final category = list[index];
+
               return CategoryItem(
                 title: category.name,
                 imagePath: category.imagePath,

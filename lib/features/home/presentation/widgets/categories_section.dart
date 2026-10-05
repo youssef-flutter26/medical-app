@@ -46,7 +46,9 @@ class CategoriesSection extends StatelessWidget {
           SizedBox(height: 12.h),
           Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: 24.h),
+            padding: EdgeInsets.symmetric(
+              vertical: 24.h,
+            ),
             alignment: Alignment.center,
             child: Text(
               'Error loading categories: $errorMessage',
@@ -94,7 +96,9 @@ class CategoriesSection extends StatelessWidget {
       isAdmin: isAdmin,
       onEditCategory: onEditCategory,
       onSeeAllPressed: onSeeAllPressed,
-      onCategoryTap: onCategoryTap,
+      onCategoryTap: (category) {
+        onCategoryTap?.call(category);
+      },
     );
   }
 }

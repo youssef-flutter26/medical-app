@@ -1,0 +1,11 @@
+ android/app/build.gradle.kts                       |   6 [32m+[m
+ android/gradle.properties                          |   1 [32m+[m
+ .../home/presentation/pages/category_page.dart     | 174 [32m++++++++[m
+ .../pages/nearby_medical_centers_page.dart         | 250 [32m+++++++++++[m
+ .../presentation/widgets/category_grid_view.dart   |  95 [32m++++[m
+ .../presentation/widgets/home_search_results.dart  | 494 [32m+++++++++++++++++++++[m
+ .../widgets/medical_center_details_sheet.dart      | 154 [32m+++++++[m
+ test/features/home/home_search_test.dart           | 294 [32m++++++++++++[m
+ .../home/presentation/pages/home_see_all_test.dart | 170 [32m+++++++[m
+ .../pages/nearby_medical_centers_page_test.dart    | 164 [32m+++++++[m
+ 10 files changed, 1802 insertions(+)

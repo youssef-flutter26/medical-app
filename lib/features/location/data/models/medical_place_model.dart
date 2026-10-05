@@ -15,7 +15,7 @@ class MedicalPlaceModel extends MedicalPlace {
     super.specialty,
   });
 
-  factory MedicalPlaceModel.fromEntity(MedicalPlace place) {
+  factory MedicalPlaceModel.fromEntity(MedicalPlace place,) {
     return MedicalPlaceModel(
       id: place.id,
       name: place.name,

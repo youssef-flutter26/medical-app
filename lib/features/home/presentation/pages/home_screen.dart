@@ -1,23 +1,19 @@
 import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:medical_app/core/di/service_locator.dart';
 import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_banner_page.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_category_page.dart';
-import 'package:medical_app/features/admin/presentation/pages/add_doctor_page.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_medical_center_page.dart';
 import 'package:medical_app/features/admin/presentation/widgets/admin_fab.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
 import 'package:medical_app/features/auth/data/models/user_model.dart';
-import 'package:medical_app/features/home/presentation/widgets/doctor_card.dart';
-import 'package:medical_app/features/home/data/datasources/doctor_remote_data_source_impl.dart';
-import 'package:medical_app/features/home/data/repositories/doctor_repository_impl.dart';
-import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
-import 'package:medical_app/features/home/domain/usecases/get_doctors_stream.dart';
 import 'package:medical_app/features/home/data/datasources/home_remote_data_source_impl.dart';
 import 'package:medical_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
@@ -29,10 +25,7 @@ import 'package:medical_app/features/home/domain/usecases/get_medical_centers_st
 import 'package:medical_app/features/home/presentation/widgets/banner_section.dart';
 import 'package:medical_app/features/home/presentation/widgets/categories_section.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_header.dart';
-import 'package:medical_app/features/home/presentation/widgets/home_search_results.dart';
-import 'package:medical_app/features/home/presentation/widgets/medical_center_details_sheet.dart';
 import 'package:medical_app/features/home/presentation/widgets/medical_centers_section.dart';
-
 
 class HomeScreen extends StatefulWidget {
   final FirebaseAuth? auth;
@@ -41,8 +34,6 @@ class HomeScreen extends StatefulWidget {
   final GetBannersStream? getBannersStream;
   final GetMedicalCentersStream? getMedicalCentersStream;
   final GetCategoriesStream? getCategoriesStream;
-  final GetDoctorsStream? getDoctorsStream;
-  final TextEditingController? searchController;
 
   const HomeScreen({
     super.key,
@@ -52,43 +43,37 @@ class HomeScreen extends StatefulWidget {
     this.getBannersStream,
     this.getMedicalCentersStream,
     this.getCategoriesStream,
-    this.getDoctorsStream,
-    this.searchController,
   });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with WidgetsBindingObserver {
   Stream<List<BannerEntity>>? _bannersStream;
   Stream<List<MedicalCenterEntity>>? _medicalCentersStream;
   Stream<List<CategoryEntity>>? _categoriesStream;
 
-  final List<StreamSubscription> _subscriptions = [];
-  final List<StreamController> _controllers = [];
+  StreamSubscription<List<MedicalCenterEntity>>?
+  _medicalCentersSubscription;
 
-  List<BannerEntity>? _banners;
-  List<MedicalCenterEntity>? _medicalCenters;
-  List<CategoryEntity>? _categories;
-  List<DoctorEntity>? _doctors;
+  StreamSubscription<ServiceStatus>?
+  _locationServiceSubscription;
 
-  late TextEditingController _searchController = _createSearchController();
-  bool _isInternalController = false;
-  String _searchQuery = '';
+  List<MedicalCenterEntity> _allMedicalCenters = [];
+  List<MedicalCenterEntity> _nearbyMedicalCenters = [];
 
-  TextEditingController _createSearchController() {
-    if (widget.searchController != null) {
-      _isInternalController = false;
-      return widget.searchController!;
-    }
-    _isInternalController = true;
-    final controller = TextEditingController();
-    return controller;
-  }
+  bool _isNearbyLoading = true;
+  String? _nearbyError;
+  bool _isCalculatingNearby = false;
+  bool? _lastLocationServiceStatus;
 
   FirebaseAuth? get _auth {
-    if (widget.auth != null) return widget.auth;
+    if (widget.auth != null) {
+      return widget.auth;
+    }
+
     try {
       return getIt.isRegistered<FirebaseAuth>()
           ? getIt<FirebaseAuth>()
@@ -99,7 +84,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   UserRemoteDataSource? get _userRemoteDataSource {
-    if (widget.userRemoteDataSource != null) return widget.userRemoteDataSource;
+    if (widget.userRemoteDataSource != null) {
+      return widget.userRemoteDataSource;
+    }
+
     try {
       return getIt.isRegistered<UserRemoteDataSource>()
           ? getIt<UserRemoteDataSource>()
@@ -109,238 +97,353 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _navigateToAllMedicalCenters() {
+    Navigator.pushNamed(
+      context,
+      Routes.allMedicalCenters,
+      arguments: _nearbyMedicalCenters,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
-    _initSearchController();
+
+    WidgetsBinding.instance.addObserver(this);
+
     _initStreams();
-  }
-
-  void _initSearchController() {
-    if (widget.searchController != null) {
-      _searchController = widget.searchController!;
-      _isInternalController = false;
-    } else {
-      _searchController = TextEditingController();
-      _isInternalController = true;
-    }
-    _searchQuery = _searchController.text;
-    _searchController.addListener(_onSearchChanged);
+    _listenToLocationService();
   }
 
   @override
-  void reassemble() {
-    super.reassemble();
-    try {
-      _searchController.text;
-    } catch (_) {
-      _initSearchController();
-    }
-  }
-
-  void _onSearchChanged() {
-    if (mounted && _searchQuery != _searchController.text) {
-      setState(() {
-        _searchQuery = _searchController.text;
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _searchController.removeListener(_onSearchChanged);
-    if (_isInternalController) {
-      _searchController.dispose();
-    }
-    _clearStreams();
-    super.dispose();
-  }
-
-  void _clearStreams() {
-    for (final sub in _subscriptions) {
-      sub.cancel();
-    }
-    _subscriptions.clear();
-    for (final ctrl in _controllers) {
-      ctrl.close();
-    }
-    _controllers.clear();
-  }
-
-  @override
-  void didUpdateWidget(covariant HomeScreen oldWidget) {
+  void didUpdateWidget(covariant HomeScreen oldWidget,) {
     super.didUpdateWidget(oldWidget);
-    if (widget.searchController != oldWidget.searchController) {
-      _searchController.removeListener(_onSearchChanged);
-      if (_isInternalController) {
-        _searchController.dispose();
-      }
-      _initSearchController();
-    }
-    if (widget.getBannersStream != oldWidget.getBannersStream ||
-        widget.getMedicalCentersStream != oldWidget.getMedicalCentersStream ||
-        widget.getCategoriesStream != oldWidget.getCategoriesStream ||
-        widget.getDoctorsStream != oldWidget.getDoctorsStream ||
+
+    if (widget.getBannersStream !=
+        oldWidget.getBannersStream ||
+        widget.getMedicalCentersStream !=
+            oldWidget.getMedicalCentersStream ||
+        widget.getCategoriesStream !=
+            oldWidget.getCategoriesStream ||
         widget.firestore != oldWidget.firestore) {
       _initStreams();
     }
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state,) {
+    if (state == AppLifecycleState.resumed) {
+      _calculateNearbyMedicalCenters(
+        _allMedicalCenters,
+        force: true,
+      );
+    }
+  }
+
   void _initStreams() {
-    _clearStreams();
+    _medicalCentersSubscription?.cancel();
 
-    final bannersUseCase = widget.getBannersStream ??
-        (getIt.isRegistered<GetBannersStream>()
-            ? getIt<GetBannersStream>()
-            : (widget.firestore != null || getIt.isRegistered<FirebaseFirestore>())
+    final bannersUseCase =
+        widget.getBannersStream ??
+            (getIt.isRegistered<GetBannersStream>()
+                ? getIt<GetBannersStream>()
+                : (widget.firestore != null ||
+                getIt.isRegistered<FirebaseFirestore>())
                 ? GetBannersStream(
-                    HomeRepositoryImpl(
-                      HomeRemoteDataSourceImpl(
-                        widget.firestore ?? getIt<FirebaseFirestore>(),
-                      ),
-                    ),
-                  )
+              HomeRepositoryImpl(
+                HomeRemoteDataSourceImpl(
+                  widget.firestore ??
+                      getIt<FirebaseFirestore>(),
+                ),
+              ),
+            )
                 : null);
 
-    _bannersStream = _createSharedStream<BannerEntity>(
-      source: bannersUseCase?.call(),
-      onUpdate: (data) => _banners = data,
-    );
+    _bannersStream = bannersUseCase?.call() ??
+        Stream.value(
+          const <BannerEntity>[],
+        );
 
-    final centersUseCase = widget.getMedicalCentersStream ??
-        (getIt.isRegistered<GetMedicalCentersStream>()
-            ? getIt<GetMedicalCentersStream>()
-            : (widget.firestore != null || getIt.isRegistered<FirebaseFirestore>())
+    final centersUseCase =
+        widget.getMedicalCentersStream ??
+            (getIt.isRegistered<GetMedicalCentersStream>()
+                ? getIt<GetMedicalCentersStream>()
+                : (widget.firestore != null ||
+                getIt.isRegistered<FirebaseFirestore>())
                 ? GetMedicalCentersStream(
-                    HomeRepositoryImpl(
-                      HomeRemoteDataSourceImpl(
-                        widget.firestore ?? getIt<FirebaseFirestore>(),
-                      ),
-                    ),
-                  )
+              HomeRepositoryImpl(
+                HomeRemoteDataSourceImpl(
+                  widget.firestore ??
+                      getIt<FirebaseFirestore>(),
+                ),
+              ),
+            )
                 : null);
 
-    _medicalCentersStream = _createSharedStream<MedicalCenterEntity>(
-      source: centersUseCase?.call(),
-      onUpdate: (data) => _medicalCenters = data,
-    );
+    _medicalCentersStream = centersUseCase?.call() ??
+        Stream.value(
+          const <MedicalCenterEntity>[],
+        );
 
-    final categoriesUseCase = widget.getCategoriesStream ??
-        (getIt.isRegistered<GetCategoriesStream>()
-            ? getIt<GetCategoriesStream>()
-            : (widget.firestore != null || getIt.isRegistered<FirebaseFirestore>())
+    final categoriesUseCase =
+        widget.getCategoriesStream ??
+            (getIt.isRegistered<GetCategoriesStream>()
+                ? getIt<GetCategoriesStream>()
+                : (widget.firestore != null ||
+                getIt.isRegistered<FirebaseFirestore>())
                 ? GetCategoriesStream(
-                    HomeRepositoryImpl(
-                      HomeRemoteDataSourceImpl(
-                        widget.firestore ?? getIt<FirebaseFirestore>(),
-                      ),
-                    ),
-                  )
+              HomeRepositoryImpl(
+                HomeRemoteDataSourceImpl(
+                  widget.firestore ??
+                      getIt<FirebaseFirestore>(),
+                ),
+              ),
+            )
                 : null);
 
-    _categoriesStream = _createSharedStream<CategoryEntity>(
-      source: categoriesUseCase?.call(),
-      onUpdate: (data) => _categories = data,
-    );
+    _categoriesStream = categoriesUseCase?.call() ??
+        Stream.value(
+          const <CategoryEntity>[],
+        );
 
-    final doctorsUseCase = widget.getDoctorsStream ??
-        (getIt.isRegistered<GetDoctorsStream>()
-            ? getIt<GetDoctorsStream>()
-            : (widget.firestore != null || getIt.isRegistered<FirebaseFirestore>())
-                ? GetDoctorsStream(
-                    DoctorRepositoryImpl(
-                      DoctorRemoteDataSourceImpl(
-                        widget.firestore ?? getIt<FirebaseFirestore>(),
-                      ),
-                    ),
-                  )
-                : null);
+    _medicalCentersSubscription =
+        _medicalCentersStream!.listen(
+              (centers) {
+            _allMedicalCenters =
+            List<MedicalCenterEntity>.from(centers);
 
-    _createSharedStream<DoctorEntity>(
-      source: doctorsUseCase?.call(),
-      onUpdate: (data) => _doctors = data,
+            _calculateNearbyMedicalCenters(
+              _allMedicalCenters,
+            );
+          },
+          onError: (error) {
+            debugPrint(
+              'HomeScreen: Medical centers error: $error',
+            );
+
+            if (!mounted) return;
+
+            setState(() {
+              _nearbyMedicalCenters = [];
+              _isNearbyLoading = false;
+              _nearbyError = error.toString();
+            });
+          },
+        );
+  }
+
+  void _listenToLocationService() {
+    _locationServiceSubscription?.cancel();
+
+    _locationServiceSubscription =
+        Geolocator.getServiceStatusStream().listen(
+              (ServiceStatus status) {
+            final isEnabled =
+                status == ServiceStatus.enabled;
+
+            debugPrint(
+              'HomeScreen: Location service status changed: '
+                  '$status',
+            );
+
+            if (_lastLocationServiceStatus ==
+                isEnabled) {
+              return;
+            }
+
+            _lastLocationServiceStatus = isEnabled;
+
+            if (!mounted) return;
+
+            if (!isEnabled) {
+              _handleLocationDisabled();
+            } else {
+              _handleLocationEnabled();
+            }
+          },
+          onError: (error) {
+            debugPrint(
+              'HomeScreen: Location service stream error: '
+                  '$error',
+            );
+          },
+        );
+  }
+
+  void _handleLocationDisabled() {
+    if (!mounted) return;
+
+    setState(() {
+      _nearbyMedicalCenters = [];
+      _isNearbyLoading = false;
+      _nearbyError =
+      'Location services are disabled.';
+    });
+  }
+
+  Future<void> _handleLocationEnabled() async {
+    if (!mounted) return;
+
+    await _calculateNearbyMedicalCenters(
+      _allMedicalCenters,
+      force: true,
     );
   }
 
-  Stream<List<T>> _createSharedStream<T>({
-    required Stream<List<T>>? source,
-    required void Function(List<T>) onUpdate,
-  }) {
-    if (source == null) {
-      final ctrl = StreamController<List<T>>.broadcast();
-      _controllers.add(ctrl);
-      scheduleMicrotask(() {
-        if (!ctrl.isClosed) {
-          ctrl.add(<T>[]);
-        }
-      });
-      return ctrl.stream;
+  Future<void> _calculateNearbyMedicalCenters(List<MedicalCenterEntity> centers,
+      {
+        bool force = false,
+      }) async {
+    if (!mounted) return;
+
+    if (_isCalculatingNearby && !force) {
+      return;
     }
 
-    List<T>? latest;
-    late StreamController<List<T>> controller;
+    _isCalculatingNearby = true;
 
-    final sub = source.listen(
-      (data) {
-        latest = data;
-        onUpdate(data);
-        if (mounted) setState(() {});
-        if (!controller.isClosed) {
-          controller.add(data);
-        }
-      },
-      onError: (e, s) {
-        if (!controller.isClosed) {
-          controller.addError(e, s);
-        }
-      },
-      onDone: () {
-        if (!controller.isClosed) {
-          controller.close();
-        }
-      },
-    );
-    _subscriptions.add(sub);
+    if (mounted) {
+      setState(() {
+        _isNearbyLoading = true;
+        _nearbyError = null;
+      });
+    }
 
-    controller = StreamController<List<T>>.broadcast(
-      onListen: () {
-        if (latest != null && !controller.isClosed) {
-          final cached = latest!;
-          scheduleMicrotask(() {
-            if (!controller.isClosed) {
-              controller.add(cached);
-            }
-          });
-        }
-      },
-    );
-    _controllers.add(controller);
+    try {
+      final serviceEnabled =
+      await Geolocator.isLocationServiceEnabled();
 
-    return controller.stream;
+      if (!serviceEnabled) {
+        if (!mounted) return;
+
+        setState(() {
+          _nearbyMedicalCenters = [];
+          _isNearbyLoading = false;
+          _nearbyError =
+          'Location services are disabled.';
+        });
+
+        return;
+      }
+
+      LocationPermission permission =
+      await Geolocator.checkPermission();
+
+      if (permission == LocationPermission.denied) {
+        permission =
+        await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied ||
+          permission ==
+              LocationPermission.deniedForever) {
+        if (!mounted) return;
+
+        setState(() {
+          _nearbyMedicalCenters = [];
+          _isNearbyLoading = false;
+          _nearbyError =
+          'Location permission was denied.';
+        });
+
+        return;
+      }
+
+      final position =
+      await Geolocator.getCurrentPosition(
+        locationSettings:
+        const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
+
+      final calculatedCenters = centers
+          .where(
+            (center) =>
+        center.latitude != null &&
+            center.longitude != null,
+      )
+          .map(
+            (center) {
+          final distanceInMeters =
+          Geolocator.distanceBetween(
+            position.latitude,
+            position.longitude,
+            center.latitude!,
+            center.longitude!,
+          );
+
+          final distanceInKm =
+              distanceInMeters / 1000.0;
+
+          return center.copyWith(
+            distance: distanceInKm,
+          );
+        },
+      )
+          .toList();
+
+      calculatedCenters.sort(
+            (a, b) =>
+            a.distance.compareTo(
+              b.distance,
+            ),
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _nearbyMedicalCenters =
+            calculatedCenters;
+        _isNearbyLoading = false;
+        _nearbyError = null;
+      });
+    } catch (e) {
+      debugPrint(
+        'HomeScreen: Failed to calculate nearby '
+            'medical centers: $e',
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _nearbyMedicalCenters = [];
+        _isNearbyLoading = false;
+        _nearbyError = e.toString();
+      });
+    } finally {
+      _isCalculatingNearby = false;
+    }
   }
 
-  void _navigateToEditBanner(BuildContext context, BannerEntity banner) {
+  void _navigateToEditBanner(BuildContext context,
+      BannerEntity banner,) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => AddBannerScreen(initialBanner: banner),
+        builder: (_) =>
+            AddBannerScreen(
+              initialBanner: banner,
+            ),
       ),
     );
   }
 
-  void _navigateToEditCategory(BuildContext context, CategoryEntity category) {
+  void _navigateToEditCategory(BuildContext context,
+      CategoryEntity category,) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => AddCategoryPage(initialCategory: category),
+        builder: (_) =>
+            AddCategoryPage(
+              initialCategory: category,
+            ),
       ),
     );
   }
 
-  void _navigateToEditMedicalCenter(
-    BuildContext context,
-    MedicalCenterEntity center,
-  ) {
+  void _navigateToEditMedicalCenter(BuildContext context,
+      MedicalCenterEntity center,) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -351,19 +454,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _navigateToEditDoctor(BuildContext context, DoctorEntity doctor) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => AddDoctorPage(initialDoctor: doctor),
-      ),
-    );
-  }
-
-  void _navigateToCategoryDoctors(
-    BuildContext context,
-    CategoryEntity category,
-  ) {
+  void _navigateToCategoryDoctors(CategoryEntity category,) {
     Navigator.pushNamed(
       context,
       Routes.categoryDoctors,
@@ -371,122 +462,58 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSearchResults(BuildContext context, bool isAdmin) {
-    final query = _searchQuery.trim().toLowerCase();
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
 
-    // 1. Doctors matching (by name, specialty, categoryName, address)
-    final matchingDoctors = (_doctors ?? const <DoctorEntity>[]).where((doctor) {
-      final nameMatches = doctor.name.toLowerCase().contains(query);
-      final specMatches = doctor.specialty.toLowerCase().contains(query);
-      final catMatches = doctor.categoryName.toLowerCase().contains(query);
-      final addressMatches = doctor.address.toLowerCase().contains(query);
-      return nameMatches || specMatches || catMatches || addressMatches;
-    }).toList();
+    _medicalCentersSubscription?.cancel();
+    _locationServiceSubscription?.cancel();
 
-    // 2. Categories matching (by name, id)
-    final matchingCategories = (_categories ?? const <CategoryEntity>[]).where((category) {
-      final nameMatches = category.name.toLowerCase().contains(query);
-      final idMatches = (category.id ?? '').toLowerCase().contains(query);
-      return nameMatches || idMatches;
-    }).toList();
-
-    // 3. Medical Centers matching (by name, address, type, and section queries)
-    final isNearbySectionQuery = 'nearby medical centers'.contains(query) ||
-        'medical centers'.contains(query) ||
-        'nearby'.contains(query) ||
-        'hospital'.contains(query) ||
-        'clinic'.contains(query);
-
-    final matchingCenters = (_medicalCenters ?? const <MedicalCenterEntity>[]).where((center) {
-      if (isNearbySectionQuery) return true;
-      final nameMatches = center.name.toLowerCase().contains(query);
-      final addressMatches = center.address.toLowerCase().contains(query);
-      final typeMatches = center.type.toLowerCase().contains(query);
-      return nameMatches || addressMatches || typeMatches;
-    }).toList();
-
-    // 4. Banners matching (by title, description)
-    final matchingBanners = (_banners ?? const <BannerEntity>[]).where((banner) {
-      final titleMatches = banner.title.toLowerCase().contains(query);
-      final descMatches = banner.description.toLowerCase().contains(query);
-      return titleMatches || descMatches;
-    }).toList();
-
-    final isLoading = _doctors == null &&
-        _categories == null &&
-        _medicalCenters == null &&
-        _banners == null;
-
-    return HomeSearchResults(
-      searchQuery: _searchQuery.trim(),
-      isLoading: isLoading,
-      isAdmin: isAdmin,
-      doctors: matchingDoctors,
-      categories: matchingCategories,
-      medicalCenters: matchingCenters,
-      banners: matchingBanners,
-      onDoctorTap: (doctor) {
-        final doctorData = DoctorData.fromEntity(doctor);
-        Navigator.pushNamed(
-          context,
-          Routes.doctorDetails,
-          arguments: doctorData,
-        );
-      },
-      onCategoryTap: (category) {
-        _navigateToCategoryDoctors(context, category);
-      },
-      onMedicalCenterTap: (center) {
-        if (isAdmin) {
-          _navigateToEditMedicalCenter(context, center);
-        } else {
-          _showMedicalCenterDetails(context, center);
-        }
-      },
-      onDoctorEdit:
-          isAdmin ? (doctor) => _navigateToEditDoctor(context, doctor) : null,
-      onCategoryEdit:
-          isAdmin ? (category) => _navigateToEditCategory(context, category) : null,
-      onMedicalCenterEdit:
-          isAdmin ? (center) => _navigateToEditMedicalCenter(context, center) : null,
-    );
-  }
-
-  void _showMedicalCenterDetails(
-    BuildContext context,
-    MedicalCenterEntity center, {
-    bool isAdmin = false,
-  }) {
-    showMedicalCenterDetailsSheet(
-      context,
-      center,
-      isAdmin: isAdmin,
-      onEdit: () => _navigateToEditMedicalCenter(context, center),
-    );
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final firebaseAuth = _auth;
-    final remoteDataSource = _userRemoteDataSource;
+    final remoteDataSource =
+        _userRemoteDataSource;
 
     if (firebaseAuth == null) {
-      return _buildScaffold(context, showAdminFab: false, isAdmin: false);
+      return _buildScaffold(
+        context,
+        showAdminFab: false,
+        isAdmin: false,
+      );
     }
 
     return StreamBuilder<User?>(
       stream: firebaseAuth.authStateChanges(),
-      builder: (context, authSnapshot) {
-        final currentUser = authSnapshot.data ?? firebaseAuth.currentUser;
+      builder: (context,
+          authSnapshot,) {
+        final currentUser =
+            authSnapshot.data ??
+                firebaseAuth.currentUser;
 
-        if (currentUser == null || remoteDataSource == null) {
-          return _buildScaffold(context, showAdminFab: false, isAdmin: false);
+        if (currentUser == null ||
+            remoteDataSource == null) {
+          return _buildScaffold(
+            context,
+            showAdminFab: false,
+            isAdmin: false,
+          );
         }
 
         return StreamBuilder<UserModel?>(
-          stream: remoteDataSource.getUserStream(currentUser.uid),
-          builder: (context, userSnapshot) {
-            final isAdmin = userSnapshot.data?.role == 'admin';
+          stream:
+          remoteDataSource.getUserStream(
+            currentUser.uid,
+          ),
+          builder: (context,
+              userSnapshot,) {
+            final isAdmin =
+                userSnapshot.data?.role ==
+                    'admin';
+
             return _buildScaffold(
               context,
               showAdminFab: isAdmin,
@@ -498,121 +525,117 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildScaffold(
-    BuildContext context, {
+  Widget _buildScaffold(BuildContext context, {
     required bool showAdminFab,
     bool isAdmin = false,
   }) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      floatingActionButton: showAdminFab ? const AdminFab() : null,
+      floatingActionButton:
+      showAdminFab
+          ? const AdminFab()
+          : null,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+          padding: EdgeInsets.symmetric(
+            horizontal: 20.w,
+            vertical: 16.h,
+          ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+            CrossAxisAlignment.start,
             children: [
-              HomeHeader(
-                searchController: _searchController,
-                onSearchChanged: (val) {
-                  setState(() {
-                    _searchQuery = val;
-                  });
-                },
-                onSearchClear: () {
-                  setState(() {
-                    _searchQuery = '';
-                  });
+              const HomeHeader(),
+
+              SizedBox(height: 20.h),
+
+              StreamBuilder<List<BannerEntity>>(
+                stream: _bannersStream,
+                builder: (context,
+                    bannerSnapshot,) {
+                  return BannerSection(
+                    banners:
+                    bannerSnapshot.data,
+                    isAdmin: isAdmin,
+                    onEditBanner:
+                        (banner) =>
+                        _navigateToEditBanner(
+                          context,
+                          banner,
+                        ),
+                  );
                 },
               ),
-              if (_searchQuery.trim().isNotEmpty) ...[
-                SizedBox(height: 20.h),
-                _buildSearchResults(context, isAdmin),
-              ] else ...[
-                SizedBox(height: 20.h),
-                StreamBuilder<List<BannerEntity>>(
-                  stream: _bannersStream,
-                  builder: (context, bannerSnapshot) {
-                    return BannerSection(
-                      banners: bannerSnapshot.data,
-                      isAdmin: isAdmin,
-                      onEditBanner: (banner) =>
-                          _navigateToEditBanner(context, banner),
-                    );
-                  },
-                ),
-                SizedBox(height: 22.h),
-                StreamBuilder<List<CategoryEntity>>(
-                  stream: _categoriesStream,
-                  builder: (context, categorySnapshot) {
-                    if (categorySnapshot.hasError) {
-                      debugPrint(
-                        'HomeScreen: Categories stream error: ${categorySnapshot.error}',
-                      );
-                    }
-                    final allCategories = categorySnapshot.data;
-                    final previewCategories = allCategories != null &&
-                            allCategories.length > 8
-                        ? allCategories.take(8).toList()
-                        : allCategories;
 
-                    return CategoriesSection(
-                      categories: previewCategories,
-                      isLoading: categorySnapshot.connectionState ==
-                              ConnectionState.waiting &&
-                          !categorySnapshot.hasData,
-                      errorMessage: categorySnapshot.hasError
-                          ? '${categorySnapshot.error}'
-                          : null,
-                      isAdmin: isAdmin,
-                      onEditCategory: (category) =>
-                          _navigateToEditCategory(context, category),
-                      onCategoryTap: (category) =>
-                          _navigateToCategoryDoctors(context, category),
-                      onSeeAllPressed: () {
-                        Navigator.pushNamed(context, Routes.category);
-                      },
-                    );
-                  },
-                ),
-                SizedBox(height: 24.h),
-                StreamBuilder<List<MedicalCenterEntity>>(
-                  stream: _medicalCentersStream,
-                  builder: (context, centerSnapshot) {
-                    if (centerSnapshot.hasError) {
-                      debugPrint(
-                        'HomeScreen: Medical centers stream error: ${centerSnapshot.error}',
-                      );
-                    }
-                    final allCenters = centerSnapshot.data;
-                    final previewCenters = allCenters != null &&
-                            allCenters.length > 5
-                        ? allCenters.take(5).toList()
-                        : allCenters;
+              SizedBox(height: 22.h),
 
-                    return MedicalCentersSection(
-                      medicalCenters: previewCenters,
-                      isLoading: centerSnapshot.connectionState ==
-                              ConnectionState.waiting &&
-                          !centerSnapshot.hasData,
-                      errorMessage: centerSnapshot.hasError
-                          ? '${centerSnapshot.error}'
-                          : null,
-                      isAdmin: isAdmin,
-                      onEditCenter: (center) =>
-                          _navigateToEditMedicalCenter(context, center),
-                      onCenterTap: (center) =>
-                          _showMedicalCenterDetails(context, center, isAdmin: isAdmin),
-                      onSeeAll: () {
-                        Navigator.pushNamed(
+              StreamBuilder<
+                  List<CategoryEntity>>(
+                stream: _categoriesStream,
+                builder: (context,
+                    categorySnapshot,) {
+                  if (categorySnapshot
+                      .hasError) {
+                    debugPrint(
+                      'HomeScreen: Categories '
+                          'stream error: '
+                          '${categorySnapshot.error}',
+                    );
+                  }
+
+                  return CategoriesSection(
+                    categories:
+                    categorySnapshot.data,
+                    isLoading:
+                    categorySnapshot
+                        .connectionState ==
+                        ConnectionState
+                            .waiting &&
+                        !categorySnapshot
+                            .hasData,
+                    errorMessage:
+                    categorySnapshot.hasError
+                        ? '${categorySnapshot.error}'
+                        : null,
+                    isAdmin: isAdmin,
+                    onEditCategory:
+                        (category) =>
+                        _navigateToEditCategory(
                           context,
-                          Routes.nearbyMedicalCenters,
-                        );
-                      },
-                    );
-                  },
-                ),
-              ],
+                          category,
+                        ),
+                    onCategoryTap:
+                        (category) =>
+                        _navigateToCategoryDoctors(
+                          category,
+                        ),
+                    onSeeAllPressed: () {
+                      Navigator.pushNamed(
+                        context,
+                        Routes.category,
+                      );
+                    },
+                  );
+                },
+              ),
+
+              SizedBox(height: 24.h),
+
+              MedicalCentersSection(
+                medicalCenters: _nearbyMedicalCenters,
+                isLoading: _isNearbyLoading,
+                errorMessage: _nearbyError,
+                onSeeAll: _navigateToAllMedicalCenters,
+
+                isAdmin: isAdmin,
+                onEditCenter:
+                    (center) =>
+                    _navigateToEditMedicalCenter(
+                      context,
+                      center,
+                    ),
+              ),
+
               SizedBox(height: 24.h),
             ],
           ),

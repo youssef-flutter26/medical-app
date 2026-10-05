@@ -1,4 +1,22 @@
-class DoctorEntity {
+import 'package:equatable/equatable.dart';
+
+class DoctorEntity extends Equatable {
+  const DoctorEntity({
+    this.id,
+    required this.name,
+    required this.specialty,
+    required this.categoryId,
+    required this.categoryName,
+    required this.address,
+    required this.rating,
+    required this.reviewsCount,
+    required this.availableTime,
+    required this.imagePath,
+    this.createdAt,
+    this.latitude,
+    this.longitude,
+  });
+
   final String? id;
   final String name;
   final String specialty;
@@ -7,51 +25,59 @@ class DoctorEntity {
   final String address;
   final double rating;
   final int reviewsCount;
-  final String imagePath;
   final String availableTime;
+  final String imagePath;
   final DateTime? createdAt;
 
-  const DoctorEntity({
-    this.id,
-    required this.name,
-    required this.specialty,
-    required this.categoryId,
-    required this.categoryName,
-    this.address = '',
-    required this.rating,
-    required this.reviewsCount,
-    required this.imagePath,
-    this.availableTime = 'Mon - Sat: 09:00 AM - 05:00 PM',
-    this.createdAt,
-  });
+  final double? latitude;
+  final double? longitude;
 
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is DoctorEntity &&
-        other.id == id &&
-        other.name == name &&
-        other.specialty == specialty &&
-        other.categoryId == categoryId &&
-        other.categoryName == categoryName &&
-        other.address == address &&
-        other.rating == rating &&
-        other.reviewsCount == reviewsCount &&
-        other.availableTime == availableTime &&
-        other.imagePath == imagePath;
+  DoctorEntity copyWith({
+    String? id,
+    String? name,
+    String? specialty,
+    String? categoryId,
+    String? categoryName,
+    String? address,
+    double? rating,
+    int? reviewsCount,
+    String? availableTime,
+    String? imagePath,
+    DateTime? createdAt,
+    double? latitude,
+    double? longitude,
+  }) {
+    return DoctorEntity(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      specialty: specialty ?? this.specialty,
+      categoryId: categoryId ?? this.categoryId,
+      categoryName: categoryName ?? this.categoryName,
+      address: address ?? this.address,
+      rating: rating ?? this.rating,
+      reviewsCount: reviewsCount ?? this.reviewsCount,
+      availableTime: availableTime ?? this.availableTime,
+      imagePath: imagePath ?? this.imagePath,
+      createdAt: createdAt ?? this.createdAt,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+    );
   }
 
   @override
-  int get hashCode => Object.hash(
-        id,
-        name,
-        specialty,
-        categoryId,
-        categoryName,
-        address,
-        rating,
-        reviewsCount,
-        availableTime,
-        imagePath,
-      );
+  List<Object?> get props => [
+    id,
+    name,
+    specialty,
+    categoryId,
+    categoryName,
+    address,
+    rating,
+    reviewsCount,
+    availableTime,
+    imagePath,
+    createdAt,
+    latitude,
+    longitude,
+  ];
 }

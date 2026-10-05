@@ -9,6 +9,7 @@ class MedicalMap extends StatefulWidget {
     required this.longitude,
     required this.places,
     this.selectedPlace,
+    this.locationRequest = 0,
     this.onPlaceSelected,
   });
 
@@ -16,6 +17,7 @@ class MedicalMap extends StatefulWidget {
   final double longitude;
   final List<MedicalPlace> places;
   final MedicalPlace? selectedPlace;
+  final int locationRequest;
   final ValueChanged<MedicalPlace>? onPlaceSelected;
 
   @override
@@ -26,19 +28,17 @@ class _MedicalMapState extends State<MedicalMap> {
   GoogleMapController? _mapController;
 
   @override
-  void didUpdateWidget(covariant MedicalMap oldWidget,) {
+  void didUpdateWidget(covariant MedicalMap oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     if (widget.selectedPlace != oldWidget.selectedPlace) {
       if (widget.selectedPlace != null) {
         _moveToPlace(widget.selectedPlace!);
-      } else {
-        _moveToUserLocation();
       }
     }
 
-    if (widget.latitude != oldWidget.latitude ||
-        widget.longitude != oldWidget.longitude) {
+    if (widget.locationRequest !=
+        oldWidget.locationRequest) {
       _moveToUserLocation();
     }
   }
