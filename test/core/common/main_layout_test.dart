@@ -7,7 +7,6 @@ import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
 import 'package:medical_app/features/home/presentation/pages/home_screen.dart';
-import 'package:medical_app/features/profile/presentation/pages/profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TestAssetLoader extends AssetLoader {
@@ -79,7 +78,7 @@ void main() {
         HomeScreen(),
         Center(child: Text('Location')),
         Center(child: Text('Appointment')),
-        ProfileScreen(),
+        Center(child: Text('Profile')),
       ],
     ));
     await tester.pumpAndSettle();
@@ -94,7 +93,10 @@ void main() {
       find.descendant(of: find.byType(Center), matching: find.text('Appointment')),
       findsNothing,
     );
-    expect(find.byType(ProfileScreen), findsNothing);
+    expect(
+      find.descendant(of: find.byType(Center), matching: find.text('Profile')),
+      findsNothing,
+    );
 
     // Check BottomNavigationBar items
     final bottomNavBarFinder = find.byType(BottomNavigationBar);
@@ -130,7 +132,10 @@ void main() {
     await tester.tap(find.byType(InkResponse).at(3));
     await tester.pumpAndSettle();
 
-    expect(find.byType(ProfileScreen), findsOneWidget);
+    expect(
+      find.descendant(of: find.byType(Center), matching: find.text('Profile')),
+      findsOneWidget,
+    );
 
     // Tap Home (first item)
     await tester.tap(find.byType(InkResponse).at(0));

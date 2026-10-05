@@ -10,7 +10,7 @@ import 'package:medical_app/features/auth/data/datasources/user_remote_data_sour
 import 'package:medical_app/features/auth/data/models/user_model.dart';
 import 'package:medical_app/features/home/presentation/widgets/category_app_bar.dart';
 import 'package:medical_app/features/home/presentation/widgets/category_empty_state.dart';
-import 'package:medical_app/features/home/presentation/widgets/category_grid_view.dart';
+import 'package:medical_app/features/home/presentation/widgets/category_list_view.dart';
 import 'package:medical_app/features/home/presentation/widgets/category_search_field.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 import 'package:medical_app/features/home/domain/usecases/get_categories_stream.dart';
@@ -108,11 +108,7 @@ class _CategoryPageState extends State<CategoryPage> {
     } else if (widget.onCategoryTap != null) {
       widget.onCategoryTap!(category.name);
     } else {
-      Navigator.pushNamed(
-        context,
-        Routes.categoryDoctors,
-        arguments: category,
-      );
+      Navigator.pushNamed(context, Routes.categoryDoctors, arguments: category);
     }
   }
 
@@ -216,7 +212,7 @@ class _CategoryPageState extends State<CategoryPage> {
                         '${snapshot.error}',
                         style: AppTextStyles.withColor(
                           AppTextStyles.inter14W400,
-                          Colors.red,
+                          AppColors.red,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -233,18 +229,17 @@ class _CategoryPageState extends State<CategoryPage> {
                   final filteredCategories = query.isEmpty
                       ? allCategories
                       : allCategories
-                          .where((c) => c.name.toLowerCase().contains(query))
-                          .toList();
+                            .where((c) => c.name.toLowerCase().contains(query))
+                            .toList();
 
                   if (filteredCategories.isEmpty) {
                     return const CategoryEmptyState();
                   }
 
-                  return CategoryGridView(
+                  return CategoryListView(
                     categories: filteredCategories,
                     isAdmin: isAdmin,
-                    onEditCategory:
-                        isAdmin ? _handleEditCategory : null,
+                    onEditCategory: isAdmin ? _handleEditCategory : null,
                     onCategoryTap: _handleCategoryTap,
                   );
                 },

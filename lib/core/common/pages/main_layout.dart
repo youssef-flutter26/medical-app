@@ -5,7 +5,6 @@ import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
 import 'package:medical_app/features/home/presentation/pages/home_screen.dart';
-import 'package:medical_app/features/profile/presentation/pages/profile_screen.dart';
 
 import '../../../features/location/presentation/pages/location_screen.dart';
 
@@ -27,7 +26,7 @@ class _MainLayoutState extends State<MainLayout> {
         const HomeScreen(),
         const LocationScreen(),
         Center(child: Text(LocaleKeys.appointment.tr())),
-        const ProfileScreen(),
+        Center(child: Text(LocaleKeys.profile.tr())),
       ];
 
   @override
