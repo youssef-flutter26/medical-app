@@ -5,11 +5,14 @@ import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
 import 'package:medical_app/features/home/presentation/pages/home_screen.dart';
+import 'package:medical_app/features/profile/presentation/pages/profile_screen.dart';
 
 import '../../../features/location/presentation/pages/location_screen.dart';
 
 class MainLayout extends StatefulWidget {
-  const MainLayout({super.key});
+  final List<Widget>? screens;
+
+  const MainLayout({super.key, this.screens});
 
   @override
   State<MainLayout> createState() => _MainLayoutState();
@@ -18,14 +21,14 @@ class MainLayout extends StatefulWidget {
 class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = [ 
-    const HomeScreen(),
-    const LocationScreen(),
-    // AppointmentScreen(),
-    Center(child: Text(LocaleKeys.appointment.tr())),
-    // ProfileScreen(),
-    Center(child: Text(LocaleKeys.profile.tr())),
-  ];
+  List<Widget> get _screens =>
+      widget.screens ??
+      [
+        const HomeScreen(),
+        const LocationScreen(),
+        Center(child: Text(LocaleKeys.appointment.tr())),
+        const ProfileScreen(),
+      ];
 
   @override
   Widget build(BuildContext context) {

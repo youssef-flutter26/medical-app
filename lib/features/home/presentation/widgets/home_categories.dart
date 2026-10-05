@@ -35,7 +35,7 @@ class HomeCategories extends StatelessWidget {
 
   final List<CategoryEntity>? categories;
   final VoidCallback? onSeeAllPressed;
-  final ValueChanged<String>? onCategoryTap;
+  final ValueChanged<CategoryEntity>? onCategoryTap;
   final bool isAdmin;
   final ValueChanged<CategoryEntity>? onEditCategory;
 
@@ -112,7 +112,7 @@ class HomeCategories extends StatelessWidget {
                 onEdit: onEditCategory != null
                     ? () => onEditCategory!(category)
                     : null,
-                onTap: () => onCategoryTap?.call(category.name),
+                onTap: () => onCategoryTap?.call(category),
               );
             },
           ),

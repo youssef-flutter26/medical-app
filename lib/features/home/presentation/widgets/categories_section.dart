@@ -94,16 +94,7 @@ class CategoriesSection extends StatelessWidget {
       isAdmin: isAdmin,
       onEditCategory: onEditCategory,
       onSeeAllPressed: onSeeAllPressed,
-      onCategoryTap: (categoryName) {
-        if (onCategoryTap != null) {
-          final list = categories ?? const <CategoryEntity>[];
-          final matched = list.firstWhere(
-            (c) => c.name == categoryName,
-            orElse: () => CategoryEntity(name: categoryName),
-          );
-          onCategoryTap!(matched);
-        }
-      },
+      onCategoryTap: onCategoryTap,
     );
   }
 }
