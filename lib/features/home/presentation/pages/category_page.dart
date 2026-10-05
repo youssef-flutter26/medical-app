@@ -1,12 +1,16 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medical_app/core/di/service_locator.dart';
 import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
+import 'package:medical_app/features/admin/presentation/pages/add_category_page.dart';
+import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
+import 'package:medical_app/features/auth/data/models/user_model.dart';
 import 'package:medical_app/features/home/presentation/widgets/category_app_bar.dart';
 import 'package:medical_app/features/home/presentation/widgets/category_empty_state.dart';
-import 'package:medical_app/features/home/presentation/widgets/category_grid_view.dart';
+import 'package:medical_app/features/home/presentation/widgets/category_list_view.dart';
 import 'package:medical_app/features/home/presentation/widgets/category_search_field.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 import 'package:medical_app/features/home/domain/usecases/get_categories_stream.dart';
@@ -17,12 +21,21 @@ class CategoryPage extends StatefulWidget {
   final ValueChanged<String>? onCategoryTap;
   final ValueChanged<CategoryEntity>? onCategoryEntityTap;
 
+  final bool? isAdmin;
+  final FirebaseAuth? firebaseAuth;
+  final UserRemoteDataSource? userRemoteDataSource;
+  final ValueChanged<CategoryEntity>? onEditCategory;
+
   const CategoryPage({
     super.key,
     this.getCategoriesStream,
     this.categoriesStream,
     this.onCategoryTap,
     this.onCategoryEntityTap,
+    this.isAdmin,
+    this.firebaseAuth,
+    this.userRemoteDataSource,
+    this.onEditCategory,
   });
 
   @override
@@ -67,22 +80,90 @@ class _CategoryPageState extends State<CategoryPage> {
     super.dispose();
   }
 
+  FirebaseAuth? get _auth {
+    if (widget.firebaseAuth != null) return widget.firebaseAuth;
+    try {
+      return getIt.isRegistered<FirebaseAuth>()
+          ? getIt<FirebaseAuth>()
+          : FirebaseAuth.instance;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  UserRemoteDataSource? get _userRemoteDataSource {
+    if (widget.userRemoteDataSource != null) return widget.userRemoteDataSource;
+    try {
+      return getIt.isRegistered<UserRemoteDataSource>()
+          ? getIt<UserRemoteDataSource>()
+          : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
   void _handleCategoryTap(CategoryEntity category) {
     if (widget.onCategoryEntityTap != null) {
       widget.onCategoryEntityTap!(category);
     } else if (widget.onCategoryTap != null) {
       widget.onCategoryTap!(category.name);
     } else {
-      Navigator.pushNamed(
-        context,
-        Routes.categoryDoctors,
-        arguments: category,
-      );
+      Navigator.pushNamed(context, Routes.categoryDoctors, arguments: category);
+    }
+  }
+
+  Future<void> _navigateToEditCategory(CategoryEntity category) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AddCategoryPage(initialCategory: category),
+      ),
+    );
+  }
+
+  void _handleEditCategory(CategoryEntity category) {
+    if (widget.onEditCategory != null) {
+      widget.onEditCategory!(category);
+    } else {
+      _navigateToEditCategory(category);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isAdmin != null) {
+      return _buildPage(context, isAdmin: widget.isAdmin!);
+    }
+
+    final firebaseAuth = _auth;
+    final remoteDataSource = _userRemoteDataSource;
+
+    if (firebaseAuth == null || remoteDataSource == null) {
+      return _buildPage(context, isAdmin: false);
+    }
+
+    return StreamBuilder<User?>(
+      stream: firebaseAuth.authStateChanges(),
+      builder: (context, authSnapshot) {
+        final currentUser = authSnapshot.data ?? firebaseAuth.currentUser;
+        if (currentUser == null) {
+          return _buildPage(context, isAdmin: false);
+        }
+
+        return StreamBuilder<UserModel?>(
+          stream: remoteDataSource.getUserStream(currentUser.uid),
+          builder: (context, userSnapshot) {
+            return _buildPage(
+              context,
+              isAdmin: userSnapshot.data?.role == 'admin',
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildPage(BuildContext context, {required bool isAdmin}) {
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: const CategoryAppBar(),
@@ -131,7 +212,7 @@ class _CategoryPageState extends State<CategoryPage> {
                         '${snapshot.error}',
                         style: AppTextStyles.withColor(
                           AppTextStyles.inter14W400,
-                          Colors.red,
+                          AppColors.red,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -148,15 +229,17 @@ class _CategoryPageState extends State<CategoryPage> {
                   final filteredCategories = query.isEmpty
                       ? allCategories
                       : allCategories
-                          .where((c) => c.name.toLowerCase().contains(query))
-                          .toList();
+                            .where((c) => c.name.toLowerCase().contains(query))
+                            .toList();
 
                   if (filteredCategories.isEmpty) {
                     return const CategoryEmptyState();
                   }
 
-                  return CategoryGridView(
+                  return CategoryListView(
                     categories: filteredCategories,
+                    isAdmin: isAdmin,
+                    onEditCategory: isAdmin ? _handleEditCategory : null,
                     onCategoryTap: _handleCategoryTap,
                   );
                 },

@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:medical_app/core/di/service_locator.dart';
@@ -6,6 +7,8 @@ import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_medical_center_page.dart';
+import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
+import 'package:medical_app/features/auth/data/models/user_model.dart';
 import 'package:medical_app/features/home/presentation/widgets/category_app_bar.dart';
 import 'package:medical_app/features/home/presentation/widgets/category_search_field.dart';
 import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
@@ -16,15 +19,21 @@ import 'package:medical_app/features/home/presentation/widgets/medical_center_it
 class NearbyMedicalCentersPage extends StatefulWidget {
   final GetMedicalCentersStream? getMedicalCentersStream;
   final Stream<List<MedicalCenterEntity>>? medicalCentersStream;
-  final bool isAdmin;
+  final bool? isAdmin;
+  final FirebaseAuth? firebaseAuth;
+  final UserRemoteDataSource? userRemoteDataSource;
   final ValueChanged<MedicalCenterEntity>? onCenterTap;
+  final ValueChanged<MedicalCenterEntity>? onEditCenter;
 
   const NearbyMedicalCentersPage({
     super.key,
     this.getMedicalCentersStream,
     this.medicalCentersStream,
-    this.isAdmin = false,
+    this.isAdmin,
+    this.firebaseAuth,
+    this.userRemoteDataSource,
     this.onCenterTap,
+    this.onEditCenter,
   });
 
   @override
@@ -70,7 +79,29 @@ class _NearbyMedicalCentersPageState extends State<NearbyMedicalCentersPage> {
     super.dispose();
   }
 
-  void _handleCenterTap(MedicalCenterEntity center) {
+  FirebaseAuth? get _auth {
+    if (widget.firebaseAuth != null) return widget.firebaseAuth;
+    try {
+      return getIt.isRegistered<FirebaseAuth>()
+          ? getIt<FirebaseAuth>()
+          : FirebaseAuth.instance;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  UserRemoteDataSource? get _userRemoteDataSource {
+    if (widget.userRemoteDataSource != null) return widget.userRemoteDataSource;
+    try {
+      return getIt.isRegistered<UserRemoteDataSource>()
+          ? getIt<UserRemoteDataSource>()
+          : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  void _handleCenterTap(MedicalCenterEntity center, bool isAdmin) {
     if (widget.onCenterTap != null) {
       widget.onCenterTap!(center);
       return;
@@ -78,29 +109,65 @@ class _NearbyMedicalCentersPageState extends State<NearbyMedicalCentersPage> {
     showMedicalCenterDetailsSheet(
       context,
       center,
-      isAdmin: widget.isAdmin,
-      onEdit: () => _navigateToEdit(center),
+      isAdmin: isAdmin,
+      onEdit: () => _handleEditCenter(center),
     );
+  }
+
+  void _handleEditCenter(MedicalCenterEntity center) {
+    if (widget.onEditCenter != null) {
+      widget.onEditCenter!(center);
+      return;
+    }
+    _navigateToEdit(center);
   }
 
   void _navigateToEdit(MedicalCenterEntity center) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => AddMedicalCenterPage(
-          initialMedicalCenter: center,
-        ),
+        builder: (_) => AddMedicalCenterPage(initialMedicalCenter: center),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isAdmin != null) {
+      return _buildPage(context, isAdmin: widget.isAdmin!);
+    }
+
+    final firebaseAuth = _auth;
+    final remoteDataSource = _userRemoteDataSource;
+    if (firebaseAuth == null || remoteDataSource == null) {
+      return _buildPage(context, isAdmin: false);
+    }
+
+    return StreamBuilder<User?>(
+      stream: firebaseAuth.authStateChanges(),
+      builder: (context, authSnapshot) {
+        final currentUser = authSnapshot.data ?? firebaseAuth.currentUser;
+        if (currentUser == null) {
+          return _buildPage(context, isAdmin: false);
+        }
+
+        return StreamBuilder<UserModel?>(
+          stream: remoteDataSource.getUserStream(currentUser.uid),
+          builder: (context, userSnapshot) {
+            return _buildPage(
+              context,
+              isAdmin: userSnapshot.data?.role == 'admin',
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildPage(BuildContext context, {required bool isAdmin}) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      appBar: CategoryAppBar(
-        title: LocaleKeys.nearbyMedicalCenters.tr(),
-      ),
+      appBar: CategoryAppBar(title: LocaleKeys.nearbyMedicalCenters.tr()),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
@@ -164,12 +231,15 @@ class _NearbyMedicalCentersPageState extends State<NearbyMedicalCentersPage> {
                   final filteredCenters = query.isEmpty
                       ? allCenters
                       : allCenters.where((center) {
-                          final nameMatches =
-                              center.name.toLowerCase().contains(query);
-                          final addressMatches =
-                              center.address.toLowerCase().contains(query);
-                          final typeMatches =
-                              center.type.toLowerCase().contains(query);
+                          final nameMatches = center.name
+                              .toLowerCase()
+                              .contains(query);
+                          final addressMatches = center.address
+                              .toLowerCase()
+                              .contains(query);
+                          final typeMatches = center.type
+                              .toLowerCase()
+                              .contains(query);
                           return nameMatches || addressMatches || typeMatches;
                         }).toList();
 
@@ -195,11 +265,11 @@ class _NearbyMedicalCentersPageState extends State<NearbyMedicalCentersPage> {
                         imageUrl: center.imagePath.startsWith('http')
                             ? center.imagePath
                             : null,
-                        isAdmin: widget.isAdmin,
+                        isAdmin: isAdmin,
                         isFullWidth: true,
-                        onTap: () => _handleCenterTap(center),
-                        onEdit: widget.isAdmin
-                            ? () => _navigateToEdit(center)
+                        onTap: () => _handleCenterTap(center, isAdmin),
+                        onEdit: isAdmin
+                            ? () => _handleEditCenter(center)
                             : null,
                       );
                     },

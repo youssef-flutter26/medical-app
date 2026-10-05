@@ -9,7 +9,9 @@ import 'package:medical_app/features/home/presentation/pages/home_screen.dart';
 import '../../../features/location/presentation/pages/location_screen.dart';
 
 class MainLayout extends StatefulWidget {
-  const MainLayout({super.key});
+  final List<Widget>? screens;
+
+  const MainLayout({super.key, this.screens});
 
   @override
   State<MainLayout> createState() => _MainLayoutState();
@@ -18,12 +20,14 @@ class MainLayout extends StatefulWidget {
 class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = [ 
-    const HomeScreen(),
-    const LocationScreen(),
-    // AppointmentScreen(),
-    Center(child: Text(LocaleKeys.appointment.tr())),
-  ];
+  List<Widget> get _screens =>
+      widget.screens ??
+      [
+        const HomeScreen(),
+        const LocationScreen(),
+        Center(child: Text(LocaleKeys.appointment.tr())),
+        Center(child: Text(LocaleKeys.profile.tr())),
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -110,6 +114,28 @@ class _MainLayoutState extends State<MainLayout> {
               ),
             ),
             label: LocaleKeys.appointment.tr(),
+          ),
+          BottomNavigationBarItem(
+            icon: SvgPicture.asset(
+              AppAssets.iconsProfile,
+              colorFilter: const ColorFilter.mode(
+                AppColors.gray400,
+                BlendMode.srcIn,
+              ),
+            ),
+            activeIcon: Container(
+              width: 48,
+              height: 48,
+              decoration: const BoxDecoration(
+                color: AppColors.gray100,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: SvgPicture.asset(
+                AppAssets.iconsProfile2,
+              ),
+            ),
+            label: LocaleKeys.profile.tr(),
           ),
         ],
       ),
