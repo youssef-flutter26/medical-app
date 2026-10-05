@@ -1,6 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
@@ -43,6 +45,8 @@ class MedicalCenterItem extends StatelessWidget {
   final VoidCallback? onFavoriteTap;
   final VoidCallback? onEdit;
 
+  bool get _canEdit => isAdmin && onEdit != null;
+
   String get displayDistance {
     if (duration != null && duration!.isNotEmpty && !distance.contains('/')) {
       return '$distance / $duration';
@@ -60,6 +64,252 @@ class MedicalCenterItem extends StatelessWidget {
     return 'Clinic';
   }
 
+  String get _storedType => type?.trim() ?? '';
+
+  String get _reviewsLabel => '($reviewCount ${LocaleKeys.reviews.tr()})';
+
+  BoxDecoration _cardDecoration() {
+    return BoxDecoration(
+      color: AppColors.white,
+      borderRadius: BorderRadius.circular(12.r),
+      border: Border.all(color: AppColors.gray100, width: 1),
+      boxShadow: [
+        BoxShadow(
+          color: AppColors.darkTeal.withValues(alpha: 0.04),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // See All list card (isFullWidth): image on the start side, details on the
+  // other side, admin edit affordance in the details header.
+  // ---------------------------------------------------------------------------
+
+  Widget _buildHorizontalCard() {
+    return Container(
+      width: double.infinity,
+      decoration: _cardDecoration(),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12.r),
+          child: Padding(
+            padding: EdgeInsets.all(10.w),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildHorizontalThumbnail(),
+                SizedBox(width: 12.w),
+                Expanded(child: _buildHorizontalDetails()),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHorizontalThumbnail() {
+    ImageProvider<Object>? provider;
+    if (imageUrl != null && imageUrl!.isNotEmpty) {
+      provider = NetworkImage(imageUrl!);
+    } else if (imagePath != null && imagePath!.isNotEmpty) {
+      provider = AssetImage(imagePath!);
+    }
+
+    return Container(
+      key: const Key('medical_center_thumbnail'),
+      width: 120.w,
+      height: 120.w,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: AppColors.gray100,
+        borderRadius: BorderRadius.circular(12.r),
+        image: provider == null
+            ? null
+            : DecorationImage(image: provider, fit: BoxFit.cover),
+      ),
+      child: provider == null
+          ? Center(
+              child: Icon(
+                Icons.local_hospital_rounded,
+                size: 30.r,
+                color: AppColors.gray400,
+              ),
+            )
+          : null,
+    );
+  }
+
+  Widget _buildHorizontalDetails() {
+    return Column(
+      key: const Key('medical_center_details'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.inter14W500.copyWith(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.darkTeal,
+                ),
+              ),
+            ),
+            if (_canEdit) ...[SizedBox(width: 6.w), _buildEditButton()],
+          ],
+        ),
+        SizedBox(height: 6.h),
+        Row(
+          children: [
+            SvgPicture.asset(
+              AppAssets.iconsLocation2,
+              width: 12.w,
+              height: 12.h,
+              colorFilter: const ColorFilter.mode(
+                AppColors.gray500,
+                BlendMode.srcIn,
+              ),
+            ),
+            SizedBox(width: 4.w),
+            Expanded(
+              child: Text(
+                address,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.inter12W400.copyWith(
+                  fontSize: 11.sp,
+                  color: AppColors.gray500,
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 5.h),
+        Row(
+          children: [
+            Icon(Icons.star_rounded, size: 12.r, color: AppColors.amber),
+            SizedBox(width: 4.w),
+            Text(
+              rating.toStringAsFixed(1),
+              style: AppTextStyles.inter12W500.copyWith(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w700,
+                color: AppColors.darkTeal,
+              ),
+            ),
+            SizedBox(width: 6.w),
+            Flexible(
+              child: Text(
+                _reviewsLabel,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.inter10W400.copyWith(
+                  fontSize: 10.sp,
+                  color: AppColors.gray500,
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 5.h),
+        Row(
+          children: [
+            Flexible(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SvgPicture.asset(
+                    'assets/icons/routing.svg',
+                    width: 13.w,
+                    height: 13.h,
+                  ),
+                  SizedBox(width: 4.w),
+                  Flexible(
+                    child: Text(
+                      displayDistance,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.inter10W400.copyWith(
+                        fontSize: 10.sp,
+                        color: AppColors.gray500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (_storedType.isNotEmpty) ...[
+              SizedBox(width: 6.w),
+              Flexible(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/icons/hospital.svg',
+                      width: 13.w,
+                      height: 13.h,
+                    ),
+                    SizedBox(width: 4.w),
+                    Flexible(
+                      child: Text(
+                        _storedType,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.inter10W400.copyWith(
+                          fontSize: 10.sp,
+                          color: AppColors.gray500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Same icon, size, colour and container treatment as the other in-content
+  /// admin edit affordances (DoctorCard / CategoryCard).
+  Widget _buildEditButton() {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        key: const Key('medical_center_edit_button'),
+        onTap: onEdit,
+        borderRadius: BorderRadius.circular(12.r),
+        child: Container(
+          padding: EdgeInsets.all(4.r),
+          decoration: BoxDecoration(
+            color: AppColors.darkTeal.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.edit_rounded,
+            size: 14.r,
+            color: AppColors.darkTeal,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Home carousel / search preview card (default): unchanged tall layout.
+  // ---------------------------------------------------------------------------
+
   Widget _buildImage() {
     DecorationImage? decorationImage;
     if (imagePath != null && imagePath!.isNotEmpty) {
@@ -75,16 +325,13 @@ class MedicalCenterItem extends StatelessWidget {
     }
 
     return Container(
-      width: isFullWidth ? double.infinity : 232.w,
+      width: 232.w,
       height: 121.h,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
         gradient: decorationImage == null
             ? const LinearGradient(
-                colors: [
-                  AppColors.cardBgStart,
-                  AppColors.cardBgEnd,
-                ],
+                colors: [AppColors.cardBgStart, AppColors.cardBgEnd],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               )
@@ -103,25 +350,10 @@ class MedicalCenterItem extends StatelessWidget {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildPreviewCard() {
     return Container(
-      width: isFullWidth ? double.infinity : 232.w,
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: AppColors.gray100,
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.darkTeal.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+      width: 232.w,
+      decoration: _cardDecoration(),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -137,7 +369,7 @@ class MedicalCenterItem extends StatelessWidget {
                 Stack(
                   children: [
                     _buildImage(),
-                    if (isAdmin && onEdit != null)
+                    if (_canEdit)
                       Positioned(
                         top: 8.h,
                         left: 8.w,
@@ -150,7 +382,9 @@ class MedicalCenterItem extends StatelessWidget {
                             child: Container(
                               padding: EdgeInsets.all(6.r),
                               decoration: BoxDecoration(
-                                color: AppColors.darkTeal.withValues(alpha: 0.45),
+                                color: AppColors.darkTeal.withValues(
+                                  alpha: 0.45,
+                                ),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
@@ -246,19 +480,17 @@ class MedicalCenterItem extends StatelessWidget {
                           SizedBox(width: 4.w),
                           Row(
                             mainAxisSize: MainAxisSize.min,
-                            children: List.generate(
-                              5,
-                              (index) {
-                                final isFilled = (index + 1) <= rating.round().clamp(0, 5);
-                                return Icon(
-                                  Icons.star_rounded,
-                                  size: 12.r,
-                                  color: isFilled
-                                      ? AppColors.amber
-                                      : AppColors.gray400.withValues(alpha: 0.35),
-                                );
-                              },
-                            ),
+                            children: List.generate(5, (index) {
+                              final isFilled =
+                                  (index + 1) <= rating.round().clamp(0, 5);
+                              return Icon(
+                                Icons.star_rounded,
+                                size: 12.r,
+                                color: isFilled
+                                    ? AppColors.amber
+                                    : AppColors.gray400.withValues(alpha: 0.35),
+                              );
+                            }),
                           ),
                           SizedBox(width: 3.w),
                           Flexible(
@@ -340,5 +572,13 @@ class MedicalCenterItem extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (isFullWidth) {
+      return _buildHorizontalCard();
+    }
+    return _buildPreviewCard();
   }
 }
