@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medical_app/core/error/failure.dart';
 import 'package:medical_app/core/error/result.dart';
+import 'package:medical_app/features/appointment/domain/entities/appointment_entity.dart';
 import 'package:medical_app/features/appointment/domain/repositories/appointment_repository.dart';
 import 'package:medical_app/features/appointment/domain/usecases/book_appointment.dart';
 import 'package:medical_app/features/appointment/domain/usecases/get_booked_slots.dart';
@@ -48,6 +49,21 @@ class _FakeAppointmentRepository implements AppointmentRepository {
     lastBookedTime = time;
     lastPatientId = patientId;
     bookedSlots.add(time);
+    return const SuccessAPI(null);
+  }
+
+  @override
+  Stream<List<AppointmentEntity>> streamUserAppointments(String patientId) {
+    return Stream.value([]);
+  }
+
+  @override
+  Future<Result<List<AppointmentEntity>>> getUserAppointments(String patientId) async {
+    return const SuccessAPI([]);
+  }
+
+  @override
+  Future<Result<void>> cancelAppointment(String appointmentId) async {
     return const SuccessAPI(null);
   }
 }

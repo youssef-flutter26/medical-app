@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../model/appointment_model.dart';
 import 'appointment_remote_data_source.dart';
 
 class AppointmentAlreadyBookedException implements Exception {
@@ -92,6 +93,43 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
       }
 
       transaction.set(appointmentReference, appointmentData);
+    });
+  }
+
+  @override
+  Stream<List<AppointmentModel>> streamUserAppointments(String patientId) {
+    return _firestore
+        .collection('appointments')
+        .where('patientId', isEqualTo: patientId)
+        .snapshots()
+        .map((snapshot) {
+      final list = snapshot.docs
+          .map((doc) => AppointmentModel.fromFirestore(doc.data(), doc.id))
+          .toList();
+      list.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+      return list;
+    });
+  }
+
+  @override
+  Future<List<AppointmentModel>> getUserAppointments(String patientId) async {
+    final snapshot = await _firestore
+        .collection('appointments')
+        .where('patientId', isEqualTo: patientId)
+        .get();
+
+    final list = snapshot.docs
+        .map((doc) => AppointmentModel.fromFirestore(doc.data(), doc.id))
+        .toList();
+    list.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+    return list;
+  }
+
+  @override
+  Future<void> cancelAppointment(String appointmentId) async {
+    await _firestore.collection('appointments').doc(appointmentId).update({
+      'status': 'canceled',
+      'updatedAt': FieldValue.serverTimestamp(),
     });
   }
 }

@@ -12,7 +12,10 @@ import 'package:medical_app/features/appointment/data/datasources/appointment_re
 import 'package:medical_app/features/appointment/data/repositories/appointment_repository_impl.dart';
 import 'package:medical_app/features/appointment/domain/repositories/appointment_repository.dart';
 import 'package:medical_app/features/appointment/domain/usecases/book_appointment.dart';
+import 'package:medical_app/features/appointment/domain/usecases/cancel_appointment.dart';
 import 'package:medical_app/features/appointment/domain/usecases/get_booked_slots.dart';
+import 'package:medical_app/features/appointment/domain/usecases/get_user_appointments.dart';
+import 'package:medical_app/features/appointment/domain/usecases/stream_user_appointments.dart';
 import 'package:medical_app/features/appointment/presention/cubit/appointment_cubit.dart';
 import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
 // ==========================================
@@ -349,6 +352,27 @@ void setupServiceLocator() {
   getIt.registerLazySingleton<BookAppointment>(
         () =>
         BookAppointment(
+          getIt<AppointmentRepository>(),
+        ),
+  );
+
+  getIt.registerLazySingleton<StreamUserAppointments>(
+        () =>
+        StreamUserAppointments(
+          getIt<AppointmentRepository>(),
+        ),
+  );
+
+  getIt.registerLazySingleton<GetUserAppointments>(
+        () =>
+        GetUserAppointments(
+          getIt<AppointmentRepository>(),
+        ),
+  );
+
+  getIt.registerLazySingleton<CancelAppointment>(
+        () =>
+        CancelAppointment(
           getIt<AppointmentRepository>(),
         ),
   );

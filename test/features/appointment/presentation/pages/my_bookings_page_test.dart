@@ -1,11 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
 import 'package:medical_app/features/appointment/domain/entities/appointment_entity.dart';
 import 'package:medical_app/features/appointment/presention/pages/my_bookings_page.dart';
-import 'package:medical_app/features/appointment/presention/widgets/booking_card.dart';
+import 'package:medical_app/features/appointment/presention/widgets/booking_empty_state.dart';
 import 'package:medical_app/features/appointment/presention/widgets/booking_tab_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -71,85 +70,121 @@ void main() {
     await EasyLocalization.ensureInitialized();
   });
 
+  final testUserAppointments = [
+    AppointmentEntity(
+      id: 'app_1',
+      doctorId: 'doc_1',
+      doctorName: 'Dr. Sarah Connor',
+      doctorSpecialty: 'Cardiology',
+      doctorAddress: 'Cardio Clinic, NY',
+      doctorImagePath: '',
+      dateTime: DateTime.now().add(const Duration(days: 2)),
+      dateKey: '2026-10-10',
+      time: '10:00 AM',
+      status: 'booked',
+      patientId: 'user_123',
+    ),
+    AppointmentEntity(
+      id: 'app_2',
+      doctorId: 'doc_2',
+      doctorName: 'Dr. John Watson',
+      doctorSpecialty: 'General Medicine',
+      doctorAddress: 'Baker St Clinic',
+      doctorImagePath: '',
+      dateTime: DateTime.now().subtract(const Duration(days: 5)),
+      dateKey: '2026-10-03',
+      time: '11:00 AM',
+      status: 'completed',
+      patientId: 'user_123',
+    ),
+    AppointmentEntity(
+      id: 'app_3',
+      doctorId: 'doc_3',
+      doctorName: 'Dr. Gregory House',
+      doctorSpecialty: 'Diagnostics',
+      doctorAddress: 'Princeton Hospital',
+      doctorImagePath: '',
+      dateTime: DateTime.now().subtract(const Duration(days: 10)),
+      dateKey: '2026-09-28',
+      time: '02:00 PM',
+      status: 'canceled',
+      patientId: 'user_123',
+    ),
+  ];
+
   group('MyBookingsPage widget tests', () {
-    testWidgets('renders title, tabs, and initial upcoming bookings from design', (
-      tester,
-    ) async {
-      await tester.pumpWidget(createMyBookingsTestWidget());
+    testWidgets('shows empty state when user has no bookings', (tester) async {
+      await tester.pumpWidget(createMyBookingsTestWidget(
+        initialAppointments: [],
+      ));
       await tester.pumpAndSettle();
 
-      // Title
       expect(find.text('My Bookings'), findsOneWidget);
-
-      // Tabs
       expect(find.text('Upcoming'), findsOneWidget);
       expect(find.text('Completed'), findsOneWidget);
       expect(find.text('Canceled'), findsOneWidget);
 
-      // Cards from design
-      expect(find.byType(BookingCard), findsAtLeastNWidgets(2));
-      expect(find.text('Dr. James Robinson'), findsOneWidget);
-      expect(find.text('Orthopedic Surgery'), findsWidgets);
-      expect(find.text('Elite Ortho Clinic, USA'), findsWidgets);
-      expect(find.text('Dr. Daniel Lee'), findsOneWidget);
-      expect(find.text('Gastroenterologist'), findsOneWidget);
-      expect(find.text('Digestive Institute, USA'), findsOneWidget);
+      // Empty state on Upcoming
+      expect(find.byType(BookingEmptyState), findsOneWidget);
+      expect(find.text('No upcoming bookings'), findsOneWidget);
 
-      // Upcoming action buttons
-      expect(find.text('Cancel'), findsWidgets);
-      expect(find.text('Reschedule'), findsWidgets);
-    });
-
-    testWidgets('switches to Completed tab and displays completed bookings', (
-      tester,
-    ) async {
-      await tester.pumpWidget(createMyBookingsTestWidget());
-      await tester.pumpAndSettle();
-
-      // Tap Completed tab
+      // Switch to Completed
       await tester.tap(find.text('Completed'));
       await tester.pumpAndSettle();
+      expect(find.byType(BookingEmptyState), findsOneWidget);
+      expect(find.text('No completed bookings'), findsOneWidget);
 
-      // Completed cards from design
-      expect(find.text('Dr. Sarah Johnson'), findsOneWidget);
-      expect(find.text('Gynecologist'), findsOneWidget);
-      expect(find.text("Women's Health Clinic"), findsOneWidget);
-
-      expect(find.text('Dr. Michael Chang'), findsOneWidget);
-      expect(find.text('Cardiologist'), findsOneWidget);
-      expect(find.text('HeartCare Center, USA'), findsOneWidget);
-
-      // Completed action buttons
-      expect(find.text('Re-Book'), findsWidgets);
-      expect(find.text('Add Review'), findsWidgets);
-      expect(find.text('Reschedule'), findsNothing);
-    });
-
-    testWidgets('switches to Canceled tab and displays canceled bookings', (
-      tester,
-    ) async {
-      await tester.pumpWidget(createMyBookingsTestWidget());
-      await tester.pumpAndSettle();
-
-      // Tap Canceled tab
+      // Switch to Canceled
       await tester.tap(find.text('Canceled'));
       await tester.pumpAndSettle();
+      expect(find.byType(BookingEmptyState), findsOneWidget);
+      expect(find.text('No canceled bookings'), findsOneWidget);
+    });
 
-      expect(find.text('Dr. Emily Watson'), findsOneWidget);
-      expect(find.text('Neurologist'), findsOneWidget);
-      expect(find.text('Re-Book'), findsWidgets);
+    testWidgets('displays user bookings and filters by tab', (tester) async {
+      await tester.pumpWidget(createMyBookingsTestWidget(
+        initialAppointments: testUserAppointments,
+      ));
+      await tester.pumpAndSettle();
+
+      // Upcoming tab displays Dr. Sarah Connor
+      expect(find.text('Dr. Sarah Connor'), findsOneWidget);
+      expect(find.text('Cardiology'), findsOneWidget);
+      expect(find.text('Cancel'), findsOneWidget);
+      expect(find.text('Reschedule'), findsOneWidget);
+      expect(find.text('Dr. John Watson'), findsNothing);
+      expect(find.text('Dr. Gregory House'), findsNothing);
+
+      // Switch to Completed tab
+      await tester.tap(find.text('Completed'));
+      await tester.pumpAndSettle();
+      expect(find.text('Dr. John Watson'), findsOneWidget);
+      expect(find.text('General Medicine'), findsOneWidget);
+      expect(find.text('Re-Book'), findsOneWidget);
+      expect(find.text('Add Review'), findsOneWidget);
+      expect(find.text('Dr. Sarah Connor'), findsNothing);
+
+      // Switch to Canceled tab
+      await tester.tap(find.text('Canceled'));
+      await tester.pumpAndSettle();
+      expect(find.text('Dr. Gregory House'), findsOneWidget);
+      expect(find.text('Diagnostics'), findsOneWidget);
+      expect(find.text('Re-Book'), findsOneWidget);
+      expect(find.text('Dr. Sarah Connor'), findsNothing);
     });
 
     testWidgets('cancels an upcoming booking and moves it to Canceled tab', (
       tester,
     ) async {
-      await tester.pumpWidget(createMyBookingsTestWidget());
+      await tester.pumpWidget(createMyBookingsTestWidget(
+        initialAppointments: testUserAppointments,
+      ));
       await tester.pumpAndSettle();
 
-      expect(find.text('Dr. James Robinson'), findsOneWidget);
+      expect(find.text('Dr. Sarah Connor'), findsOneWidget);
 
-      // Tap first Cancel button
-      await tester.tap(find.text('Cancel').first);
+      // Tap Cancel button
+      await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
 
       // Confirmation dialog shows
@@ -162,15 +197,15 @@ void main() {
       await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();
 
-      // Dr. James Robinson should no longer be in Upcoming tab
-      expect(find.text('Dr. James Robinson'), findsNothing);
+      // Dr. Sarah Connor is no longer in Upcoming
+      expect(find.text('Dr. Sarah Connor'), findsNothing);
 
       // Switch to Canceled tab
       await tester.tap(find.text('Canceled'));
       await tester.pumpAndSettle();
 
-      // Dr. James Robinson is now in Canceled tab
-      expect(find.text('Dr. James Robinson'), findsOneWidget);
+      // Dr. Sarah Connor is now in Canceled tab
+      expect(find.text('Dr. Sarah Connor'), findsOneWidget);
     });
   });
 }

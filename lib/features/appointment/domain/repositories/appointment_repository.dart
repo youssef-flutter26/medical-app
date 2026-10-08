@@ -1,4 +1,5 @@
 import 'package:medical_app/core/error/result.dart';
+import '../entities/appointment_entity.dart';
 
 abstract class AppointmentRepository {
   Future<Result<Set<String>>> getBookedSlots({
@@ -17,4 +18,10 @@ abstract class AppointmentRepository {
     String? doctorAddress,
     String? doctorImagePath,
   });
+
+  Stream<List<AppointmentEntity>> streamUserAppointments(String patientId);
+
+  Future<Result<List<AppointmentEntity>>> getUserAppointments(String patientId);
+
+  Future<Result<void>> cancelAppointment(String appointmentId);
 }
