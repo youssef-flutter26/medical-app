@@ -20,6 +20,7 @@ import 'package:medical_app/features/home/presentation/pages/category_doctors_pa
 import 'package:medical_app/features/home/presentation/pages/category_page.dart';
 import 'package:medical_app/features/home/presentation/pages/doctor_details_page.dart';
 import 'package:medical_app/features/home/presentation/widgets/doctor_card.dart';
+import 'package:medical_app/features/appointment/presention/pages/my_bookings_page.dart';
 import 'package:medical_app/features/onboarding/presentation/pages/onboarding_screen.dart';
 import 'package:medical_app/features/splash/presentation/pages/splash_screen.dart';
 
@@ -208,6 +209,13 @@ class AppRouter {
               AllMedicalCentersPage(
                 medicalCenters: medicalCenters,
               ),
+          settings: settings,
+        );
+
+      case Routes.myBookings:
+      case Routes.appointment:
+        return MaterialPageRoute(
+          builder: (_) => const MyBookingsPage(),
           settings: settings,
         );
 

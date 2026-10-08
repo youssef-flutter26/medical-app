@@ -238,5 +238,19 @@
   "doctorUpdatedSuccessfully": "تم تحديث الطبيب بنجاح",
   "failedToUpdateDoctor": "فشل في تحديث الطبيب",
   "notAuthorizedAdmin": "يجب أن تكون مسؤولاً لإضافة أطباء.",
-  "years": "سنوات"
+  "years": "سنوات",
+  "myBookings": "حجوزاتي",
+  "upcoming": "القادمة",
+  "completed": "المكتملة",
+  "canceled": "الملغاة",
+  "reschedule": "إعادة جدولة",
+  "reBook": "إعادة الحجز",
+  "addReview": "إضافة تقييم",
+  "noBookingsFound": "لا توجد حجوزات",
+  "noUpcomingBookings": "لا توجد حجوزات قادمة",
+  "noCompletedBookings": "لا توجد حجوزات مكتملة",
+  "noCanceledBookings": "لا توجد حجوزات ملغاة",
+  "cancelBookingConfirmation": "هل أنت متأكد من إلغاء هذا الحجز؟",
+  "bookingCanceledSuccessfully": "تم إلغاء الحجز بنجاح",
+  "rescheduleAppointment": "إعادة جدولة الموعد"
 }

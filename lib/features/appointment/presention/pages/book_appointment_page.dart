@@ -84,11 +84,6 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
     return schedule?.enabled ?? false;
   }
 
-  bool _isSameDate(DateTime first, DateTime second) {
-    return first.year == second.year &&
-        first.month == second.month &&
-        first.day == second.day;
-  }
 
   DateTime _dateOnly(DateTime date) {
     return DateTime(date.year, date.month, date.day);
@@ -120,13 +115,6 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
     return _isDoctorAvailableOnDay(selected);
   }
 
-  DateTime _firstDayOfCalendarMonth(DateTime date) {
-    return DateTime(date.year, date.month, 1);
-  }
-
-  DateTime _lastDayOfCalendarMonth(DateTime date) {
-    return DateTime(date.year, date.month + 1, 0);
-  }
 
   String _monthName(DateTime date) {
     const months = [
@@ -435,7 +423,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                   'Your appointment with '
                   'Dr. ${widget.doctor.name} '
                   'is confirmed for '
-                  '${_formattedSelectedDate} '
+                  '$_formattedSelectedDate '
                   'at ${_formatTime(_selectedTime!)}.',
                   textAlign: TextAlign.center,
                   style: AppTextStyles.inter12W400.copyWith(

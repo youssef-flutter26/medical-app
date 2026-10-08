@@ -238,5 +238,19 @@
   "doctorUpdatedSuccessfully": "Doctor updated successfully",
   "failedToUpdateDoctor": "Failed to update doctor",
   "notAuthorizedAdmin": "You must be an administrator to add doctors.",
-  "years": "years"
+  "years": "years",
+  "myBookings": "My Bookings",
+  "upcoming": "Upcoming",
+  "completed": "Completed",
+  "canceled": "Canceled",
+  "reschedule": "Reschedule",
+  "reBook": "Re-Book",
+  "addReview": "Add Review",
+  "noBookingsFound": "No bookings found",
+  "noUpcomingBookings": "No upcoming bookings",
+  "noCompletedBookings": "No completed bookings",
+  "noCanceledBookings": "No canceled bookings",
+  "cancelBookingConfirmation": "Are you sure you want to cancel this booking?",
+  "bookingCanceledSuccessfully": "Booking canceled successfully",
+  "rescheduleAppointment": "Reschedule Appointment"
 }

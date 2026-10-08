@@ -7,6 +7,7 @@ import 'package:medical_app/core/utils/app_assets.dart';
 import 'package:medical_app/features/home/presentation/pages/home_screen.dart';
 
 import '../../../features/location/presentation/pages/location_screen.dart';
+import '../../../features/appointment/presention/pages/my_bookings_page.dart';
 
 class MainLayout extends StatefulWidget {
   final List<Widget>? screens;
@@ -25,7 +26,7 @@ class _MainLayoutState extends State<MainLayout> {
       [
         const HomeScreen(),
         const LocationScreen(),
-        Center(child: Text(LocaleKeys.appointment.tr())),
+        const MyBookingsPage(),
         Center(child: Text(LocaleKeys.profile.tr())),
       ];
 

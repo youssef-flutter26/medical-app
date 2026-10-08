@@ -249,6 +249,20 @@ abstract class LocaleKeys {
   static const failedToUpdateDoctor = 'failedToUpdateDoctor';
   static const notAuthorizedAdmin = 'notAuthorizedAdmin';
   static const years = 'years';
+  static const myBookings = 'myBookings';
+  static const upcoming = 'upcoming';
+  static const completed = 'completed';
+  static const canceled = 'canceled';
+  static const reschedule = 'reschedule';
+  static const reBook = 'reBook';
+  static const addReview = 'addReview';
+  static const noBookingsFound = 'noBookingsFound';
+  static const noUpcomingBookings = 'noUpcomingBookings';
+  static const noCompletedBookings = 'noCompletedBookings';
+  static const noCanceledBookings = 'noCanceledBookings';
+  static const cancelBookingConfirmation = 'cancelBookingConfirmation';
+  static const bookingCanceledSuccessfully = 'bookingCanceledSuccessfully';
+  static const rescheduleAppointment = 'rescheduleAppointment';
 }
 
 
