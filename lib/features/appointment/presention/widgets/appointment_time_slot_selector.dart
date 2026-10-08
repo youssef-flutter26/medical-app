@@ -5,8 +5,8 @@ import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 
-class TimeSlotSelector extends StatelessWidget {
-  const TimeSlotSelector({
+class AppointmentTimeSlotSelector extends StatelessWidget {
+  const AppointmentTimeSlotSelector({
     super.key,
     required this.selectedDate,
     required this.slots,

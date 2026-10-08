@@ -269,5 +269,10 @@
   "slotPassed": "This appointment time has already passed.",
   "failedToLoadAppointments": "Failed to load appointments.",
   "bookingSuccessful": "Booking successful",
-  "bookingFailed": "Booking failed"
+  "bookingFailed": "Booking failed",
+  "bookingSummary": "Booking Summary",
+  "appointmentDate": "Appointment Date",
+  "appointmentTime": "Appointment Time",
+  "readyToConfirm": "Ready to confirm",
+  "pleaseSelectSlotToProceed": "Please select a time slot above to proceed"
 }

@@ -8,11 +8,12 @@ import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/features/appointment/presention/cubit/appointment_cubit.dart';
 import 'package:medical_app/features/appointment/presention/cubit/appointment_state.dart';
+import 'package:medical_app/features/appointment/presention/widgets/appointment_date_selector.dart';
+import 'package:medical_app/features/appointment/presention/widgets/appointment_time_slot_selector.dart';
+import 'package:medical_app/features/appointment/presention/widgets/booking_summary.dart';
 import 'package:medical_app/features/appointment/presention/widgets/booking_success_dialog.dart';
 import 'package:medical_app/features/appointment/presention/widgets/confirm_booking_button.dart';
-import 'package:medical_app/features/appointment/presention/widgets/date_selector.dart';
 import 'package:medical_app/features/appointment/presention/widgets/doctor_summary_card.dart';
-import 'package:medical_app/features/appointment/presention/widgets/time_slot_selector.dart';
 import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
 
 class BookAppointmentPage extends StatelessWidget {
@@ -154,19 +155,25 @@ class _BookAppointmentView extends StatelessWidget {
                     children: [
                       DoctorSummaryCard(doctor: state.doctor),
                       SizedBox(height: 18.h),
-                      DateSelector(
+                      AppointmentDateSelector(
                         selectedDate: state.selectedDate,
                         isDateSelectable: cubit.isDateSelectable,
                         onDateSelected: cubit.selectDate,
                       ),
                       SizedBox(height: 20.h),
-                      TimeSlotSelector(
+                      AppointmentTimeSlotSelector(
                         selectedDate: state.selectedDate,
                         slots: slots,
                         bookedSlots: state.bookedSlots,
                         selectedTime: state.selectedTime,
                         isLoadingSlots: state.isLoadingSlots,
                         onTimeSelected: cubit.selectTime,
+                      ),
+                      SizedBox(height: 20.h),
+                      BookingSummary(
+                        doctor: state.doctor,
+                        selectedDate: state.selectedDate,
+                        selectedTime: state.selectedTime,
                       ),
                       SizedBox(height: 20.h),
                     ],

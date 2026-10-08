@@ -280,6 +280,11 @@ abstract class LocaleKeys {
   static const failedToLoadAppointments = 'failedToLoadAppointments';
   static const bookingSuccessful = 'bookingSuccessful';
   static const bookingFailed = 'bookingFailed';
+  static const bookingSummary = 'bookingSummary';
+  static const appointmentDate = 'appointmentDate';
+  static const appointmentTime = 'appointmentTime';
+  static const readyToConfirm = 'readyToConfirm';
+  static const pleaseSelectSlotToProceed = 'pleaseSelectSlotToProceed';
 }
 
 

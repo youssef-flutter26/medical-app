@@ -269,5 +269,10 @@
   "slotPassed": "لقد مضى وقت هذا الموعد بالفعل.",
   "failedToLoadAppointments": "فشل في تحميل المواعيد.",
   "bookingSuccessful": "تم الحجز بنجاح",
-  "bookingFailed": "فشل في الحجز"
+  "bookingFailed": "فشل في الحجز",
+  "bookingSummary": "ملخص الحجز",
+  "appointmentDate": "تاريخ الموعد",
+  "appointmentTime": "وقت الموعد",
+  "readyToConfirm": "جاهز للتأكيد",
+  "pleaseSelectSlotToProceed": "يرجى تحديد موعد أعلاه للمتابعة"
 }

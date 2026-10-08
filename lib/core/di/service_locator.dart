@@ -363,6 +363,7 @@ void setupServiceLocator() {
           bookAppointment: getIt<BookAppointment>(),
           getBookedSlots: getIt<GetBookedSlots>(),
           auth: getIt<FirebaseAuth>(),
+          firestore: getIt<FirebaseFirestore>(),
         ),
   );
 

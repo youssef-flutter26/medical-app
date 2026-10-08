@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,6 +6,7 @@ import 'package:medical_app/core/error/result.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/features/appointment/domain/usecases/book_appointment.dart';
 import 'package:medical_app/features/appointment/domain/usecases/get_booked_slots.dart';
+import 'package:medical_app/features/home/data/models/doctor_model.dart';
 import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
 
 import 'appointment_state.dart';
@@ -15,9 +17,11 @@ class AppointmentCubit extends Cubit<AppointmentState> {
     required BookAppointment bookAppointment,
     required GetBookedSlots getBookedSlots,
     FirebaseAuth? auth,
+    FirebaseFirestore? firestore,
   })  : _bookAppointment = bookAppointment,
         _getBookedSlots = getBookedSlots,
-        _auth = auth ?? FirebaseAuth.instance,
+        _auth = auth,
+        _firestore = firestore,
         super(
           AppointmentState(
             doctor: doctor,
@@ -25,11 +29,31 @@ class AppointmentCubit extends Cubit<AppointmentState> {
           ),
         ) {
     loadBookedSlots();
+    syncDoctorFromFirestore();
   }
 
   final BookAppointment _bookAppointment;
   final GetBookedSlots _getBookedSlots;
-  final FirebaseAuth _auth;
+  final FirebaseAuth? _auth;
+  final FirebaseFirestore? _firestore;
+
+  FirebaseAuth? get _authInstance {
+    if (_auth != null) return _auth;
+    try {
+      return FirebaseAuth.instance;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  FirebaseFirestore? get _firestoreInstance {
+    if (_firestore != null) return _firestore;
+    try {
+      return FirebaseFirestore.instance;
+    } catch (_) {
+      return null;
+    }
+  }
 
   @override
   void emit(AppointmentState state) {
@@ -62,6 +86,106 @@ class AppointmentCubit extends Cubit<AppointmentState> {
     }
   }
 
+  static String? _to24Hour(String timeStr) {
+    try {
+      final parts = timeStr.trim().split(' ');
+      if (parts.isEmpty) return null;
+      final timeParts = parts[0].split(':');
+      if (timeParts.length != 2) return null;
+      int hour = int.parse(timeParts[0]);
+      final minute = int.parse(timeParts[1]);
+
+      if (parts.length > 1) {
+        final period = parts[1].toUpperCase();
+        if (period == 'PM' && hour < 12) hour += 12;
+        if (period == 'AM' && hour == 12) hour = 0;
+      }
+      return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static DoctorSchedule? _getScheduleFromAvailableTime(
+    String availableTime,
+    String dayKey,
+  ) {
+    const dayOrder = [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday',
+    ];
+
+    if (availableTime.isEmpty) {
+      return DoctorSchedule(
+        day: dayKey,
+        enabled: dayKey != 'sunday',
+        startTime: '09:00',
+        endTime: '17:00',
+      );
+    }
+
+    try {
+      final parts = availableTime.split(':');
+      if (parts.length >= 2) {
+        final daysPart = parts[0].toLowerCase();
+        bool isDayEnabled = false;
+
+        if (daysPart.contains('-')) {
+          final dayRange = daysPart.split('-');
+          final startAbbr = dayRange[0].trim();
+          final endAbbr = dayRange[1].trim();
+
+          final startIndex =
+              dayOrder.indexWhere((d) => d.startsWith(startAbbr));
+          final endIndex = dayOrder.indexWhere((d) => d.startsWith(endAbbr));
+
+          if (startIndex != -1 && endIndex != -1) {
+            final currentDayIndex = dayOrder.indexOf(dayKey);
+            if (startIndex <= endIndex) {
+              isDayEnabled = currentDayIndex >= startIndex &&
+                  currentDayIndex <= endIndex;
+            } else {
+              isDayEnabled = currentDayIndex >= startIndex ||
+                  currentDayIndex <= endIndex;
+            }
+          }
+        } else {
+          isDayEnabled = daysPart.contains(dayKey.substring(0, 3));
+        }
+
+        final timeRangePart =
+            availableTime.substring(availableTime.indexOf(':') + 1).trim();
+        final times = timeRangePart.split('-');
+        if (times.length == 2) {
+          final start24 = _to24Hour(times[0]);
+          final end24 = _to24Hour(times[1]);
+          if (start24 != null && end24 != null) {
+            return DoctorSchedule(
+              day: dayKey,
+              enabled: isDayEnabled,
+              startTime: start24,
+              endTime: end24,
+            );
+          }
+        }
+      }
+    } catch (_) {
+      // Fallback
+    }
+
+    return DoctorSchedule(
+      day: dayKey,
+      enabled: dayKey != 'sunday',
+      startTime: '09:00',
+      endTime: '17:00',
+    );
+  }
+
   static DoctorSchedule? getScheduleForDate(
     DoctorEntity doctor,
     DateTime date,
@@ -73,15 +197,9 @@ class AppointmentCubit extends Cubit<AppointmentState> {
       }
     }
 
-    // Default fallback if doctor's schedule list is empty or has no enabled days
     final hasAnyEnabled = doctor.schedule.any((s) => s.enabled);
     if (!hasAnyEnabled) {
-      return DoctorSchedule(
-        day: day,
-        enabled: true,
-        startTime: '09:00',
-        endTime: '17:00',
-      );
+      return _getScheduleFromAvailableTime(doctor.availableTime, day);
     }
 
     return null;
@@ -175,6 +293,33 @@ class AppointmentCubit extends Cubit<AppointmentState> {
     }
 
     return slots;
+  }
+
+  Future<void> syncDoctorFromFirestore() async {
+    final doctorId = state.doctor.id;
+    if (doctorId == null || doctorId.isEmpty) return;
+
+    try {
+      final firestore = _firestoreInstance;
+      if (firestore == null) return;
+      final snapshot =
+          await firestore.collection('doctors').doc(doctorId).get();
+      if (snapshot.exists && snapshot.data() != null) {
+        final liveDoctor =
+            DoctorModel.fromFirestore(snapshot.data()!, snapshot.id);
+        if (!isClosed) {
+          emit(
+            state.copyWith(
+              doctor: liveDoctor,
+              selectedDate: _getFirstAvailableDateStatic(liveDoctor),
+            ),
+          );
+          await loadBookedSlots();
+        }
+      }
+    } catch (_) {
+      // Graceful fallback to existing passed Doctor entity
+    }
   }
 
   Future<void> selectDate(DateTime date) async {
@@ -276,7 +421,7 @@ class AppointmentCubit extends Cubit<AppointmentState> {
       return;
     }
 
-    final user = _auth.currentUser;
+    final user = _authInstance?.currentUser;
     if (user == null) {
       emit(
         state.copyWith(

@@ -69,6 +69,11 @@ class _FakeBookingAssetLoader extends AssetLoader {
       "pleaseSelectTime": "Please select an appointment time.",
       "bookingSuccessful": "Booking successful",
       "bookingFailed": "Booking failed",
+      "bookingSummary": "Booking Summary",
+      "appointmentDate": "Appointment Date",
+      "appointmentTime": "Appointment Time",
+      "readyToConfirm": "Ready to confirm",
+      "pleaseSelectSlotToProceed": "Please select a time slot",
     };
   }
 }
@@ -193,6 +198,7 @@ void main() {
     expect(find.text('Elite Ortho Clinic, USA'), findsOneWidget);
     expect(find.text('Select Date'), findsOneWidget);
     expect(find.text('Select Hour'), findsOneWidget);
+    expect(find.text('Booking Summary'), findsOneWidget);
     expect(find.text('Confirm'), findsOneWidget);
 
     cubit.close();

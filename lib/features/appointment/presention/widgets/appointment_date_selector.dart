@@ -5,8 +5,8 @@ import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 
-class DateSelector extends StatelessWidget {
-  const DateSelector({
+class AppointmentDateSelector extends StatelessWidget {
+  const AppointmentDateSelector({
     super.key,
     required this.selectedDate,
     required this.isDateSelectable,
