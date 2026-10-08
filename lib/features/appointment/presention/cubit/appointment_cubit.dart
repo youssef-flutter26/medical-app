@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:medical_app/core/error/result.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
+import 'package:medical_app/features/appointment/domain/entities/appointment_entity.dart';
 import 'package:medical_app/features/appointment/domain/usecases/book_appointment.dart';
 import 'package:medical_app/features/appointment/domain/usecases/get_booked_slots.dart';
+import 'package:medical_app/features/appointment/domain/usecases/reschedule_appointment.dart';
 import 'package:medical_app/features/home/data/models/doctor_model.dart';
 import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
 
@@ -14,28 +16,36 @@ import 'appointment_state.dart';
 class AppointmentCubit extends Cubit<AppointmentState> {
   AppointmentCubit({
     required DoctorEntity doctor,
+    this.existingAppointment,
     required BookAppointment bookAppointment,
+    RescheduleAppointment? rescheduleAppointment,
     required GetBookedSlots getBookedSlots,
     FirebaseAuth? auth,
     FirebaseFirestore? firestore,
   })  : _bookAppointment = bookAppointment,
+        _rescheduleAppointment = rescheduleAppointment,
         _getBookedSlots = getBookedSlots,
         _auth = auth,
         _firestore = firestore,
         super(
           AppointmentState(
             doctor: doctor,
-            selectedDate: _getFirstAvailableDateStatic(doctor),
+            selectedDate: _resolveInitialDate(doctor, existingAppointment),
+            selectedTime: _resolveInitialTime(existingAppointment),
           ),
         ) {
     loadBookedSlots();
     syncDoctorFromFirestore();
   }
 
+  final AppointmentEntity? existingAppointment;
   final BookAppointment _bookAppointment;
+  final RescheduleAppointment? _rescheduleAppointment;
   final GetBookedSlots _getBookedSlots;
   final FirebaseAuth? _auth;
   final FirebaseFirestore? _firestore;
+
+  bool get isRescheduling => existingAppointment != null;
 
   FirebaseAuth? get _authInstance {
     if (_auth != null) return _auth;
@@ -146,6 +156,27 @@ class AppointmentCubit extends Cubit<AppointmentState> {
     return isDoctorAvailableOnDay(doctor, selected);
   }
 
+  static DateTime _resolveInitialDate(
+    DoctorEntity doctor,
+    AppointmentEntity? existingAppointment,
+  ) {
+    final today = _dateOnly(DateTime.now());
+    if (existingAppointment != null) {
+      final apptDate = _dateOnly(existingAppointment.dateTime);
+      if (!apptDate.isBefore(today) && isDoctorAvailableOnDay(doctor, apptDate)) {
+        return apptDate;
+      }
+    }
+    return _getFirstAvailableDateStatic(doctor);
+  }
+
+  static TimeOfDay? _resolveInitialTime(
+    AppointmentEntity? existingAppointment,
+  ) {
+    if (existingAppointment == null) return null;
+    return _parseTimeString(existingAppointment.time);
+  }
+
   static DateTime _getFirstAvailableDateStatic(DoctorEntity doctor) {
     final today = _dateOnly(DateTime.now());
     for (int i = 0; i < 60; i++) {
@@ -239,10 +270,15 @@ class AppointmentCubit extends Cubit<AppointmentState> {
         final liveDoctor =
             DoctorModel.fromFirestore(snapshot.data()!, snapshot.id);
         if (!isClosed) {
+          final updatedDate =
+              _resolveInitialDate(liveDoctor, existingAppointment);
+          final updatedTime = state.selectedTime ??
+              _resolveInitialTime(existingAppointment);
           emit(
             state.copyWith(
               doctor: liveDoctor,
-              selectedDate: _getFirstAvailableDateStatic(liveDoctor),
+              selectedDate: updatedDate,
+              selectedTime: updatedTime,
             ),
           );
           await loadBookedSlots();
@@ -300,15 +336,23 @@ class AppointmentCubit extends Cubit<AppointmentState> {
 
     switch (result) {
       case SuccessAPI(:final data):
+        final userSlot = (existingAppointment != null &&
+                _dateOnly(existingAppointment!.dateTime) == state.selectedDate)
+            ? existingAppointment!.time
+            : null;
+        final availableData = userSlot != null
+            ? (data.toSet()..remove(userSlot))
+            : data;
+
         TimeOfDay? updatedSelectedTime = state.selectedTime;
         if (updatedSelectedTime != null &&
-            data.contains(timeKey(updatedSelectedTime))) {
+            availableData.contains(timeKey(updatedSelectedTime))) {
           updatedSelectedTime = null;
         }
 
         emit(
           state.copyWith(
-            bookedSlots: data,
+            bookedSlots: availableData,
             isLoadingSlots: false,
             selectedTime: updatedSelectedTime,
             clearSelectedTime: updatedSelectedTime == null,
@@ -396,6 +440,29 @@ class AppointmentCubit extends Cubit<AppointmentState> {
       selectedTime.hour,
       selectedTime.minute,
     );
+
+    if (existingAppointment != null && _rescheduleAppointment != null) {
+      final res = await _rescheduleAppointment(
+        appointmentId: existingAppointment!.id ?? '',
+        dateKey: dateKey(state.selectedDate),
+        time: timeFormatted,
+        dateTime: appointmentDateTime,
+      );
+
+      switch (res) {
+        case SuccessAPI():
+          emit(state.copyWith(bookingStatus: BookingStatus.success));
+        case ErrorAPI(:final failure):
+          emit(
+            state.copyWith(
+              bookingStatus: BookingStatus.failure,
+              errorMessage: failure.message,
+            ),
+          );
+          await loadBookedSlots();
+      }
+      return;
+    }
 
     final result = await _bookAppointment(
       doctorId: doctorId,

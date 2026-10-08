@@ -132,4 +132,20 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
+
+  @override
+  Future<void> rescheduleAppointment({
+    required String appointmentId,
+    required String dateKey,
+    required String time,
+    required DateTime dateTime,
+  }) async {
+    await _firestore.collection('appointments').doc(appointmentId).update({
+      'dateKey': dateKey,
+      'time': time,
+      'dateTime': Timestamp.fromDate(dateTime),
+      'status': 'upcoming',
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
 }

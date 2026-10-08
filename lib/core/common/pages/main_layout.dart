@@ -20,20 +20,27 @@ class MainLayout extends StatefulWidget {
 
 class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
+  late final List<Widget> _screens;
 
-  List<Widget> get _screens =>
-      widget.screens ??
-      [
-        const HomeScreen(),
-        const LocationScreen(),
-        const MyBookingsPage(),
-        Center(child: Text(LocaleKeys.profile.tr())),
-      ];
+  @override
+  void initState() {
+    super.initState();
+    _screens = widget.screens ??
+        [
+          const HomeScreen(),
+          const LocationScreen(),
+          const MyBookingsPage(),
+          Center(child: Text(LocaleKeys.profile.tr())),
+        ];
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {

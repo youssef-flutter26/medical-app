@@ -275,5 +275,7 @@
   "appointmentTime": "Appointment Time",
   "readyToConfirm": "Ready to confirm",
   "pleaseSelectSlotToProceed": "Please select a time slot above to proceed",
-  "doctorNoAvailability": "This doctor has no available appointments currently."
+  "doctorNoAvailability": "This doctor has no available appointments currently.",
+  "doctorNotFound": "Doctor information could not be found.",
+  "back": "Back"
 }

@@ -193,13 +193,23 @@ class AppointmentDateSelector extends StatelessWidget {
                     onSurface: AppColors.darkTeal,
                   ),
                 ),
-                child: CalendarDatePicker(
-                  initialDate: selectedDate,
-                  firstDate: _dateOnly(DateTime.now()),
-                  lastDate: DateTime(DateTime.now().year + 1, 12, 31),
-                  currentDate: DateTime.now(),
-                  selectableDayPredicate: isDateSelectable,
-                  onDateChanged: onDateSelected,
+                child: Builder(
+                  builder: (context) {
+                    final today = _dateOnly(DateTime.now());
+                    final safeInitial = selectedDate.isBefore(today) ? today : selectedDate;
+                    final safePredicate = (hasDoctorAvailability && isDateSelectable(safeInitial))
+                        ? isDateSelectable
+                        : null;
+
+                    return CalendarDatePicker(
+                      initialDate: safeInitial,
+                      firstDate: today,
+                      lastDate: DateTime(DateTime.now().year + 1, 12, 31),
+                      currentDate: DateTime.now(),
+                      selectableDayPredicate: safePredicate,
+                      onDateChanged: onDateSelected,
+                    );
+                  },
                 ),
               ),
             ],

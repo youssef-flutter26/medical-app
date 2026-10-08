@@ -6,4 +6,5 @@ abstract class DoctorRepository {
   Future<Result<void>> updateDoctor(DoctorEntity doctor);
   Stream<List<DoctorEntity>> getDoctorsStream();
   Stream<List<DoctorEntity>> getDoctorsByCategoryStream(String categoryId);
+  Future<Result<DoctorEntity?>> getDoctorById(String doctorId);
 }

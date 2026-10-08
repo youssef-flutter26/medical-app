@@ -12,12 +12,14 @@ class ConfirmBookingButton extends StatelessWidget {
     required this.isTimeSelected,
     required this.isLoadingSlots,
     required this.onPressed,
+    this.label,
   });
 
   final bool isBooking;
   final bool isTimeSelected;
   final bool isLoadingSlots;
   final VoidCallback onPressed;
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +63,7 @@ class ConfirmBookingButton extends StatelessWidget {
                     ),
                   )
                 : Text(
-                    LocaleKeys.confirm.tr(),
+                    label ?? LocaleKeys.confirm.tr(),
                     style: AppTextStyles.inter16W500.copyWith(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w700,

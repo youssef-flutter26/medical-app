@@ -28,6 +28,15 @@ class _FakeAssetLoader extends AssetLoader {
       "noCanceledBookings": "No canceled bookings",
       "cancelBookingConfirmation": "Are you sure you want to cancel this booking?",
       "bookingCanceledSuccessfully": "Booking canceled successfully",
+      "rescheduleAppointment": "Reschedule Appointment",
+      "bookAppointment": "Book Appointment",
+      "selectDate": "Select Date",
+      "selectHour": "Select Hour",
+      "confirm": "Confirm",
+      "bookingSummary": "Booking Summary",
+      "doctorNoAvailability": "This doctor has no available appointments currently.",
+      "doctorNotFound": "Doctor information could not be found.",
+      "back": "Back",
       "ok": "OK",
     };
   }
@@ -206,6 +215,23 @@ void main() {
 
       // Dr. Sarah Connor is now in Canceled tab
       expect(find.text('Dr. Sarah Connor'), findsOneWidget);
+    });
+
+    testWidgets('tapping Reschedule opens BookAppointmentPage without red screen', (
+      tester,
+    ) async {
+      await tester.pumpWidget(createMyBookingsTestWidget(
+        initialAppointments: testUserAppointments,
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Reschedule'), findsOneWidget);
+
+      await tester.tap(find.text('Reschedule'));
+      await tester.pump();
+
+      // Verify no assertion error or exception was thrown
+      expect(tester.takeException(), isNull);
     });
   });
 }

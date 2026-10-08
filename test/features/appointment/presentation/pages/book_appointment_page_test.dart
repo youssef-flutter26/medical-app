@@ -54,6 +54,17 @@ class _FakeBookingRepository implements AppointmentRepository {
   Future<Result<void>> cancelAppointment(String appointmentId) async {
     return const SuccessAPI(null);
   }
+
+  @override
+  Future<Result<void>> rescheduleAppointment({
+    required String appointmentId,
+    required String dateKey,
+    required String time,
+    required DateTime dateTime,
+  }) async {
+    bookedSlots.add(time);
+    return const SuccessAPI(null);
+  }
 }
 
 class _FakeBookingUser extends Fake implements User {

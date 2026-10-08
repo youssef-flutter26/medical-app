@@ -275,5 +275,7 @@
   "appointmentTime": "وقت الموعد",
   "readyToConfirm": "جاهز للتأكيد",
   "pleaseSelectSlotToProceed": "يرجى تحديد موعد أعلاه للمتابعة",
-  "doctorNoAvailability": "لا توجد مواعيد متاحة لهذا الطبيب حالياً."
+  "doctorNoAvailability": "لا توجد مواعيد متاحة لهذا الطبيب حالياً.",
+  "doctorNotFound": "تعذر العثور على بيانات الطبيب.",
+  "back": "رجوع"
 }

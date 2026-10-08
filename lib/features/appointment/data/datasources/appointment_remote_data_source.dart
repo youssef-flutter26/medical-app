@@ -23,4 +23,11 @@ abstract class AppointmentRemoteDataSource {
   Future<List<AppointmentModel>> getUserAppointments(String patientId);
 
   Future<void> cancelAppointment(String appointmentId);
+
+  Future<void> rescheduleAppointment({
+    required String appointmentId,
+    required String dateKey,
+    required String time,
+    required DateTime dateTime,
+  });
 }

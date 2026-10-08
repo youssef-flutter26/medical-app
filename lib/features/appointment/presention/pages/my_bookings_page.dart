@@ -15,7 +15,6 @@ import 'package:medical_app/features/appointment/presention/pages/book_appointme
 import 'package:medical_app/features/appointment/presention/widgets/booking_list_view.dart';
 import 'package:medical_app/features/appointment/presention/widgets/booking_tab_bar.dart';
 import 'package:medical_app/features/appointment/presention/widgets/cancel_booking_dialog.dart';
-import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
 import 'package:medical_app/features/reviews/presentation/cubit/review_cubit.dart';
 import 'package:medical_app/features/reviews/presentation/pages/add_review_page.dart';
 
@@ -130,21 +129,6 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
     }
   }
 
-  DoctorEntity _buildDoctorEntity(AppointmentEntity appointment) {
-    return DoctorEntity(
-      id: appointment.doctorId,
-      name: appointment.doctorName,
-      specialty: appointment.doctorSpecialty ?? '',
-      categoryId: '',
-      categoryName: appointment.doctorSpecialty ?? '',
-      address: appointment.doctorAddress ?? '',
-      rating: 0.0,
-      reviewsCount: 0,
-      availableTime: '',
-      imagePath: appointment.doctorImagePath ?? '',
-    );
-  }
-
   Future<void> _handleCancelBooking(AppointmentEntity appointment) async {
     final confirmed = await CancelBookingDialog.show(context);
     if (confirmed != true || !mounted) return;
@@ -177,21 +161,23 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
   }
 
   void _handleReschedule(AppointmentEntity appointment) {
-    final doctor = _buildDoctorEntity(appointment);
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => BookAppointmentPage(doctor: doctor),
+        builder: (_) => BookAppointmentPage.fromAppointment(
+          existingAppointment: appointment,
+        ),
       ),
     );
   }
 
   void _handleReBook(AppointmentEntity appointment) {
-    final doctor = _buildDoctorEntity(appointment);
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => BookAppointmentPage(doctor: doctor),
+        builder: (_) => BookAppointmentPage.fromDoctorId(
+          doctorId: appointment.doctorId,
+        ),
       ),
     );
   }

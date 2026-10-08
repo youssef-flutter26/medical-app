@@ -95,6 +95,28 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
       return ErrorAPI(_AppointmentFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Result<void>> rescheduleAppointment({
+    required String appointmentId,
+    required String dateKey,
+    required String time,
+    required DateTime dateTime,
+  }) async {
+    try {
+      await _remoteDataSource.rescheduleAppointment(
+        appointmentId: appointmentId,
+        dateKey: dateKey,
+        time: time,
+        dateTime: dateTime,
+      );
+      return const SuccessAPI(null);
+    } on AppException catch (e) {
+      return ErrorAPI(_AppointmentFailure(e.message));
+    } catch (e) {
+      return ErrorAPI(_AppointmentFailure(e.toString()));
+    }
+  }
 }
 
 class _AppointmentFailure extends Failure {

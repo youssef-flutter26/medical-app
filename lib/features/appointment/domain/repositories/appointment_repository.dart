@@ -24,4 +24,11 @@ abstract class AppointmentRepository {
   Future<Result<List<AppointmentEntity>>> getUserAppointments(String patientId);
 
   Future<Result<void>> cancelAppointment(String appointmentId);
+
+  Future<Result<void>> rescheduleAppointment({
+    required String appointmentId,
+    required String dateKey,
+    required String time,
+    required DateTime dateTime,
+  });
 }
