@@ -172,7 +172,7 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
       address: appointment.doctorAddress ?? 'Medical Clinic, USA',
       rating: 4.8,
       reviewsCount: 120,
-      availableTime: '09:00 AM - 05:00 PM',
+      availableTime: '',
       imagePath: appointment.doctorImagePath ?? 'assets/images/Doctor_1.png',
     );
   }

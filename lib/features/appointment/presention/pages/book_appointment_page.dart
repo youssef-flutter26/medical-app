@@ -159,6 +159,7 @@ class _BookAppointmentView extends StatelessWidget {
                         selectedDate: state.selectedDate,
                         isDateSelectable: cubit.isDateSelectable,
                         onDateSelected: cubit.selectDate,
+                        hasDoctorAvailability: cubit.hasDoctorAvailability,
                       ),
                       SizedBox(height: 20.h),
                       AppointmentTimeSlotSelector(
@@ -168,6 +169,7 @@ class _BookAppointmentView extends StatelessWidget {
                         selectedTime: state.selectedTime,
                         isLoadingSlots: state.isLoadingSlots,
                         onTimeSelected: cubit.selectTime,
+                        hasDoctorAvailability: cubit.hasDoctorAvailability,
                       ),
                       SizedBox(height: 20.h),
                       BookingSummary(

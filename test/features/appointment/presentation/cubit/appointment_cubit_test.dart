@@ -81,8 +81,52 @@ void main() {
     address: 'Elite Ortho Clinic, USA',
     rating: 4.8,
     reviewsCount: 120,
-    availableTime: '09:00 - 17:00',
+    availableTime: '',
     imagePath: 'assets/images/Doctor_1.png',
+    schedule: [
+      DoctorSchedule(
+        day: 'monday',
+        enabled: true,
+        startTime: '09:00',
+        endTime: '17:00',
+      ),
+      DoctorSchedule(
+        day: 'tuesday',
+        enabled: true,
+        startTime: '09:00',
+        endTime: '17:00',
+      ),
+      DoctorSchedule(
+        day: 'wednesday',
+        enabled: true,
+        startTime: '09:00',
+        endTime: '17:00',
+      ),
+      DoctorSchedule(
+        day: 'thursday',
+        enabled: true,
+        startTime: '09:00',
+        endTime: '17:00',
+      ),
+      DoctorSchedule(
+        day: 'friday',
+        enabled: true,
+        startTime: '09:00',
+        endTime: '17:00',
+      ),
+      DoctorSchedule(
+        day: 'saturday',
+        enabled: true,
+        startTime: '09:00',
+        endTime: '17:00',
+      ),
+      DoctorSchedule(
+        day: 'sunday',
+        enabled: true,
+        startTime: '09:00',
+        endTime: '17:00',
+      ),
+    ],
   );
 
   setUp(() {
@@ -187,6 +231,93 @@ void main() {
 
       expect(cubit.state.bookingStatus, BookingStatus.failure);
       expect(cubit.state.errorMessage, 'Booking failed on server');
+      cubit.close();
+    });
+
+    test('doctor with NO schedule has no availability and no selectable dates or slots', () {
+      const doctorNoSchedule = DoctorEntity(
+        id: 'doc_empty',
+        name: 'Dr. No Schedule',
+        specialty: 'General',
+        categoryId: 'cat_gen',
+        categoryName: 'General',
+        address: 'Clinic',
+        rating: 4.5,
+        reviewsCount: 10,
+        availableTime: '',
+        imagePath: '',
+        schedule: [],
+      );
+
+      final cubit = AppointmentCubit(
+        doctor: doctorNoSchedule,
+        bookAppointment: bookAppointment,
+        getBookedSlots: getBookedSlots,
+        auth: fakeAuth,
+      );
+
+      expect(cubit.hasDoctorAvailability, isFalse);
+      expect(cubit.isDateSelectable(DateTime.now().add(const Duration(days: 1))), isFalse);
+      expect(cubit.getAvailableTimeSlotsForSelectedDate(), isEmpty);
+      cubit.close();
+    });
+
+    test('doctor with specific days enabled only allows enabled days', () {
+      const doctorSpecific = DoctorEntity(
+        id: 'doc_mon',
+        name: 'Dr. Monday Only',
+        specialty: 'General',
+        categoryId: 'cat_gen',
+        categoryName: 'General',
+        address: 'Clinic',
+        rating: 4.5,
+        reviewsCount: 10,
+        availableTime: '',
+        imagePath: '',
+        schedule: [
+          DoctorSchedule(
+            day: 'monday',
+            enabled: true,
+            startTime: '10:00',
+            endTime: '12:00',
+          ),
+          DoctorSchedule(
+            day: 'tuesday',
+            enabled: false,
+            startTime: '10:00',
+            endTime: '12:00',
+          ),
+        ],
+      );
+
+      final cubit = AppointmentCubit(
+        doctor: doctorSpecific,
+        bookAppointment: bookAppointment,
+        getBookedSlots: getBookedSlots,
+        auth: fakeAuth,
+      );
+
+      expect(cubit.hasDoctorAvailability, isTrue);
+
+      // Find next Monday and next Tuesday in the future
+      DateTime nextMonday = DateTime.now().add(const Duration(days: 1));
+      while (nextMonday.weekday != DateTime.monday) {
+        nextMonday = nextMonday.add(const Duration(days: 1));
+      }
+      DateTime nextTuesday = DateTime.now().add(const Duration(days: 1));
+      while (nextTuesday.weekday != DateTime.tuesday) {
+        nextTuesday = nextTuesday.add(const Duration(days: 1));
+      }
+
+      expect(cubit.isDateSelectable(nextMonday), isTrue);
+      expect(cubit.isDateSelectable(nextTuesday), isFalse);
+
+      cubit.selectDate(nextMonday);
+      final slots = cubit.getAvailableTimeSlotsForSelectedDate();
+      expect(slots.length, 4); // 10:00, 10:30, 11:00, 11:30
+      expect(slots.first, const TimeOfDay(hour: 10, minute: 0));
+      expect(slots.last, const TimeOfDay(hour: 11, minute: 30));
+
       cubit.close();
     });
   });

@@ -86,104 +86,27 @@ class AppointmentCubit extends Cubit<AppointmentState> {
     }
   }
 
-  static String? _to24Hour(String timeStr) {
-    try {
-      final parts = timeStr.trim().split(' ');
-      if (parts.isEmpty) return null;
-      final timeParts = parts[0].split(':');
-      if (timeParts.length != 2) return null;
-      int hour = int.parse(timeParts[0]);
-      final minute = int.parse(timeParts[1]);
+  static TimeOfDay? _parseTimeString(String timeStr) {
+    final trimmed = timeStr.trim();
+    if (trimmed.isEmpty) return null;
 
-      if (parts.length > 1) {
-        final period = parts[1].toUpperCase();
-        if (period == 'PM' && hour < 12) hour += 12;
-        if (period == 'AM' && hour == 12) hour = 0;
-      }
-      return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
-    } catch (_) {
-      return null;
-    }
-  }
+    final parts = trimmed.split(' ');
+    final timeComponent = parts[0];
+    final colonParts = timeComponent.split(':');
+    if (colonParts.length != 2) return null;
 
-  static DoctorSchedule? _getScheduleFromAvailableTime(
-    String availableTime,
-    String dayKey,
-  ) {
-    const dayOrder = [
-      'monday',
-      'tuesday',
-      'wednesday',
-      'thursday',
-      'friday',
-      'saturday',
-      'sunday',
-    ];
+    int? hour = int.tryParse(colonParts[0]);
+    final int? minute = int.tryParse(colonParts[1]);
+    if (hour == null || minute == null) return null;
 
-    if (availableTime.isEmpty) {
-      return DoctorSchedule(
-        day: dayKey,
-        enabled: dayKey != 'sunday',
-        startTime: '09:00',
-        endTime: '17:00',
-      );
+    if (parts.length > 1) {
+      final period = parts[1].toUpperCase();
+      if (period == 'PM' && hour < 12) hour += 12;
+      if (period == 'AM' && hour == 12) hour = 0;
     }
 
-    try {
-      final parts = availableTime.split(':');
-      if (parts.length >= 2) {
-        final daysPart = parts[0].toLowerCase();
-        bool isDayEnabled = false;
-
-        if (daysPart.contains('-')) {
-          final dayRange = daysPart.split('-');
-          final startAbbr = dayRange[0].trim();
-          final endAbbr = dayRange[1].trim();
-
-          final startIndex =
-              dayOrder.indexWhere((d) => d.startsWith(startAbbr));
-          final endIndex = dayOrder.indexWhere((d) => d.startsWith(endAbbr));
-
-          if (startIndex != -1 && endIndex != -1) {
-            final currentDayIndex = dayOrder.indexOf(dayKey);
-            if (startIndex <= endIndex) {
-              isDayEnabled = currentDayIndex >= startIndex &&
-                  currentDayIndex <= endIndex;
-            } else {
-              isDayEnabled = currentDayIndex >= startIndex ||
-                  currentDayIndex <= endIndex;
-            }
-          }
-        } else {
-          isDayEnabled = daysPart.contains(dayKey.substring(0, 3));
-        }
-
-        final timeRangePart =
-            availableTime.substring(availableTime.indexOf(':') + 1).trim();
-        final times = timeRangePart.split('-');
-        if (times.length == 2) {
-          final start24 = _to24Hour(times[0]);
-          final end24 = _to24Hour(times[1]);
-          if (start24 != null && end24 != null) {
-            return DoctorSchedule(
-              day: dayKey,
-              enabled: isDayEnabled,
-              startTime: start24,
-              endTime: end24,
-            );
-          }
-        }
-      }
-    } catch (_) {
-      // Fallback
-    }
-
-    return DoctorSchedule(
-      day: dayKey,
-      enabled: dayKey != 'sunday',
-      startTime: '09:00',
-      endTime: '17:00',
-    );
+    if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
+    return TimeOfDay(hour: hour, minute: minute);
   }
 
   static DoctorSchedule? getScheduleForDate(
@@ -196,18 +119,22 @@ class AppointmentCubit extends Cubit<AppointmentState> {
         return schedule;
       }
     }
-
-    final hasAnyEnabled = doctor.schedule.any((s) => s.enabled);
-    if (!hasAnyEnabled) {
-      return _getScheduleFromAvailableTime(doctor.availableTime, day);
-    }
-
     return null;
   }
 
   static bool isDoctorAvailableOnDay(DoctorEntity doctor, DateTime date) {
     final schedule = getScheduleForDate(doctor, date);
-    return schedule?.enabled ?? false;
+    if (schedule == null || !schedule.enabled) {
+      return false;
+    }
+    final start = _parseTimeString(schedule.startTime);
+    final end = _parseTimeString(schedule.endTime);
+    if (start == null || end == null) {
+      return false;
+    }
+    final startMinutes = start.hour * 60 + start.minute;
+    final endMinutes = end.hour * 60 + end.minute;
+    return startMinutes < endMinutes;
   }
 
   static bool isDateSelectableStatic(DoctorEntity doctor, DateTime date) {
@@ -232,6 +159,16 @@ class AppointmentCubit extends Cubit<AppointmentState> {
 
   bool isDateSelectable(DateTime date) {
     return isDateSelectableStatic(state.doctor, date);
+  }
+
+  bool get hasDoctorAvailability {
+    return state.doctor.schedule.any((s) {
+      if (!s.enabled) return false;
+      final start = _parseTimeString(s.startTime);
+      final end = _parseTimeString(s.endTime);
+      if (start == null || end == null) return false;
+      return (start.hour * 60 + start.minute) < (end.hour * 60 + end.minute);
+    });
   }
 
   static String timeKey(TimeOfDay time) {
@@ -262,27 +199,21 @@ class AppointmentCubit extends Cubit<AppointmentState> {
       return [];
     }
 
-    final startParts = schedule.startTime.split(':');
-    final endParts = schedule.endTime.split(':');
+    final startTime = _parseTimeString(schedule.startTime);
+    final endTime = _parseTimeString(schedule.endTime);
 
-    if (startParts.length != 2 || endParts.length != 2) {
+    if (startTime == null || endTime == null) {
       return [];
     }
 
-    final startHour = int.tryParse(startParts[0]);
-    final startMinute = int.tryParse(startParts[1]);
-    final endHour = int.tryParse(endParts[0]);
-    final endMinute = int.tryParse(endParts[1]);
+    final startMinutes = startTime.hour * 60 + startTime.minute;
+    final endMinutes = endTime.hour * 60 + endTime.minute;
 
-    if (startHour == null ||
-        startMinute == null ||
-        endHour == null ||
-        endMinute == null) {
+    if (startMinutes >= endMinutes) {
       return [];
     }
 
-    int currentMinutes = startHour * 60 + startMinute;
-    final endMinutes = endHour * 60 + endMinute;
+    int currentMinutes = startMinutes;
     final slots = <TimeOfDay>[];
 
     while (currentMinutes < endMinutes) {

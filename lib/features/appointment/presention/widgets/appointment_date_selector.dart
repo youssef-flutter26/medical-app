@@ -11,11 +11,13 @@ class AppointmentDateSelector extends StatelessWidget {
     required this.selectedDate,
     required this.isDateSelectable,
     required this.onDateSelected,
+    this.hasDoctorAvailability = true,
   });
 
   final DateTime selectedDate;
   final bool Function(DateTime date) isDateSelectable;
   final ValueChanged<DateTime> onDateSelected;
+  final bool hasDoctorAvailability;
 
   static const List<String> _months = [
     'January',
@@ -125,6 +127,41 @@ class AppointmentDateSelector extends StatelessWidget {
             color: AppColors.gray700,
           ),
         ),
+        if (!hasDoctorAvailability) ...[
+          SizedBox(height: 8.h),
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF7ED),
+              borderRadius: BorderRadius.circular(12.r),
+              border: Border.all(
+                color: const Color(0xFFFFEDD5),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.event_busy_rounded,
+                  size: 18.r,
+                  color: const Color(0xFFD97706),
+                ),
+                SizedBox(width: 8.w),
+                Expanded(
+                  child: Text(
+                    LocaleKeys.doctorNoAvailability.tr(),
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFFB45309),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
         SizedBox(height: 8.h),
         Container(
           width: double.infinity,

@@ -74,6 +74,7 @@ class _FakeBookingAssetLoader extends AssetLoader {
       "appointmentTime": "Appointment Time",
       "readyToConfirm": "Ready to confirm",
       "pleaseSelectSlotToProceed": "Please select a time slot",
+      "doctorNoAvailability": "This doctor has no available appointments currently.",
     };
   }
 }

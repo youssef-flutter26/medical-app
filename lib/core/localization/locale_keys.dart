@@ -285,6 +285,7 @@ abstract class LocaleKeys {
   static const appointmentTime = 'appointmentTime';
   static const readyToConfirm = 'readyToConfirm';
   static const pleaseSelectSlotToProceed = 'pleaseSelectSlotToProceed';
+  static const doctorNoAvailability = 'doctorNoAvailability';
 }
 
 

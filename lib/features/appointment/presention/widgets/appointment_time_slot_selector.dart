@@ -14,6 +14,7 @@ class AppointmentTimeSlotSelector extends StatelessWidget {
     required this.selectedTime,
     required this.isLoadingSlots,
     required this.onTimeSelected,
+    this.hasDoctorAvailability = true,
   });
 
   final DateTime selectedDate;
@@ -22,6 +23,7 @@ class AppointmentTimeSlotSelector extends StatelessWidget {
   final TimeOfDay? selectedTime;
   final bool isLoadingSlots;
   final ValueChanged<TimeOfDay> onTimeSelected;
+  final bool hasDoctorAvailability;
 
   static String _timeKey(TimeOfDay time) {
     return '${time.hour.toString().padLeft(2, '0')}:'
@@ -164,7 +166,9 @@ class AppointmentTimeSlotSelector extends StatelessWidget {
               borderRadius: BorderRadius.circular(12.r),
             ),
             child: Text(
-              LocaleKeys.noAvailableSlots.tr(),
+              hasDoctorAvailability
+                  ? LocaleKeys.noAvailableSlots.tr()
+                  : LocaleKeys.doctorNoAvailability.tr(),
               textAlign: TextAlign.center,
               style: AppTextStyles.inter12W400.copyWith(
                 color: AppColors.gray500,
