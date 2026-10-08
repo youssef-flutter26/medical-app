@@ -176,6 +176,7 @@ class _BookAppointmentView extends StatelessWidget {
                         doctor: state.doctor,
                         selectedDate: state.selectedDate,
                         selectedTime: state.selectedTime,
+                        hasDoctorAvailability: cubit.hasDoctorAvailability,
                       ),
                       SizedBox(height: 20.h),
                     ],

@@ -12,11 +12,13 @@ class BookingSummary extends StatelessWidget {
     required this.doctor,
     required this.selectedDate,
     required this.selectedTime,
+    this.hasDoctorAvailability = true,
   });
 
   final DoctorEntity doctor;
   final DateTime selectedDate;
   final TimeOfDay? selectedTime;
+  final bool hasDoctorAvailability;
 
   static const List<String> _weekdays = [
     'Monday',
@@ -151,12 +153,16 @@ class BookingSummary extends StatelessWidget {
               SizedBox(width: 8.w),
               Expanded(
                 child: Text(
-                  _formatDate(selectedDate),
+                  hasDoctorAvailability
+                      ? _formatDate(selectedDate)
+                      : '-- / -- / ----',
                   textAlign: TextAlign.end,
                   style: AppTextStyles.inter12W400.copyWith(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.darkTeal,
+                    color: hasDoctorAvailability
+                        ? AppColors.darkTeal
+                        : AppColors.gray400,
                   ),
                 ),
               ),
