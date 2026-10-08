@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,11 +9,14 @@ import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_category_page.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
 import 'package:medical_app/features/auth/data/models/user_model.dart';
+import 'package:medical_app/features/home/data/datasources/home_remote_data_source_impl.dart';
+import 'package:medical_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:medical_app/features/home/presentation/widgets/category_app_bar.dart';
 import 'package:medical_app/features/home/presentation/widgets/category_empty_state.dart';
 import 'package:medical_app/features/home/presentation/widgets/category_list_view.dart';
 import 'package:medical_app/features/home/presentation/widgets/category_search_field.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
+import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
 import 'package:medical_app/features/home/domain/usecases/get_categories_stream.dart';
 
 class CategoryPage extends StatefulWidget {
@@ -60,6 +64,12 @@ class _CategoryPageState extends State<CategoryPage> {
       _stream = widget.getCategoriesStream!();
     } else if (getIt.isRegistered<GetCategoriesStream>()) {
       _stream = getIt<GetCategoriesStream>()();
+    } else if (getIt.isRegistered<HomeRepository>()) {
+      _stream = getIt<HomeRepository>().getCategoriesStream();
+    } else if (getIt.isRegistered<FirebaseFirestore>()) {
+      _stream = HomeRepositoryImpl(
+        HomeRemoteDataSourceImpl(getIt<FirebaseFirestore>()),
+      ).getCategoriesStream();
     } else {
       _stream = Stream.value(const <CategoryEntity>[]);
     }

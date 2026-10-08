@@ -14,6 +14,7 @@ import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
 import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
+import 'package:medical_app/features/home/domain/usecases/get_categories_stream.dart';
 import 'package:medical_app/features/home/presentation/pages/all_medical_centers_page.dart';
 import 'package:medical_app/features/home/presentation/pages/category_doctors_page.dart';
 import 'package:medical_app/features/home/presentation/pages/category_page.dart';
@@ -133,8 +134,18 @@ class AppRouter {
         );
 
       case Routes.category:
+        Stream<List<CategoryEntity>>? categoriesStream;
+        GetCategoriesStream? getCategoriesStream;
+        if (settings.arguments is Stream<List<CategoryEntity>>) {
+          categoriesStream = settings.arguments as Stream<List<CategoryEntity>>;
+        } else if (settings.arguments is GetCategoriesStream) {
+          getCategoriesStream = settings.arguments as GetCategoriesStream;
+        }
         return MaterialPageRoute(
-          builder: (_) => const CategoryPage(),
+          builder: (_) => CategoryPage(
+            categoriesStream: categoriesStream,
+            getCategoriesStream: getCategoriesStream,
+          ),
           settings: settings,
         );
 

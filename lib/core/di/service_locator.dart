@@ -50,6 +50,7 @@ import 'package:medical_app/features/home/domain/repositories/doctor_repository.
 import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
 import 'package:medical_app/features/home/domain/usecases/add_doctor.dart';
 import 'package:medical_app/features/home/domain/usecases/add_medical_center.dart';
+import 'package:medical_app/features/home/domain/usecases/get_categories_stream.dart';
 import 'package:medical_app/features/home/domain/usecases/get_doctors_by_category_stream.dart';
 import 'package:medical_app/features/home/domain/usecases/update_medical_center.dart';
 // ==========================================
@@ -251,6 +252,13 @@ void setupServiceLocator() {
   getIt.registerLazySingleton<UpdateMedicalCenter>(
         () =>
         UpdateMedicalCenter(
+          getIt<HomeRepository>(),
+        ),
+  );
+
+  getIt.registerLazySingleton<GetCategoriesStream>(
+        () =>
+        GetCategoriesStream(
           getIt<HomeRepository>(),
         ),
   );

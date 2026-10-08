@@ -12,6 +12,12 @@ import 'package:medical_app/features/home/presentation/widgets/category_list_vie
 import 'package:medical_app/features/home/presentation/widgets/category_search_field.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
 
+import 'package:medical_app/core/di/service_locator.dart';
+import 'package:medical_app/core/error/result.dart';
+import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
+import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
+import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
+import 'package:medical_app/features/home/domain/usecases/get_categories_stream.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeAssetLoader extends AssetLoader {
@@ -289,5 +295,78 @@ void main() {
         findsNothing,
       );
     });
+
+    testWidgets('resolves and renders categories from getIt when constructed with no arguments', (
+      tester,
+    ) async {
+      await getIt.reset();
+      getIt.registerLazySingleton<GetCategoriesStream>(
+        () => GetCategoriesStream(_FakeTestHomeRepository(Stream.value(_testCategories))),
+      );
+      addTearDown(() async => await getIt.reset());
+
+      await tester.pumpWidget(
+        EasyLocalization(
+          supportedLocales: const [Locale('en')],
+          path: 'assets/translations',
+          fallbackLocale: const Locale('en'),
+          startLocale: const Locale('en'),
+          saveLocale: false,
+          assetLoader: const _FakeAssetLoader(),
+          child: Builder(
+            builder: (context) {
+              return ScreenUtilInit(
+                designSize: const Size(375, 812),
+                minTextAdapt: true,
+                builder: (context, child) => MaterialApp(
+                  locale: context.locale,
+                  supportedLocales: context.supportedLocales,
+                  localizationsDelegates: context.localizationDelegates,
+                  home: const CategoryPage(isAdmin: false),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(CategoryCard), findsNWidgets(8));
+      expect(find.text('Dentistry'), findsOneWidget);
+      expect(find.text('Cardiology'), findsOneWidget);
+    });
   });
+}
+
+class _FakeTestHomeRepository implements HomeRepository {
+  final Stream<List<CategoryEntity>> _categoriesStream;
+
+  _FakeTestHomeRepository(this._categoriesStream);
+
+  @override
+  Stream<List<CategoryEntity>> getCategoriesStream() => _categoriesStream;
+
+  @override
+  Stream<List<BannerEntity>> getBannersStream() => const Stream.empty();
+
+  @override
+  Stream<List<MedicalCenterEntity>> getMedicalCentersStream() => const Stream.empty();
+
+  @override
+  Future<Result<void>> addBanner(BannerEntity banner) async => const SuccessAPI(null);
+
+  @override
+  Future<Result<void>> updateBanner(BannerEntity banner) async => const SuccessAPI(null);
+
+  @override
+  Future<Result<void>> addMedicalCenter(MedicalCenterEntity center) async => const SuccessAPI(null);
+
+  @override
+  Future<Result<void>> updateMedicalCenter(MedicalCenterEntity center) async => const SuccessAPI(null);
+
+  @override
+  Future<Result<void>> addCategory(CategoryEntity category) async => const SuccessAPI(null);
+
+  @override
+  Future<Result<void>> updateCategory(CategoryEntity category) async => const SuccessAPI(null);
 }
