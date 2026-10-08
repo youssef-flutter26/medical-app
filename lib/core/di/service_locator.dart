@@ -2,17 +2,27 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
-
 import 'package:medical_app/core/routing/app_router.dart';
+// ==========================================
+// APPOINTMENT
+// ==========================================
+
+import 'package:medical_app/features/appointment/data/datasources/appointment_remote_data_source.dart';
+import 'package:medical_app/features/appointment/data/datasources/appointment_remote_data_source_impl.dart';
+import 'package:medical_app/features/appointment/data/repositories/appointment_repository_impl.dart';
+import 'package:medical_app/features/appointment/domain/repositories/appointment_repository.dart';
+import 'package:medical_app/features/appointment/domain/usecases/book_appointment.dart';
+import 'package:medical_app/features/appointment/domain/usecases/get_booked_slots.dart';
+// ==========================================
+// AUTH
+// ==========================================
 
 import 'package:medical_app/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:medical_app/features/auth/data/datasources/auth_remote_data_source_impl.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source_impl.dart';
-
 import 'package:medical_app/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:medical_app/features/auth/domain/repositories/auth_repository.dart';
-
 import 'package:medical_app/features/auth/domain/usecases/check_email_verified.dart';
 import 'package:medical_app/features/auth/domain/usecases/check_name_availability.dart';
 import 'package:medical_app/features/auth/domain/usecases/forgot_password.dart';
@@ -21,38 +31,50 @@ import 'package:medical_app/features/auth/domain/usecases/login_with_google.dart
 import 'package:medical_app/features/auth/domain/usecases/save_user_profile.dart';
 import 'package:medical_app/features/auth/domain/usecases/send_email_verification.dart';
 import 'package:medical_app/features/auth/domain/usecases/signup.dart';
-
 import 'package:medical_app/features/auth/presentation/cubit/auth_cubit.dart';
+// ==========================================
+// DOCTOR
+// ==========================================
+
+import 'package:medical_app/features/home/data/datasources/doctor_remote_data_source.dart';
+import 'package:medical_app/features/home/data/datasources/doctor_remote_data_source_impl.dart';
+// ==========================================
+// HOME
+// ==========================================
 
 import 'package:medical_app/features/home/data/datasources/home_remote_data_source.dart';
 import 'package:medical_app/features/home/data/datasources/home_remote_data_source_impl.dart';
-
+import 'package:medical_app/features/home/data/repositories/doctor_repository_impl.dart';
 import 'package:medical_app/features/home/data/repositories/home_repository_impl.dart';
+import 'package:medical_app/features/home/domain/repositories/doctor_repository.dart';
 import 'package:medical_app/features/home/domain/repositories/home_repository.dart';
-
+import 'package:medical_app/features/home/domain/usecases/add_doctor.dart';
 import 'package:medical_app/features/home/domain/usecases/add_medical_center.dart';
-
+import 'package:medical_app/features/home/domain/usecases/get_doctors_by_category_stream.dart';
+import 'package:medical_app/features/home/domain/usecases/update_medical_center.dart';
+// ==========================================
+// LOCATION
+// ==========================================
 
 import 'package:medical_app/features/location/data/datasources/location_remote_data_source.dart';
 import 'package:medical_app/features/location/data/datasources/location_remote_data_source_impl.dart';
-
 import 'package:medical_app/features/location/data/repositories/location_repository_impl.dart';
 import 'package:medical_app/features/location/domain/repositories/location_repository.dart';
-
 import 'package:medical_app/features/location/domain/usecases/get_current_location.dart';
 import 'package:medical_app/features/location/domain/usecases/search_nearby_places.dart';
-
 import 'package:medical_app/features/location/presentation/cubit/location_cubit.dart';
+// ==========================================
+// REVIEWS
+// ==========================================
 
-
-import '../../features/home/data/datasources/doctor_remote_data_source.dart';
-import '../../features/home/data/datasources/doctor_remote_data_source_impl.dart';
-import '../../features/home/data/datasources/home_remote_data_source.dart';
-import '../../features/home/data/datasources/home_remote_data_source_impl.dart';
-import '../../features/home/data/repositories/doctor_repository_impl.dart';
-import '../../features/home/domain/repositories/doctor_repository.dart';
-import '../../features/home/domain/usecases/add_doctor.dart';
-import '../../features/home/domain/usecases/get_doctors_by_category_stream.dart';
+import 'package:medical_app/features/reviews/data/datasources/review_remote_data_source.dart';
+import 'package:medical_app/features/reviews/data/datasources/review_remote_data_source_impl.dart';
+import 'package:medical_app/features/reviews/data/repositories/review_repository_impl.dart';
+import 'package:medical_app/features/reviews/domain/repositories/review_repository.dart';
+import 'package:medical_app/features/reviews/domain/usecases/get_my_review.dart';
+import 'package:medical_app/features/reviews/domain/usecases/get_reviews.dart';
+import 'package:medical_app/features/reviews/domain/usecases/submit_review.dart';
+import 'package:medical_app/features/reviews/presentation/cubit/review_cubit.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -226,6 +248,13 @@ void setupServiceLocator() {
         ),
   );
 
+  getIt.registerLazySingleton<UpdateMedicalCenter>(
+        () =>
+        UpdateMedicalCenter(
+          getIt<HomeRepository>(),
+        ),
+  );
+
   // ==========================================
   // DOCTOR
   // ==========================================
@@ -268,6 +297,50 @@ void setupServiceLocator() {
         GetDoctorsByCategoryStream(
           getIt<DoctorRepository>(),
     ),
+  );
+
+  // ==========================================
+  // APPOINTMENT
+  // ==========================================
+
+  // ------------------------------------------
+  // Data Source
+  // ------------------------------------------
+
+  getIt.registerLazySingleton<AppointmentRemoteDataSource>(
+        () =>
+        AppointmentRemoteDataSourceImpl(
+          getIt<FirebaseFirestore>(),
+        ),
+  );
+
+  // ------------------------------------------
+  // Repository
+  // ------------------------------------------
+
+  getIt.registerLazySingleton<AppointmentRepository>(
+        () =>
+        AppointmentRepositoryImpl(
+          getIt<AppointmentRemoteDataSource>(),
+        ),
+  );
+
+  // ------------------------------------------
+  // Use Cases
+  // ------------------------------------------
+
+  getIt.registerLazySingleton<GetBookedSlots>(
+        () =>
+        GetBookedSlots(
+          getIt<AppointmentRepository>(),
+        ),
+  );
+
+  getIt.registerLazySingleton<BookAppointment>(
+        () =>
+        BookAppointment(
+          getIt<AppointmentRepository>(),
+        ),
   );
 
   // ==========================================
@@ -323,6 +396,70 @@ void setupServiceLocator() {
         LocationCubit(
           getCurrentLocation: getIt<GetCurrentLocation>(),
           searchNearbyPlaces: getIt<SearchNearbyPlaces>(),
+        ),
+  );
+
+  // ==========================================
+  // REVIEWS
+  // ==========================================
+
+  // ------------------------------------------
+  // Data Source
+  // ------------------------------------------
+
+  getIt.registerLazySingleton<ReviewRemoteDataSource>(
+        () =>
+        ReviewRemoteDataSourceImpl(
+          getIt<FirebaseFirestore>(),
+        ),
+  );
+
+  // ------------------------------------------
+  // Repository
+  // ------------------------------------------
+
+  getIt.registerLazySingleton<ReviewRepository>(
+        () =>
+        ReviewRepositoryImpl(
+          getIt<ReviewRemoteDataSource>(),
+        ),
+  );
+
+  // ------------------------------------------
+  // Use Cases
+  // ------------------------------------------
+
+  getIt.registerLazySingleton<GetReviews>(
+        () =>
+        GetReviews(
+          getIt<ReviewRepository>(),
+        ),
+  );
+
+  getIt.registerLazySingleton<GetMyReview>(
+        () =>
+        GetMyReview(
+          getIt<ReviewRepository>(),
+        ),
+  );
+
+  getIt.registerLazySingleton<SubmitReview>(
+        () =>
+        SubmitReview(
+          getIt<ReviewRepository>(),
+        ),
+  );
+
+  // ------------------------------------------
+  // Review Cubit
+  // ------------------------------------------
+
+  getIt.registerFactory<ReviewCubit>(
+        () =>
+        ReviewCubit(
+          getDoctorReviews: getIt<GetReviews>(),
+          getMyDoctorReview: getIt<GetMyReview>(),
+          submitDoctorReview: getIt<SubmitReview>(),
         ),
   );
 }

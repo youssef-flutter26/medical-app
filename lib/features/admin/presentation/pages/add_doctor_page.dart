@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -15,19 +16,15 @@ import 'package:medical_app/features/admin/presentation/widgets/add_doctor/docto
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_header_section.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_image_field.dart';
 import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_name_field.dart';
-import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_rating_field.dart';
-import 'package:medical_app/features/admin/presentation/widgets/add_doctor/doctor_reviews_field.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
 import 'package:medical_app/features/home/data/datasources/home_remote_data_source_impl.dart';
 import 'package:medical_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
+import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
+import 'package:medical_app/features/home/domain/repositories/doctor_repository.dart';
+import 'package:medical_app/features/home/domain/usecases/add_doctor.dart';
 import 'package:medical_app/features/home/domain/usecases/get_categories_stream.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-import '../../../home/domain/entities/doctor_entity.dart';
-import '../../../home/domain/repositories/doctor_repository.dart';
-import '../../../home/domain/usecases/add_doctor.dart';
-import '../../../home/domain/usecases/update_doctor.dart';
+import 'package:medical_app/features/home/domain/usecases/update_doctor.dart';
 
 class AddDoctorPage extends StatefulWidget {
   final DoctorEntity? initialDoctor;
@@ -63,8 +60,6 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
 
   late final TextEditingController _nameController;
   late final TextEditingController _addressController;
-  late final TextEditingController _ratingController;
-  late final TextEditingController _reviewsCountController;
   late final TextEditingController _imageNameController;
   late final TextEditingController _latitudeController;
   late final TextEditingController _longitudeController;
@@ -95,6 +90,8 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
   AutovalidateMode _autoValidateMode =
       AutovalidateMode.disabled;
 
+  late List<DoctorSchedule> _weeklySchedule;
+
   bool get isEditMode =>
       widget.initialDoctor != null;
 
@@ -115,21 +112,6 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
     _addressController = TextEditingController(
       text: initial?.address ?? '',
     );
-
-    _ratingController = TextEditingController(
-      text: initial != null
-          ? (initial.rating % 1 == 0
-          ? initial.rating.toInt().toString()
-          : initial.rating.toString())
-          : '',
-    );
-
-    _reviewsCountController =
-        TextEditingController(
-          text: initial != null
-              ? initial.reviewsCount.toString()
-              : '',
-        );
 
     _latitudeController =
         TextEditingController(
@@ -162,6 +144,12 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
           text: initialImageName,
         );
 
+    _weeklySchedule = List<DoctorSchedule>.from(
+      initial != null && initial.schedule.isNotEmpty
+          ? initial.schedule
+          : DoctorSchedule.defaultWeek(),
+    );
+
     if (widget.initialCategories != null) {
       _categories = widget.initialCategories;
       _isCategoriesLoading = false;
@@ -181,19 +169,11 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
                 ? getIt<AddDoctor>()
                 : null);
 
-    /*
-     * Category loading:
-     *
-     * 1. Use stream supplied to widget.
-     * 2. Use GetCategoriesStream from GetIt.
-     * 3. Build GetCategoriesStream directly from Firebase.
-     * 4. Never fall back to Stream.empty(), because that
-     *    leaves the UI loading forever.
-     */
     if (widget.categoriesStream != null) {
       _categoriesStream =
       widget.categoriesStream!;
-    } else if (widget.getCategoriesStream != null) {
+    } else if (widget.getCategoriesStream !=
+        null) {
       _categoriesStream =
           widget.getCategoriesStream!();
     } else if (
@@ -202,7 +182,8 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
           getIt<GetCategoriesStream>()();
     } else if (
     getIt.isRegistered<FirebaseFirestore>()) {
-      final repository = HomeRepositoryImpl(
+      final repository =
+      HomeRepositoryImpl(
         HomeRemoteDataSourceImpl(
           getIt<FirebaseFirestore>(),
         ),
@@ -233,14 +214,6 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
                       categories,
                       initial,
                     );
-              } else if (
-              _selectedCategory != null &&
-                  !categories.any(
-                        (category) =>
-                    category.id ==
-                        _selectedCategory!.id,
-                  )) {
-                _selectedCategory = null;
               }
             });
           },
@@ -249,7 +222,8 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
 
             setState(() {
               _isCategoriesLoading = false;
-              _categoriesError = error.toString();
+              _categoriesError =
+                  error.toString();
             });
           },
         );
@@ -263,17 +237,22 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
         widget.userRemoteDataSource ??
             (getIt.isRegistered<
                 UserRemoteDataSource>()
-                ? getIt<UserRemoteDataSource>()
+                ? getIt<
+                UserRemoteDataSource>()
                 : null);
   }
 
   CategoryEntity? _findMatchingCategory(List<CategoryEntity> categories,
       DoctorEntity doctor,) {
     final categoryName =
-    doctor.categoryName.trim().toLowerCase();
+    doctor.categoryName
+        .trim()
+        .toLowerCase();
 
     final specialty =
-    doctor.specialty.trim().toLowerCase();
+    doctor.specialty
+        .trim()
+        .toLowerCase();
 
     for (final category in categories) {
       if (category.id == doctor.categoryId) {
@@ -281,7 +260,9 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
       }
 
       final name =
-      category.name.trim().toLowerCase();
+      category.name
+          .trim()
+          .toLowerCase();
 
       if (name == categoryName ||
           name == specialty) {
@@ -298,8 +279,6 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
 
     _nameController.dispose();
     _addressController.dispose();
-    _ratingController.dispose();
-    _reviewsCountController.dispose();
     _imageNameController.dispose();
     _latitudeController.dispose();
     _longitudeController.dispose();
@@ -312,7 +291,8 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
       return true;
     }
 
-    final currentUser = _auth?.currentUser;
+    final currentUser =
+        _auth?.currentUser;
 
     if (currentUser == null) {
       return false;
@@ -324,7 +304,7 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
 
     try {
       final userModel =
-      await _userRemoteDataSource.getUser(
+      await _userRemoteDataSource!.getUser(
         currentUser.uid,
       );
 
@@ -338,32 +318,461 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
     }
   }
 
+  String _dayTitle(String day) {
+    switch (day) {
+      case 'sunday':
+        return 'Sunday';
+      case 'monday':
+        return 'Monday';
+      case 'tuesday':
+        return 'Tuesday';
+      case 'wednesday':
+        return 'Wednesday';
+      case 'thursday':
+        return 'Thursday';
+      case 'friday':
+        return 'Friday';
+      case 'saturday':
+        return 'Saturday';
+      default:
+        return day;
+    }
+  }
+
+  String _formatTime(TimeOfDay time) {
+    final hour =
+    time.hourOfPeriod == 0
+        ? 12
+        : time.hourOfPeriod;
+
+    final minute =
+    time.minute
+        .toString()
+        .padLeft(2, '0');
+
+    final period =
+    time.period == DayPeriod.am
+        ? 'AM'
+        : 'PM';
+
+    return '$hour:$minute $period';
+  }
+
+  TimeOfDay _parseTime(String value) {
+    final parts = value.split(':');
+
+    final hour =
+        int.tryParse(parts.first) ?? 9;
+
+    final minute = parts.length > 1
+        ? int.tryParse(parts[1]) ?? 0
+        : 0;
+
+    return TimeOfDay(
+      hour: hour,
+      minute: minute,
+    );
+  }
+
+  bool _isHalfHour(TimeOfDay time) {
+    return time.minute == 0 ||
+        time.minute == 30;
+  }
+
+  int _minutes(TimeOfDay time) {
+    return time.hour * 60 + time.minute;
+  }
+
+  Future<void> _pickStartTime(int index,) async {
+    final current =
+    _parseTime(
+      _weeklySchedule[index].startTime,
+    );
+
+    final picked =
+    await showTimePicker(
+      context: context,
+      initialTime: current,
+    );
+
+    if (picked == null) return;
+
+    if (!_isHalfHour(picked)) {
+      _showMessage(
+        'Please choose a time ending with :00 or :30.',
+      );
+      return;
+    }
+
+    final end = _parseTime(
+      _weeklySchedule[index].endTime,
+    );
+
+    if (_minutes(picked) >= _minutes(end)) {
+      _showMessage(
+        'Start time must be before end time.',
+      );
+      return;
+    }
+
+    setState(() {
+      _weeklySchedule[index] =
+          _weeklySchedule[index].copyWith(
+            startTime:
+            '${picked.hour.toString().padLeft(2, '0')}:'
+                '${picked.minute.toString().padLeft(2, '0')}',
+          );
+    });
+  }
+
+  Future<void> _pickEndTime(int index,) async {
+    final current =
+    _parseTime(
+      _weeklySchedule[index].endTime,
+    );
+
+    final picked =
+    await showTimePicker(
+      context: context,
+      initialTime: current,
+    );
+
+    if (picked == null) return;
+
+    if (!_isHalfHour(picked)) {
+      _showMessage(
+        'Please choose a time ending with :00 or :30.',
+      );
+      return;
+    }
+
+    final start = _parseTime(
+      _weeklySchedule[index].startTime,
+    );
+
+    if (_minutes(picked) <= _minutes(start)) {
+      _showMessage(
+        'End time must be after start time.',
+      );
+      return;
+    }
+
+    setState(() {
+      _weeklySchedule[index] =
+          _weeklySchedule[index].copyWith(
+            endTime:
+            '${picked.hour.toString().padLeft(2, '0')}:'
+                '${picked.minute.toString().padLeft(2, '0')}',
+          );
+    });
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.amber,
+      ),
+    );
+  }
+
+  Widget _buildScheduleSection() {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: AppColors.gray100,
+        borderRadius:
+        BorderRadius.circular(16.r),
+        border: Border.all(
+          color: AppColors.gray600,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment:
+        CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Appointment Schedule',
+            style:
+            AppTextStyles.inter16W500.copyWith(
+              fontWeight: FontWeight.w700,
+              color: AppColors.gray700,
+            ),
+          ),
+          SizedBox(height: 4.h),
+          Text(
+            'Choose the available days and working hours. Appointments are generated every 30 minutes.',
+            style:
+            AppTextStyles.inter12W400.copyWith(
+              color: AppColors.gray500,
+              height: 1.4,
+            ),
+          ),
+          SizedBox(height: 16.h),
+          ...List.generate(
+            _weeklySchedule.length,
+                (index) {
+              final item =
+              _weeklySchedule[index];
+
+              return Padding(
+                padding:
+                EdgeInsets.only(bottom: 12.h),
+                child: Container(
+                  padding:
+                  EdgeInsets.all(12.w),
+                  decoration:
+                  BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius:
+                    BorderRadius.circular(
+                      12.r,
+                    ),
+                    border: Border.all(
+                      color:
+                      AppColors.gray100,
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              _dayTitle(
+                                item.day,
+                              ),
+                              style: AppTextStyles
+                                  .inter14W500
+                                  .copyWith(
+                                fontWeight:
+                                FontWeight.w600,
+                                color:
+                                AppColors.gray700,
+                              ),
+                            ),
+                          ),
+                          Switch(
+                            value:
+                            item.enabled,
+                            activeThumbColor:
+                            AppColors.darkTeal,
+                            onChanged:
+                                (value) {
+                              setState(() {
+                                _weeklySchedule[
+                                index] =
+                                    item.copyWith(
+                                      enabled:
+                                      value,
+                                    );
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                      if (item.enabled)
+                        Padding(
+                          padding:
+                          EdgeInsets.only(
+                            top: 8.h,
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child:
+                                _buildTimeButton(
+                                  label:
+                                  'Start',
+                                  value:
+                                  _formatTime(
+                                    _parseTime(
+                                      item.startTime,
+                                    ),
+                                  ),
+                                  onTap: () =>
+                                      _pickStartTime(
+                                        index,
+                                      ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 12.w,
+                              ),
+                              Expanded(
+                                child:
+                                _buildTimeButton(
+                                  label:
+                                  'End',
+                                  value:
+                                  _formatTime(
+                                    _parseTime(
+                                      item.endTime,
+                                    ),
+                                  ),
+                                  onTap: () =>
+                                      _pickEndTime(
+                                        index,
+                                      ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimeButton({
+    required String label,
+    required String value,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius:
+      BorderRadius.circular(10.r),
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: 12.w,
+          vertical: 11.h,
+        ),
+        decoration: BoxDecoration(
+          color: AppColors.gray500,
+          borderRadius:
+          BorderRadius.circular(10.r),
+          border: Border.all(
+            color: AppColors.gray500,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment:
+          CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style:
+              AppTextStyles.inter12W400.copyWith(
+                color: AppColors.gray500,
+              ),
+            ),
+            SizedBox(height: 3.h),
+            Row(
+              children: [
+                Icon(
+                  Icons.access_time_rounded,
+                  size: 17.r,
+                  color: AppColors.darkTeal,
+                ),
+                SizedBox(width: 5.w),
+                Text(
+                  value,
+                  style:
+                  AppTextStyles.inter14W500.copyWith(
+                    color:
+                    AppColors.gray700,
+                    fontWeight:
+                    FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  bool _validateSchedule() {
+    final enabledDays =
+    _weeklySchedule
+        .where((item) => item.enabled)
+        .toList();
+
+    if (enabledDays.isEmpty) {
+      _showMessage(
+        'Please select at least one available day.',
+      );
+      return false;
+    }
+
+    for (final item in enabledDays) {
+      final start =
+      _parseTime(item.startTime);
+
+      final end =
+      _parseTime(item.endTime);
+
+      if (!_isHalfHour(start) ||
+          !_isHalfHour(end)) {
+        _showMessage(
+          'All appointment times must be on :00 or :30.',
+        );
+        return false;
+      }
+
+      if (_minutes(start) >=
+          _minutes(end)) {
+        _showMessage(
+          '${_dayTitle(item.day)}: start time must be before end time.',
+        );
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  String _buildAvailableTimeSummary() {
+    final enabled =
+    _weeklySchedule
+        .where((item) => item.enabled)
+        .toList();
+
+    if (enabled.isEmpty) {
+      return 'No available schedule';
+    }
+
+    if (enabled.length == 1) {
+      final item = enabled.first;
+
+      return '${_dayTitle(item.day)}: '
+          '${_formatTime(_parseTime(item.startTime))} - '
+          '${_formatTime(_parseTime(item.endTime))}';
+    }
+
+    final first = enabled.first;
+    final last = enabled.last;
+
+    return '${_dayTitle(first.day)} - '
+        '${_dayTitle(last.day)}: '
+        '${_formatTime(_parseTime(first.startTime))} - '
+        '${_formatTime(_parseTime(first.endTime))}';
+  }
+
   Future<void> _saveDoctor() async {
     if (_isLoading) return;
 
     if (_isCategoriesLoading) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Please wait until categories are loaded.',
-          ),
-          backgroundColor: AppColors.amber,
-        ),
+      _showMessage(
+        'Please wait until categories are loaded.',
       );
-
       return;
     }
 
     if (!_hasCategories) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            LocaleKeys.pleaseAddCategoryFirst.tr(),
-          ),
-          backgroundColor: AppColors.amber,
-        ),
+      _showMessage(
+        LocaleKeys.pleaseAddCategoryFirst.tr(),
       );
-
       return;
     }
 
@@ -372,20 +781,17 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
         _autoValidateMode =
             AutovalidateMode.onUserInteraction;
       });
-
       return;
     }
 
     if (_selectedCategory == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            LocaleKeys.categoryCannotBeEmpty.tr(),
-          ),
-          backgroundColor: AppColors.red,
-        ),
+      _showMessage(
+        LocaleKeys.categoryCannotBeEmpty.tr(),
       );
+      return;
+    }
 
+    if (!_validateSchedule()) {
       return;
     }
 
@@ -403,13 +809,8 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
         _isLoading = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            LocaleKeys.notAuthorizedAdmin.tr(),
-          ),
-          backgroundColor: AppColors.red,
-        ),
+      _showMessage(
+        LocaleKeys.notAuthorizedAdmin.tr(),
       );
 
       return;
@@ -420,7 +821,8 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
 
     final cleanImageName =
     trimmedImage.startsWith(
-        'assets/images/')
+      'assets/images/',
+    )
         ? trimmedImage.substring(
       'assets/images/'.length,
     )
@@ -431,15 +833,6 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
         ? 'assets/images/$cleanImageName'
         : '';
 
-    final rating = double.tryParse(
-      _ratingController.text
-          .trim()
-          .replaceAll(',', '.'),
-    );
-
-    final reviewsCount = int.tryParse(
-      _reviewsCountController.text.trim(),
-    );
 
     final latitude = double.tryParse(
       _latitudeController.text
@@ -453,9 +846,7 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
           .replaceAll(',', '.'),
     );
 
-    if (rating == null ||
-        reviewsCount == null ||
-        latitude == null ||
+    if (latitude == null ||
         longitude == null ||
         latitude < -90 ||
         latitude > 90 ||
@@ -467,35 +858,42 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
         _isLoading = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Please enter valid doctor data.',
-          ),
-        ),
+      _showMessage(
+        'Please enter valid doctor data.',
       );
 
       return;
     }
 
-    final doctor = DoctorEntity(
+    final doctor =
+    DoctorEntity(
       id: widget.initialDoctor?.id,
       name: _nameController.text.trim(),
       specialty: _selectedCategory!.name,
-      categoryId: _selectedCategory!.id ?? '',
-      categoryName: _selectedCategory!.name,
-      address: _addressController.text.trim(),
-      rating: rating,
-      reviewsCount: reviewsCount,
+      categoryId:
+      _selectedCategory!.id ?? '',
+      categoryName:
+      _selectedCategory!.name,
+      address:
+      _addressController.text.trim(),
+      rating: isEditMode
+          ? widget.initialDoctor!.rating
+          : 0.0,
+      reviewsCount: isEditMode
+          ? widget.initialDoctor!.reviewsCount
+          : 0,
       availableTime:
-      widget.initialDoctor?.availableTime ??
-          'Mon - Sat: 09:00 AM - 05:00 PM',
+      _buildAvailableTimeSummary(),
       imagePath: imagePath,
       createdAt:
       widget.initialDoctor?.createdAt ??
           DateTime.now(),
       latitude: latitude,
       longitude: longitude,
+      schedule:
+      List<DoctorSchedule>.from(
+        _weeklySchedule,
+      ),
     );
 
     if (widget.onSubmit != null) {
@@ -507,23 +905,17 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
         _isLoading = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            isEditMode
-                ? LocaleKeys
-                .doctorUpdatedSuccessfully
-                .tr()
-                : LocaleKeys
-                .doctorAddedSuccessfully
-                .tr(),
-          ),
-          backgroundColor: AppColors.lightTeal,
-        ),
+      _showMessage(
+        isEditMode
+            ? LocaleKeys
+            .doctorUpdatedSuccessfully
+            .tr()
+            : LocaleKeys
+            .doctorAddedSuccessfully
+            .tr(),
       );
 
       Navigator.pop(context, doctor);
-
       return;
     }
 
@@ -532,18 +924,19 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
     if (isEditMode) {
       final updateUseCase =
           widget.updateDoctor ??
-              (getIt.isRegistered<UpdateDoctor>()
+              (getIt.isRegistered<
+                  UpdateDoctor>()
                   ? getIt<UpdateDoctor>()
                   : null);
 
       if (updateUseCase != null) {
-        result = await updateUseCase(doctor);
-      } else if (
-      getIt.isRegistered<DoctorRepository>()) {
         result =
-        await getIt<DoctorRepository>().updateDoctor(
-          doctor,
-        );
+        await updateUseCase(doctor);
+      } else if (getIt.isRegistered<
+          DoctorRepository>()) {
+        result =
+        await getIt<DoctorRepository>()
+            .updateDoctor(doctor);
       } else {
         if (!mounted) return;
 
@@ -551,12 +944,8 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
           _isLoading = false;
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Update Doctor service is not available.',
-            ),
-          ),
+        _showMessage(
+          'Update Doctor service is not available.',
         );
 
         return;
@@ -569,13 +958,13 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
                   : null);
 
       if (addUseCase != null) {
-        result = await addUseCase(doctor);
-      } else if (
-      getIt.isRegistered<DoctorRepository>()) {
         result =
-        await getIt<DoctorRepository>().addDoctor(
-          doctor,
-        );
+        await addUseCase(doctor);
+      } else if (getIt.isRegistered<
+          DoctorRepository>()) {
+        result =
+        await getIt<DoctorRepository>()
+            .addDoctor(doctor);
       } else {
         if (!mounted) return;
 
@@ -583,12 +972,8 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
           _isLoading = false;
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Add Doctor service is not available.',
-            ),
-          ),
+        _showMessage(
+          'Add Doctor service is not available.',
         );
 
         return;
@@ -603,7 +988,8 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
 
     switch (result) {
       case SuccessAPI():
-        ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(context)
+            .showSnackBar(
           SnackBar(
             content: Text(
               isEditMode
@@ -614,27 +1000,36 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
                   .doctorAddedSuccessfully
                   .tr(),
             ),
-            backgroundColor: AppColors.lightTeal,
+            backgroundColor:
+            AppColors.lightTeal,
           ),
         );
 
         Navigator.pop(context, doctor);
 
-      case ErrorAPI(:final failure):
+      case ErrorAPI(
+          :final failure,
+      ):
         debugPrint(
           'Failed to '
               '${isEditMode ? 'update' : 'add'} doctor: '
               '${failure.message}',
         );
 
-        ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(context)
+            .showSnackBar(
           SnackBar(
             content: Text(
               isEditMode
-                  ? LocaleKeys.failedToUpdateDoctor.tr()
-                  : LocaleKeys.failedToAddDoctor.tr(),
+                  ? LocaleKeys
+                  .failedToUpdateDoctor
+                  .tr()
+                  : LocaleKeys
+                  .failedToAddDoctor
+                  .tr(),
             ),
-            backgroundColor: AppColors.red,
+            backgroundColor:
+            AppColors.red,
           ),
         );
     }
@@ -660,7 +1055,8 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
           isEditMode
               ? LocaleKeys.editDoctor.tr()
               : LocaleKeys.addDoctor.tr(),
-          style: AppTextStyles.inter16W500,
+          style:
+          AppTextStyles.inter16W500,
         ),
       ),
       body: SafeArea(
@@ -691,7 +1087,8 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
                 SizedBox(height: 20.h),
 
                 DoctorNameField(
-                  controller: _nameController,
+                  controller:
+                  _nameController,
                 ),
 
                 SizedBox(height: 16.h),
@@ -715,7 +1112,8 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
                 SizedBox(height: 16.h),
 
                 DoctorAddressField(
-                  controller: _addressController,
+                  controller:
+                  _addressController,
                 ),
 
                 SizedBox(height: 16.h),
@@ -725,7 +1123,8 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
                   CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: TextFormField(
+                      child:
+                      TextFormField(
                         controller:
                         _latitudeController,
                         keyboardType:
@@ -736,14 +1135,17 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
                         ),
                         decoration:
                         const InputDecoration(
-                          labelText: 'Latitude',
-                          hintText: '30.0444',
+                          labelText:
+                          'Latitude',
+                          hintText:
+                          '30.0444',
                         ),
                       ),
                     ),
                     SizedBox(width: 14.w),
                     Expanded(
-                      child: TextFormField(
+                      child:
+                      TextFormField(
                         controller:
                         _longitudeController,
                         keyboardType:
@@ -754,8 +1156,10 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
                         ),
                         decoration:
                         const InputDecoration(
-                          labelText: 'Longitude',
-                          hintText: '31.2357',
+                          labelText:
+                          'Longitude',
+                          hintText:
+                          '31.2357',
                         ),
                       ),
                     ),
@@ -764,25 +1168,9 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
 
                 SizedBox(height: 16.h),
 
-                Row(
-                  crossAxisAlignment:
-                  CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: DoctorRatingField(
-                        controller:
-                        _ratingController,
-                      ),
-                    ),
-                    SizedBox(width: 14.w),
-                    Expanded(
-                      child: DoctorReviewsField(
-                        controller:
-                        _reviewsCountController,
-                      ),
-                    ),
-                  ],
-                ),
+                _buildScheduleSection(),
+
+                SizedBox(height: 16.h),
 
                 DoctorImageField(
                   controller:
@@ -793,12 +1181,16 @@ class _AddDoctorPageState extends State<AddDoctorPage> {
 
                 AddDoctorButton(
                   text: isEditMode
-                      ? LocaleKeys.updateDoctor.tr()
+                      ? LocaleKeys
+                      .updateDoctor
+                      .tr()
                       : null,
                   isLoading: _isLoading,
-                  isEnabled: _hasCategories &&
+                  isEnabled:
+                  _hasCategories &&
                       !_isCategoriesLoading,
-                  onPressed: _saveDoctor,
+                  onPressed:
+                  _saveDoctor,
                 ),
 
                 SizedBox(height: 16.h),
