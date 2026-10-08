@@ -124,4 +124,18 @@ class DoctorRemoteDataSourceImpl implements DoctorRemoteDataSource {
       },
     );
   }
+
+  @override
+  Future<DoctorModel?> getDoctorById(String doctorId) async {
+    try {
+      final doc = await firestore.collection('doctors').doc(doctorId).get();
+      if (!doc.exists || doc.data() == null) {
+        return null;
+      }
+      return DoctorModel.fromFirestore(doc.data()!, doc.id);
+    } catch (e) {
+      debugPrint('DoctorRemoteDataSourceImpl: Error fetching doctor $doctorId: $e');
+      rethrow;
+    }
+  }
 }

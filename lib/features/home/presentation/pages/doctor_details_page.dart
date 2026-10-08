@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:medical_app/core/di/service_locator.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
+import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
@@ -14,7 +15,6 @@ import 'package:medical_app/features/auth/data/datasources/user_remote_data_sour
 import 'package:medical_app/features/auth/data/models/user_model.dart';
 import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
 
-import '../../../appointment/presention/pages/book_appointment_page.dart';
 import '../../../reviews/domain/entities/review_entity.dart';
 import '../../../reviews/presentation/cubit/review_cubit.dart';
 import '../../../reviews/presentation/cubit/review_state.dart';
@@ -28,6 +28,8 @@ class DoctorDetailsPage extends StatefulWidget {
   final FirebaseAuth? firebaseAuth;
   final UserRemoteDataSource? userRemoteDataSource;
 
+  final ReviewCubit? reviewCubit;
+
   const DoctorDetailsPage({
     super.key,
     this.doctor,
@@ -35,6 +37,7 @@ class DoctorDetailsPage extends StatefulWidget {
     this.isAdmin,
     this.firebaseAuth,
     this.userRemoteDataSource,
+    this.reviewCubit,
   });
 
   @override
@@ -46,6 +49,7 @@ class _DoctorDetailsPageState extends State<DoctorDetailsPage> {
   late bool _isFavorite;
 
   late final ReviewCubit _reviewCubit;
+  bool _shouldCloseReviewCubit = false;
 
   DoctorEntity? _doctor;
   DoctorData? _doctorData;
@@ -59,14 +63,25 @@ class _DoctorDetailsPageState extends State<DoctorDetailsPage> {
 
     _isFavorite = widget.doctorData?.isFavorite ?? false;
 
-    _reviewCubit = getIt<ReviewCubit>();
+    if (widget.reviewCubit != null) {
+      _reviewCubit = widget.reviewCubit!;
+      _shouldCloseReviewCubit = false;
+    } else if (getIt.isRegistered<ReviewCubit>()) {
+      _reviewCubit = getIt<ReviewCubit>();
+      _shouldCloseReviewCubit = true;
+    } else {
+      _reviewCubit = _StubReviewCubit();
+      _shouldCloseReviewCubit = true;
+    }
 
     _loadReviews();
   }
 
   @override
   void dispose() {
-    _reviewCubit.close();
+    if (_shouldCloseReviewCubit) {
+      _reviewCubit.close();
+    }
     super.dispose();
   }
 
@@ -391,49 +406,49 @@ class _DoctorDetailsPageState extends State<DoctorDetailsPage> {
   Widget _buildWorkingHours() {
     final doctor = _doctor;
 
-    if (doctor == null ||
-        doctor.schedule.isEmpty) {
-      return Container(
-        width: double.infinity,
-        padding: EdgeInsets.all(16.w),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius:
-          BorderRadius.circular(16.r),
-          border: Border.all(
-            color: AppColors.gray100,
-          ),
-        ),
-        child: Text(
-          'Working hours are not available.',
-          style:
-          AppTextStyles.inter12W400.copyWith(
-            color: AppColors.gray500,
-          ),
-        ),
-      );
+    if (doctor == null) {
+      return const SizedBox.shrink();
     }
 
     final enabledDays = doctor.schedule
         .where((item) => item.enabled)
         .toList();
 
-    if (enabledDays.isEmpty) {
+    if (doctor.schedule.isEmpty || enabledDays.isEmpty) {
+      if (doctor.availableTime.isNotEmpty) {
+        return Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(16.w),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: AppColors.gray100,
+            ),
+          ),
+          child: Text(
+            doctor.availableTime,
+            style: AppTextStyles.inter12W400.copyWith(
+              color: AppColors.gray700,
+              fontSize: 13.sp,
+            ),
+          ),
+        );
+      }
+
       return Container(
         width: double.infinity,
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius:
-          BorderRadius.circular(16.r),
+          borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
             color: AppColors.gray100,
           ),
         ),
         child: Text(
-          'This doctor has no working hours.',
-          style:
-          AppTextStyles.inter12W400.copyWith(
+          'Working hours are not available.',
+          style: AppTextStyles.inter12W400.copyWith(
             color: AppColors.gray500,
           ),
         ),
@@ -1102,11 +1117,13 @@ class _DoctorDetailsPageState extends State<DoctorDetailsPage> {
                   ReviewState>(
                 builder: (context,
                     reviewState,) {
-                  final rating =
-                      reviewState.averageRating;
+                  final rating = reviewState.reviews.isEmpty
+                      ? (_doctor?.rating ?? reviewState.averageRating)
+                      : reviewState.averageRating;
 
-                  final reviewsCount =
-                      reviewState.reviewsCount;
+                  final reviewsCount = reviewState.reviews.isEmpty
+                      ? (_doctor?.reviewsCount ?? reviewState.reviewsCount)
+                      : reviewState.reviewsCount;
 
                   return SingleChildScrollView(
                     padding:
@@ -1458,14 +1475,10 @@ class _DoctorDetailsPageState extends State<DoctorDetailsPage> {
                       return;
                     }
 
-                    Navigator.push(
+                    Navigator.pushNamed(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            BookAppointmentPage(
-                              doctor: doctor,
-                            ),
-                      ),
+                      Routes.bookAppointment,
+                      arguments: doctor,
                     );
                   },
                   style:
@@ -1504,4 +1517,23 @@ class _DoctorDetailsPageState extends State<DoctorDetailsPage> {
       ),
     );
   }
+}
+
+class _StubReviewCubit extends Cubit<ReviewState> implements ReviewCubit {
+  _StubReviewCubit() : super(const ReviewState());
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+
+  @override
+  Future<void> loadReviews({required String targetId, String targetType = 'doctor'}) async {}
+
+  @override
+  Future<void> loadMyReview({required String targetId, required String userId, String targetType = 'doctor'}) async {}
+
+  @override
+  Future<bool> submitReview({required ReviewEntity review}) async => true;
+
+  @override
+  Future<void> loadDoctorReviews({required String doctorId}) async {}
 }

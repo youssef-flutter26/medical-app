@@ -13,7 +13,7 @@ class DoctorModel extends DoctorEntity {
     required super.rating,
     required super.reviewsCount,
     required super.imagePath,
-    super.availableTime = 'Mon - Sat: 09:00 AM - 05:00 PM',
+    super.availableTime = '',
     super.createdAt,
     super.latitude,
     super.longitude,
@@ -124,10 +124,8 @@ class DoctorModel extends DoctorEntity {
           DoctorSchedule(
             day: day,
             enabled: rawDay['enabled'] == true,
-            startTime:
-            rawDay['startTime']?.toString() ?? '09:00',
-            endTime:
-            rawDay['endTime']?.toString() ?? '17:00',
+            startTime: rawDay['startTime']?.toString() ?? '',
+            endTime: rawDay['endTime']?.toString() ?? '',
           ),
         );
       }
@@ -178,9 +176,7 @@ class DoctorModel extends DoctorEntity {
       json['imagePath']?.toString() ??
           json['imageUrl']?.toString() ??
           '',
-      availableTime:
-      json['availableTime']?.toString() ??
-          'Mon - Sat: 09:00 AM - 05:00 PM',
+      availableTime: json['availableTime']?.toString() ?? '',
       createdAt: parsedCreatedAt,
       latitude: _parseNullableDouble(
         json['latitude'] ?? json['lat'],
@@ -190,52 +186,7 @@ class DoctorModel extends DoctorEntity {
             json['lng'] ??
             json['lon'],
       ),
-      schedule: parsedSchedule.isNotEmpty
-          ? parsedSchedule
-          : const [
-        DoctorSchedule(
-          day: 'sunday',
-          enabled: false,
-          startTime: '09:00',
-          endTime: '17:00',
-        ),
-        DoctorSchedule(
-          day: 'monday',
-          enabled: true,
-          startTime: '09:00',
-          endTime: '17:00',
-        ),
-        DoctorSchedule(
-          day: 'tuesday',
-          enabled: true,
-          startTime: '09:00',
-          endTime: '17:00',
-        ),
-        DoctorSchedule(
-          day: 'wednesday',
-          enabled: true,
-          startTime: '09:00',
-          endTime: '17:00',
-        ),
-        DoctorSchedule(
-          day: 'thursday',
-          enabled: true,
-          startTime: '09:00',
-          endTime: '17:00',
-        ),
-        DoctorSchedule(
-          day: 'friday',
-          enabled: true,
-          startTime: '09:00',
-          endTime: '17:00',
-        ),
-        DoctorSchedule(
-          day: 'saturday',
-          enabled: true,
-          startTime: '09:00',
-          endTime: '17:00',
-        ),
-      ],
+      schedule: parsedSchedule,
     );
   }
 

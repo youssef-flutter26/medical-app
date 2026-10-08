@@ -14,6 +14,9 @@ class BookAppointment {
     required String dateKey,
     required String time,
     required DateTime dateTime,
+    String? doctorSpecialty,
+    String? doctorAddress,
+    String? doctorImagePath,
   }) {
     return _repository.bookAppointment(
       doctorId: doctorId,
@@ -22,6 +25,9 @@ class BookAppointment {
       dateKey: dateKey,
       time: time,
       dateTime: dateTime,
+      doctorSpecialty: doctorSpecialty,
+      doctorAddress: doctorAddress,
+      doctorImagePath: doctorImagePath,
     );
   }
 }

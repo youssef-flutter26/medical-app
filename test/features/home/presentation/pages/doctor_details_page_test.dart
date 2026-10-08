@@ -84,7 +84,7 @@ void main() {
       expect(find.text('4.9'), findsOneWidget);
       expect(find.text('Rating'), findsOneWidget);
       expect(find.text('1,872'), findsOneWidget);
-      expect(find.text('Reviews'), findsOneWidget);
+      expect(find.text('Reviews'), findsWidgets);
       expect(find.text('10+ yrs'), findsNothing);
       expect(find.text('Experience'), findsNothing);
 

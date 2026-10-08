@@ -13,6 +13,9 @@ class AppointmentModel extends AppointmentEntity {
     required super.dateTime,
     required super.status,
     super.createdAt,
+    super.doctorSpecialty,
+    super.doctorAddress,
+    super.doctorImagePath,
   });
 
   factory AppointmentModel.fromFirestore(
@@ -51,11 +54,14 @@ class AppointmentModel extends AppointmentEntity {
       dateTime: dateTime,
       status: json['status']?.toString() ?? 'booked',
       createdAt: createdAt,
+      doctorSpecialty: json['doctorSpecialty']?.toString(),
+      doctorAddress: json['doctorAddress']?.toString(),
+      doctorImagePath: json['doctorImagePath']?.toString(),
     );
   }
 
   Map<String, dynamic> toFirestore() {
-    return {
+    final map = <String, dynamic>{
       'doctorId': doctorId,
       'doctorName': doctorName,
       'patientId': patientId,
@@ -65,6 +71,10 @@ class AppointmentModel extends AppointmentEntity {
       'status': status,
       'createdAt': FieldValue.serverTimestamp(),
     };
+    if (doctorSpecialty != null) map['doctorSpecialty'] = doctorSpecialty;
+    if (doctorAddress != null) map['doctorAddress'] = doctorAddress;
+    if (doctorImagePath != null) map['doctorImagePath'] = doctorImagePath;
+    return map;
   }
 
   factory AppointmentModel.fromEntity(AppointmentEntity entity) {
@@ -78,6 +88,9 @@ class AppointmentModel extends AppointmentEntity {
       dateTime: entity.dateTime,
       status: entity.status,
       createdAt: entity.createdAt,
+      doctorSpecialty: entity.doctorSpecialty,
+      doctorAddress: entity.doctorAddress,
+      doctorImagePath: entity.doctorImagePath,
     );
   }
 }

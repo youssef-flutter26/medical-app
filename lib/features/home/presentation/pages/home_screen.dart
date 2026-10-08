@@ -133,41 +133,48 @@ class _HomeScreenState extends State<HomeScreen>
       return centers;
     }
 
-    final updatedCenters = await Future.wait(
-      centers.map(
-            (center) async {
-          if (center.id == null ||
-              center.id!.trim().isEmpty) {
-            return center;
-          }
+    try {
+      final updatedCenters = await Future.wait(
+        centers.map(
+              (center) async {
+            if (center.id == null ||
+                center.id!.trim().isEmpty) {
+              return center;
+            }
 
-          try {
-            final result = await repository.getReviewSummary(
-              targetId: center.id!,
-              targetType: 'medicalCenter',
-            );
+            try {
+              final result = await repository.getReviewSummary(
+                targetId: center.id!,
+                targetType: 'medicalCenter',
+              );
 
-            if (result is SuccessAPI<ReviewSummary>) {
-              final summary = result.data;
+              if (result is SuccessAPI<ReviewSummary>) {
+                final summary = result.data;
 
-              return center.copyWith(
-                rating: summary.rating,
-                reviewsCount: summary.reviewCount,
+                return center.copyWith(
+                  rating: summary.rating,
+                  reviewsCount: summary.reviewCount,
+                );
+              }
+            } catch (e) {
+              debugPrint(
+                'HomeScreen: Failed to load reviews '
+                    'for medical center ${center.id}: $e',
               );
             }
-          } catch (e) {
-            debugPrint(
-              'HomeScreen: Failed to load reviews '
-                  'for medical center ${center.id}: $e',
-            );
-          }
 
-          return center;
-        },
-      ),
-    );
+            return center;
+          },
+        ),
+      ).timeout(
+        const Duration(seconds: 3),
+        onTimeout: () => centers,
+      );
 
-    return updatedCenters;
+      return updatedCenters;
+    } catch (_) {
+      return centers;
+    }
   }
 
 
@@ -488,11 +495,11 @@ class _HomeScreenState extends State<HomeScreen>
 
     _isCalculatingNearby = true;
 
-    if (mounted) {
+    final hasExistingCenters = _nearbyMedicalCenters.isNotEmpty;
+    if (!hasExistingCenters && mounted) {
       setState(() {
         _isNearbyLoading = true;
         _nearbyError = null;
-        _nearbyMedicalCenters = [];
       });
     }
 
@@ -504,12 +511,12 @@ class _HomeScreenState extends State<HomeScreen>
         if (!mounted) return;
 
         setState(() {
-          _nearbyMedicalCenters = [];
+          if (_nearbyMedicalCenters.isEmpty) {
+            _nearbyMedicalCenters = centers;
+          }
           _isNearbyLoading = false;
-          _nearbyError =
-          'Location services are disabled.';
-          _currentLocation =
-          'Location unavailable';
+          _nearbyError = null;
+          _currentLocation = 'Location unavailable';
         });
 
         return;
@@ -531,61 +538,38 @@ class _HomeScreenState extends State<HomeScreen>
         if (!mounted) return;
 
         setState(() {
-          _nearbyMedicalCenters = [];
+          if (_nearbyMedicalCenters.isEmpty) {
+            _nearbyMedicalCenters = centers;
+          }
           _isNearbyLoading = false;
-          _nearbyError =
-          'Location permission was denied.';
-          _currentLocation =
-          'Location unavailable';
+          _nearbyError = null;
+          _currentLocation = 'Location unavailable';
         });
 
         return;
       }
 
-      final position =
-      await Geolocator.getCurrentPosition(
-        locationSettings:
-        const LocationSettings(
-          accuracy: LocationAccuracy.high,
+      // Check last known position for instant responsiveness
+      Position? position = await Geolocator.getLastKnownPosition();
+      if (position != null && mounted) {
+        final quickCenters = _sortCentersByDistance(centers, position);
+        setState(() {
+          _nearbyMedicalCenters = quickCenters;
+          _isNearbyLoading = false;
+        });
+      }
+
+      // Fetch fresh position with 4-second timeout
+      position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.medium,
+          timeLimit: Duration(seconds: 4),
         ),
       );
 
-      await _updateCurrentLocationName(
-        position,
-      );
+      await _updateCurrentLocationName(position);
 
-      final calculatedCenters = centers
-          .where(
-            (center) =>
-        center.latitude != null &&
-            center.longitude != null,
-      )
-          .map(
-            (center) {
-          final distanceInMeters =
-          Geolocator.distanceBetween(
-            position.latitude,
-            position.longitude,
-            center.latitude!,
-            center.longitude!,
-          );
-
-          final distanceInKm =
-              distanceInMeters / 1000.0;
-
-          return center.copyWith(
-            distance: distanceInKm,
-          );
-        },
-      )
-          .toList();
-
-      calculatedCenters.sort(
-            (a, b) =>
-            a.distance.compareTo(
-              b.distance,
-            ),
-      );
+      final calculatedCenters = _sortCentersByDistance(centers, position);
 
       if (!mounted) return;
 
@@ -603,15 +587,42 @@ class _HomeScreenState extends State<HomeScreen>
       if (!mounted) return;
 
       setState(() {
-        _nearbyMedicalCenters = [];
+        if (_nearbyMedicalCenters.isEmpty) {
+          _nearbyMedicalCenters = centers;
+        }
         _isNearbyLoading = false;
-        _nearbyError = e.toString();
-        _currentLocation =
-        'Location unavailable';
+        _nearbyError = null;
       });
     } finally {
       _isCalculatingNearby = false;
     }
+  }
+
+  List<MedicalCenterEntity> _sortCentersByDistance(
+    List<MedicalCenterEntity> centers,
+    Position position,
+  ) {
+    final list = centers
+        .where(
+          (center) =>
+              center.latitude != null && center.longitude != null,
+        )
+        .map(
+          (center) {
+            final distanceInMeters = Geolocator.distanceBetween(
+              position.latitude,
+              position.longitude,
+              center.latitude!,
+              center.longitude!,
+            );
+            final distanceInKm = distanceInMeters / 1000.0;
+            return center.copyWith(distance: distanceInKm);
+          },
+        )
+        .toList();
+
+    list.sort((a, b) => a.distance.compareTo(b.distance));
+    return list;
   }
 
   void _navigateToEditBanner(BuildContext context,

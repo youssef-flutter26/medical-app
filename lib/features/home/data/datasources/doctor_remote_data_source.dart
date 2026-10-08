@@ -5,4 +5,5 @@ abstract class DoctorRemoteDataSource {
   Future<void> updateDoctor(DoctorModel doctor);
   Stream<List<DoctorModel>> getDoctorsStream();
   Stream<List<DoctorModel>> getDoctorsByCategoryStream(String categoryId);
+  Future<DoctorModel?> getDoctorById(String doctorId);
 }

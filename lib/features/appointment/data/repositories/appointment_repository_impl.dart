@@ -2,6 +2,7 @@ import 'package:medical_app/core/error/app_exception.dart';
 import 'package:medical_app/core/error/result.dart';
 
 import '../../../../core/error/failure.dart';
+import '../../domain/entities/appointment_entity.dart';
 import '../../domain/repositories/appointment_repository.dart';
 import '../datasources/appointment_remote_data_source.dart';
 
@@ -39,6 +40,9 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
     required String dateKey,
     required String time,
     required DateTime dateTime,
+    String? doctorSpecialty,
+    String? doctorAddress,
+    String? doctorImagePath,
   }) async {
     try {
       await _remoteDataSource.bookAppointment(
@@ -48,8 +52,64 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
         dateKey: dateKey,
         time: time,
         dateTime: dateTime,
+        doctorSpecialty: doctorSpecialty,
+        doctorAddress: doctorAddress,
+        doctorImagePath: doctorImagePath,
       );
 
+      return const SuccessAPI(null);
+    } on AppException catch (e) {
+      return ErrorAPI(_AppointmentFailure(e.message));
+    } catch (e) {
+      return ErrorAPI(_AppointmentFailure(e.toString()));
+    }
+  }
+
+  @override
+  Stream<List<AppointmentEntity>> streamUserAppointments(String patientId) {
+    return _remoteDataSource.streamUserAppointments(patientId);
+  }
+
+  @override
+  Future<Result<List<AppointmentEntity>>> getUserAppointments(
+    String patientId,
+  ) async {
+    try {
+      final result = await _remoteDataSource.getUserAppointments(patientId);
+      return SuccessAPI(result);
+    } on AppException catch (e) {
+      return ErrorAPI(_AppointmentFailure(e.message));
+    } catch (e) {
+      return ErrorAPI(_AppointmentFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<void>> cancelAppointment(String appointmentId) async {
+    try {
+      await _remoteDataSource.cancelAppointment(appointmentId);
+      return const SuccessAPI(null);
+    } on AppException catch (e) {
+      return ErrorAPI(_AppointmentFailure(e.message));
+    } catch (e) {
+      return ErrorAPI(_AppointmentFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<void>> rescheduleAppointment({
+    required String appointmentId,
+    required String dateKey,
+    required String time,
+    required DateTime dateTime,
+  }) async {
+    try {
+      await _remoteDataSource.rescheduleAppointment(
+        appointmentId: appointmentId,
+        dateKey: dateKey,
+        time: time,
+        dateTime: dateTime,
+      );
       return const SuccessAPI(null);
     } on AppException catch (e) {
       return ErrorAPI(_AppointmentFailure(e.message));

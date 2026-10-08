@@ -20,4 +20,7 @@ abstract final class Routes {
   static const String allMedicalCenters = '/all-medical-centers';
   static const String profile = '/profile';
   static const String medicalCenterDetails = '/medical-center-details';
+  static const String myBookings = '/my-bookings';
+  static const String appointment = '/appointment';
+  static const String bookAppointment = '/book-appointment';
 }

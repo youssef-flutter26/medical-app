@@ -249,6 +249,45 @@ abstract class LocaleKeys {
   static const failedToUpdateDoctor = 'failedToUpdateDoctor';
   static const notAuthorizedAdmin = 'notAuthorizedAdmin';
   static const years = 'years';
+  static const myBookings = 'myBookings';
+  static const upcoming = 'upcoming';
+  static const completed = 'completed';
+  static const canceled = 'canceled';
+  static const reschedule = 'reschedule';
+  static const reBook = 'reBook';
+  static const addReview = 'addReview';
+  static const noBookingsFound = 'noBookingsFound';
+  static const noUpcomingBookings = 'noUpcomingBookings';
+  static const noCompletedBookings = 'noCompletedBookings';
+  static const noCanceledBookings = 'noCanceledBookings';
+  static const cancelBookingConfirmation = 'cancelBookingConfirmation';
+  static const bookingCanceledSuccessfully = 'bookingCanceledSuccessfully';
+  static const rescheduleAppointment = 'rescheduleAppointment';
+  static const confirm = 'confirm';
+  static const bookAppointment = 'bookAppointment';
+  static const selectDate = 'selectDate';
+  static const selectHour = 'selectHour';
+  static const noAvailableSlots = 'noAvailableSlots';
+  static const booked = 'booked';
+  static const passed = 'passed';
+  static const done = 'done';
+  static const editYourAppointment = 'editYourAppointment';
+  static const pleaseSelectTime = 'pleaseSelectTime';
+  static const pleaseLoginFirst = 'pleaseLoginFirst';
+  static const doctorInfoIncomplete = 'doctorInfoIncomplete';
+  static const slotAlreadyBooked = 'slotAlreadyBooked';
+  static const slotPassed = 'slotPassed';
+  static const failedToLoadAppointments = 'failedToLoadAppointments';
+  static const bookingSuccessful = 'bookingSuccessful';
+  static const bookingFailed = 'bookingFailed';
+  static const bookingSummary = 'bookingSummary';
+  static const appointmentDate = 'appointmentDate';
+  static const appointmentTime = 'appointmentTime';
+  static const readyToConfirm = 'readyToConfirm';
+  static const pleaseSelectSlotToProceed = 'pleaseSelectSlotToProceed';
+  static const doctorNoAvailability = 'doctorNoAvailability';
+  static const doctorNotFound = 'doctorNotFound';
+  static const back = 'back';
 }
 
 

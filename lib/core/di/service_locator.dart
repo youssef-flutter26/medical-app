@@ -11,8 +11,16 @@ import 'package:medical_app/features/appointment/data/datasources/appointment_re
 import 'package:medical_app/features/appointment/data/datasources/appointment_remote_data_source_impl.dart';
 import 'package:medical_app/features/appointment/data/repositories/appointment_repository_impl.dart';
 import 'package:medical_app/features/appointment/domain/repositories/appointment_repository.dart';
+import 'package:medical_app/features/appointment/domain/entities/appointment_entity.dart';
 import 'package:medical_app/features/appointment/domain/usecases/book_appointment.dart';
+import 'package:medical_app/features/appointment/domain/usecases/cancel_appointment.dart';
 import 'package:medical_app/features/appointment/domain/usecases/get_booked_slots.dart';
+import 'package:medical_app/features/appointment/domain/usecases/get_user_appointments.dart';
+import 'package:medical_app/features/appointment/domain/usecases/reschedule_appointment.dart';
+import 'package:medical_app/features/appointment/domain/usecases/stream_user_appointments.dart';
+import 'package:medical_app/features/appointment/presention/cubit/appointment_cubit.dart';
+import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
+import 'package:medical_app/features/home/domain/usecases/get_doctor_by_id.dart';
 // ==========================================
 // AUTH
 // ==========================================
@@ -307,6 +315,13 @@ void setupServiceLocator() {
     ),
   );
 
+  getIt.registerLazySingleton<GetDoctorById>(
+        () =>
+        GetDoctorById(
+          getIt<DoctorRepository>(),
+        ),
+  );
+
   // ==========================================
   // APPOINTMENT
   // ==========================================
@@ -348,6 +363,50 @@ void setupServiceLocator() {
         () =>
         BookAppointment(
           getIt<AppointmentRepository>(),
+        ),
+  );
+
+  getIt.registerLazySingleton<StreamUserAppointments>(
+        () =>
+        StreamUserAppointments(
+          getIt<AppointmentRepository>(),
+        ),
+  );
+
+  getIt.registerLazySingleton<GetUserAppointments>(
+        () =>
+        GetUserAppointments(
+          getIt<AppointmentRepository>(),
+        ),
+  );
+
+  getIt.registerLazySingleton<CancelAppointment>(
+        () =>
+        CancelAppointment(
+          getIt<AppointmentRepository>(),
+        ),
+  );
+
+  getIt.registerLazySingleton<RescheduleAppointment>(
+        () =>
+        RescheduleAppointment(
+          getIt<AppointmentRepository>(),
+        ),
+  );
+
+  // ------------------------------------------
+  // Cubit
+  // ------------------------------------------
+
+  getIt.registerFactoryParam<AppointmentCubit, DoctorEntity, AppointmentEntity?>(
+        (doctor, existingAppointment) => AppointmentCubit(
+          doctor: doctor,
+          existingAppointment: existingAppointment,
+          bookAppointment: getIt<BookAppointment>(),
+          rescheduleAppointment: getIt<RescheduleAppointment>(),
+          getBookedSlots: getIt<GetBookedSlots>(),
+          auth: getIt<FirebaseAuth>(),
+          firestore: getIt<FirebaseFirestore>(),
         ),
   );
 

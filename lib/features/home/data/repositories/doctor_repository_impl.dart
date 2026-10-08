@@ -39,4 +39,14 @@ class DoctorRepositoryImpl implements DoctorRepository {
   Stream<List<DoctorEntity>> getDoctorsByCategoryStream(String categoryId) {
     return remoteDataSource.getDoctorsByCategoryStream(categoryId);
   }
+
+  @override
+  Future<Result<DoctorEntity?>> getDoctorById(String doctorId) async {
+    try {
+      final doctor = await remoteDataSource.getDoctorById(doctorId);
+      return SuccessAPI(doctor);
+    } catch (e) {
+      return ErrorAPI(FirebaseFailure.fromException(e));
+    }
+  }
 }

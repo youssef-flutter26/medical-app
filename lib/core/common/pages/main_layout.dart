@@ -7,6 +7,7 @@ import 'package:medical_app/core/utils/app_assets.dart';
 import 'package:medical_app/features/home/presentation/pages/home_screen.dart';
 
 import '../../../features/location/presentation/pages/location_screen.dart';
+import '../../../features/appointment/presention/pages/my_bookings_page.dart';
 
 class MainLayout extends StatefulWidget {
   final List<Widget>? screens;
@@ -19,20 +20,27 @@ class MainLayout extends StatefulWidget {
 
 class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
+  late final List<Widget> _screens;
 
-  List<Widget> get _screens =>
-      widget.screens ??
-      [
-        const HomeScreen(),
-        const LocationScreen(),
-        Center(child: Text(LocaleKeys.appointment.tr())),
-        Center(child: Text(LocaleKeys.profile.tr())),
-      ];
+  @override
+  void initState() {
+    super.initState();
+    _screens = widget.screens ??
+        [
+          const HomeScreen(),
+          const LocationScreen(),
+          const MyBookingsPage(),
+          Center(child: Text(LocaleKeys.profile.tr())),
+        ];
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {

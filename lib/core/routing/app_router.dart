@@ -20,6 +20,9 @@ import 'package:medical_app/features/home/presentation/pages/category_doctors_pa
 import 'package:medical_app/features/home/presentation/pages/category_page.dart';
 import 'package:medical_app/features/home/presentation/pages/doctor_details_page.dart';
 import 'package:medical_app/features/home/presentation/widgets/doctor_card.dart';
+import 'package:medical_app/features/appointment/domain/entities/appointment_entity.dart';
+import 'package:medical_app/features/appointment/presention/pages/book_appointment_page.dart';
+import 'package:medical_app/features/appointment/presention/pages/my_bookings_page.dart';
 import 'package:medical_app/features/onboarding/presentation/pages/onboarding_screen.dart';
 import 'package:medical_app/features/splash/presentation/pages/splash_screen.dart';
 
@@ -210,6 +213,51 @@ class AppRouter {
               ),
           settings: settings,
         );
+
+      case Routes.myBookings:
+      case Routes.appointment:
+        return MaterialPageRoute(
+          builder: (_) => const MyBookingsPage(),
+          settings: settings,
+        );
+
+      case Routes.bookAppointment:
+        if (settings.arguments is DoctorEntity) {
+          final doctor = settings.arguments as DoctorEntity;
+          return MaterialPageRoute(
+            builder: (_) => BookAppointmentPage(doctor: doctor),
+            settings: settings,
+          );
+        } else if (settings.arguments is AppointmentEntity) {
+          final appointment = settings.arguments as AppointmentEntity;
+          return MaterialPageRoute(
+            builder: (_) => BookAppointmentPage.fromAppointment(
+              existingAppointment: appointment,
+            ),
+            settings: settings,
+          );
+        } else if (settings.arguments is Map<String, dynamic>) {
+          final map = settings.arguments as Map<String, dynamic>;
+          final doctor = map['doctor'] as DoctorEntity?;
+          final appointment = map['appointment'] as AppointmentEntity?;
+          if (doctor != null) {
+            return MaterialPageRoute(
+              builder: (_) => BookAppointmentPage(
+                doctor: doctor,
+                existingAppointment: appointment,
+              ),
+              settings: settings,
+            );
+          } else if (appointment != null) {
+            return MaterialPageRoute(
+              builder: (_) => BookAppointmentPage.fromAppointment(
+                existingAppointment: appointment,
+              ),
+              settings: settings,
+            );
+          }
+        }
+        return null;
 
 
 
