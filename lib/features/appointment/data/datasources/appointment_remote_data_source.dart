@@ -11,5 +11,8 @@ abstract class AppointmentRemoteDataSource {
     required String dateKey,
     required String time,
     required DateTime dateTime,
+    String? doctorSpecialty,
+    String? doctorAddress,
+    String? doctorImagePath,
   });
 }

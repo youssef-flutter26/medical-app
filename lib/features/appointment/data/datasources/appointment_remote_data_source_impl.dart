@@ -49,6 +49,9 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
     required String dateKey,
     required String time,
     required DateTime dateTime,
+    String? doctorSpecialty,
+    String? doctorAddress,
+    String? doctorImagePath,
   }) async {
     final documentId = '${doctorId}_${dateKey}_$time';
 
@@ -67,7 +70,7 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
         }
       }
 
-      transaction.set(appointmentReference, {
+      final appointmentData = <String, dynamic>{
         'doctorId': doctorId,
         'doctorName': doctorName,
         'patientId': patientId,
@@ -76,7 +79,19 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
         'dateTime': Timestamp.fromDate(dateTime),
         'status': 'booked',
         'createdAt': FieldValue.serverTimestamp(),
-      });
+      };
+
+      if (doctorSpecialty != null && doctorSpecialty.isNotEmpty) {
+        appointmentData['doctorSpecialty'] = doctorSpecialty;
+      }
+      if (doctorAddress != null && doctorAddress.isNotEmpty) {
+        appointmentData['doctorAddress'] = doctorAddress;
+      }
+      if (doctorImagePath != null && doctorImagePath.isNotEmpty) {
+        appointmentData['doctorImagePath'] = doctorImagePath;
+      }
+
+      transaction.set(appointmentReference, appointmentData);
     });
   }
 }

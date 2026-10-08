@@ -39,6 +39,9 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
     required String dateKey,
     required String time,
     required DateTime dateTime,
+    String? doctorSpecialty,
+    String? doctorAddress,
+    String? doctorImagePath,
   }) async {
     try {
       await _remoteDataSource.bookAppointment(
@@ -48,6 +51,9 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
         dateKey: dateKey,
         time: time,
         dateTime: dateTime,
+        doctorSpecialty: doctorSpecialty,
+        doctorAddress: doctorAddress,
+        doctorImagePath: doctorImagePath,
       );
 
       return const SuccessAPI(null);

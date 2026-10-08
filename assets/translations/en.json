@@ -252,5 +252,22 @@
   "noCanceledBookings": "No canceled bookings",
   "cancelBookingConfirmation": "Are you sure you want to cancel this booking?",
   "bookingCanceledSuccessfully": "Booking canceled successfully",
-  "rescheduleAppointment": "Reschedule Appointment"
+  "rescheduleAppointment": "Reschedule Appointment",
+  "confirm": "Confirm",
+  "bookAppointment": "Book Appointment",
+  "selectDate": "Select Date",
+  "selectHour": "Select Hour",
+  "noAvailableSlots": "No available appointments for this day.",
+  "booked": "Booked",
+  "passed": "Passed",
+  "done": "Done",
+  "editYourAppointment": "Edit your appointment",
+  "pleaseSelectTime": "Please select an appointment time.",
+  "pleaseLoginFirst": "Please login first.",
+  "doctorInfoIncomplete": "Doctor information is incomplete.",
+  "slotAlreadyBooked": "This appointment is already booked.",
+  "slotPassed": "This appointment time has already passed.",
+  "failedToLoadAppointments": "Failed to load appointments.",
+  "bookingSuccessful": "Booking successful",
+  "bookingFailed": "Booking failed"
 }

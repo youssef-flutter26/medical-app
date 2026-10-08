@@ -13,6 +13,8 @@ import 'package:medical_app/features/appointment/data/repositories/appointment_r
 import 'package:medical_app/features/appointment/domain/repositories/appointment_repository.dart';
 import 'package:medical_app/features/appointment/domain/usecases/book_appointment.dart';
 import 'package:medical_app/features/appointment/domain/usecases/get_booked_slots.dart';
+import 'package:medical_app/features/appointment/presention/cubit/appointment_cubit.dart';
+import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
 // ==========================================
 // AUTH
 // ==========================================
@@ -348,6 +350,19 @@ void setupServiceLocator() {
         () =>
         BookAppointment(
           getIt<AppointmentRepository>(),
+        ),
+  );
+
+  // ------------------------------------------
+  // Cubit
+  // ------------------------------------------
+
+  getIt.registerFactoryParam<AppointmentCubit, DoctorEntity, void>(
+        (doctor, _) => AppointmentCubit(
+          doctor: doctor,
+          bookAppointment: getIt<BookAppointment>(),
+          getBookedSlots: getIt<GetBookedSlots>(),
+          auth: getIt<FirebaseAuth>(),
         ),
   );
 
