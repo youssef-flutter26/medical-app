@@ -4,6 +4,7 @@ import 'package:medical_app/features/home/presentation/widgets/home_location.dar
 import 'package:medical_app/features/home/presentation/widgets/home_search.dart';
 
 class HomeHeader extends StatelessWidget {
+  final String location;
   final VoidCallback? onSearchTap;
   final TextEditingController? searchController;
   final ValueChanged<String>? onSearchChanged;
@@ -11,6 +12,7 @@ class HomeHeader extends StatelessWidget {
 
   const HomeHeader({
     super.key,
+    this.location = 'Current Location',
     this.onSearchTap,
     this.searchController,
     this.onSearchChanged,
@@ -22,7 +24,9 @@ class HomeHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const HomeLocation(),
+        HomeLocation(
+          location: location,
+        ),
         SizedBox(height: 18.h),
         HomeSearch(
           controller: searchController,

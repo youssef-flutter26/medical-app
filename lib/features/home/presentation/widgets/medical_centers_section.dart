@@ -14,6 +14,7 @@ class MedicalCentersSection extends StatelessWidget {
   final bool isAdmin;
   final ValueChanged<MedicalCenterEntity>? onEditCenter;
   final VoidCallback? onSeeAll;
+  final ValueChanged<MedicalCenterEntity>? onCenterTap;
 
   const MedicalCentersSection({
     super.key,
@@ -23,6 +24,7 @@ class MedicalCentersSection extends StatelessWidget {
     this.isAdmin = false,
     this.onEditCenter,
     this.onSeeAll,
+    this.onCenterTap,
   });
 
   void _handleEditCenter(BuildContext context,
@@ -30,8 +32,7 @@ class MedicalCentersSection extends StatelessWidget {
     if (onEditCenter == null) return;
 
     final list =
-        medicalCenters ??
-            const <MedicalCenterEntity>[];
+        medicalCenters ?? const <MedicalCenterEntity>[];
 
     final entity = list.firstWhere(
           (center) =>
@@ -46,22 +47,47 @@ class MedicalCentersSection extends StatelessWidget {
         rating: centerData.rating,
         reviewsCount: centerData.reviewCount,
         distance: 0.0,
-        type: centerData.type ??
-            centerData.category,
-        imagePath:
-        centerData.imagePath ?? '',
+        type: centerData.type ?? centerData.category,
+        imagePath: centerData.imagePath ?? '',
       ),
     );
 
     onEditCenter!(entity);
   }
 
+  void _handleCenterTap(MedicalCenterData centerData,) {
+    if (onCenterTap == null) return;
+
+    final list =
+        medicalCenters ?? const <MedicalCenterEntity>[];
+
+    final entity = list.firstWhere(
+          (center) =>
+      (centerData.id != null &&
+          center.id == centerData.id) ||
+          (center.name == centerData.name &&
+              center.address == centerData.address),
+      orElse: () =>
+          MedicalCenterEntity(
+            id: centerData.id,
+            name: centerData.name,
+            address: centerData.address,
+            rating: centerData.rating,
+            reviewsCount: centerData.reviewCount,
+            distance: 0.0,
+            type: centerData.type ?? centerData.category,
+            imagePath: centerData.imagePath ?? '',
+          ),
+    );
+
+    onCenterTap!(entity);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
       return Column(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             LocaleKeys.nearbyMedicalCenters.tr(),
@@ -87,8 +113,7 @@ class MedicalCentersSection extends StatelessWidget {
 
     if (errorMessage != null) {
       return Column(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             LocaleKeys.nearbyMedicalCenters.tr(),
@@ -121,17 +146,21 @@ class MedicalCentersSection extends StatelessWidget {
     }
 
     final list =
-        medicalCenters ??
-            const <MedicalCenterEntity>[];
+        medicalCenters ?? const <MedicalCenterEntity>[];
 
     return NearbyMedicalCenters(
       isAdmin: isAdmin,
       onSeeAllPressed: onSeeAll,
+
+      // Tap on medical center
+      onCenterTap: _handleCenterTap,
+
       onEditCenter: (centerData) =>
           _handleEditCenter(
             context,
             centerData,
           ),
+
       medicalCenters: list
           .map(
             (center) =>
@@ -141,10 +170,8 @@ class MedicalCentersSection extends StatelessWidget {
               category: center.type,
               address: center.address,
               rating: center.rating,
-              reviewCount:
-              center.reviewsCount,
-              distance:
-              center.formattedDistance,
+              reviewCount: center.reviewsCount,
+              distance: center.formattedDistance,
               type: center.type,
               imagePath: center.imagePath,
             ),

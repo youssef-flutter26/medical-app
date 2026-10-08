@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:medical_app/core/common/pages/main_layout.dart';
 import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_banner_page.dart';
-import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
-import 'package:medical_app/features/home/domain/entities/category_entity.dart';
-import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_category_page.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_data_page.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_doctor_page.dart';
@@ -13,15 +10,19 @@ import 'package:medical_app/features/auth/presentation/pages/forget_password_scr
 import 'package:medical_app/features/auth/presentation/pages/login_screen.dart';
 import 'package:medical_app/features/auth/presentation/pages/register_screen .dart';
 import 'package:medical_app/features/auth/presentation/widgets/fill_profile.dart';
-import 'package:medical_app/features/onboarding/presentation/pages/onboarding_screen.dart';
+import 'package:medical_app/features/home/domain/entities/banner_entity.dart';
+import 'package:medical_app/features/home/domain/entities/category_entity.dart';
+import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
+import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
+import 'package:medical_app/features/home/presentation/pages/all_medical_centers_page.dart';
 import 'package:medical_app/features/home/presentation/pages/category_doctors_page.dart';
 import 'package:medical_app/features/home/presentation/pages/category_page.dart';
-import 'package:medical_app/features/home/presentation/widgets/doctor_card.dart';
-import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
 import 'package:medical_app/features/home/presentation/pages/doctor_details_page.dart';
-import 'package:medical_app/features/home/presentation/pages/nearby_medical_centers_page.dart';
+import 'package:medical_app/features/home/presentation/widgets/doctor_card.dart';
+import 'package:medical_app/features/onboarding/presentation/pages/onboarding_screen.dart';
 import 'package:medical_app/features/splash/presentation/pages/splash_screen.dart';
-import 'package:medical_app/features/home/presentation/pages/all_medical_centers_page.dart';
+
+import '../../features/home/presentation/pages/medical_center_details_page.dart';
 
 class AppRouter {
   Route<dynamic>? generateRoute(RouteSettings settings) {
@@ -113,6 +114,24 @@ class AppRouter {
           settings: settings,
         );
 
+      case Routes.medicalCenterDetails:
+        final medicalCenter =
+        settings.arguments is MedicalCenterEntity
+            ? settings.arguments as MedicalCenterEntity
+            : null;
+
+        if (medicalCenter == null) {
+          return null;
+        }
+
+        return MaterialPageRoute(
+          builder: (_) =>
+              MedicalCenterDetailsPage(
+                center: medicalCenter,
+              ),
+          settings: settings,
+        );
+
       case Routes.category:
         return MaterialPageRoute(
           builder: (_) => const CategoryPage(),
@@ -171,6 +190,7 @@ class AppRouter {
         settings.arguments is List<MedicalCenterEntity>
             ? settings.arguments as List<MedicalCenterEntity>
             : <MedicalCenterEntity>[];
+
 
         return MaterialPageRoute(
           builder: (_) =>

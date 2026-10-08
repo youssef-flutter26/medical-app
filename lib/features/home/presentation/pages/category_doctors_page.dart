@@ -1,26 +1,30 @@
 import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:medical_app/core/di/service_locator.dart';
-import 'package:medical_app/core/routing/routes.dart';
+import 'package:medical_app/core/error/result.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
+import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
 import 'package:medical_app/features/admin/presentation/pages/add_doctor_page.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
 import 'package:medical_app/features/auth/data/models/user_model.dart';
-import 'package:medical_app/features/home/presentation/widgets/category_doctors_header.dart';
-import 'package:medical_app/features/home/presentation/widgets/category_doctors_list.dart';
-import 'package:medical_app/features/home/presentation/widgets/doctor_card.dart';
-import 'package:medical_app/features/home/domain/entities/doctor_entity.dart';
-import 'package:medical_app/features/home/domain/repositories/doctor_repository.dart';
-import 'package:medical_app/features/home/domain/usecases/get_doctors_by_category_stream.dart';
-import 'package:medical_app/features/home/domain/usecases/get_doctors_stream.dart';
 import 'package:medical_app/features/home/domain/entities/category_entity.dart';
+
+import '../../../reviews/domain/entities/review_summary.dart';
+import '../../../reviews/domain/repositories/review_repository.dart';
+import '../../domain/entities/doctor_entity.dart';
+import '../../domain/usecases/get_doctors_by_category_stream.dart';
+import '../../domain/usecases/get_doctors_stream.dart';
+import '../widgets/category_doctors_header.dart';
+import '../widgets/category_doctors_list.dart';
+import '../widgets/doctor_card.dart';
 
 class CategoryDoctorsPage extends StatefulWidget {
   final String? categoryName;
@@ -52,16 +56,33 @@ class CategoryDoctorsPage extends StatefulWidget {
   });
 
   @override
-  State<CategoryDoctorsPage> createState() => _CategoryDoctorsPageState();
+  State<CategoryDoctorsPage> createState() =>
+      _CategoryDoctorsPageState();
 }
 
 class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
-  final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController =
+  TextEditingController();
+
   String _searchQuery = '';
+
   List<DoctorData>? _doctors;
+
   bool _isLoading = true;
+
   String? _errorMessage;
+
   StreamSubscription<List<DoctorEntity>>? _subscription;
+
+  ReviewRepository? get _reviewRepository {
+    try {
+      if (getIt.isRegistered<ReviewRepository>()) {
+        return getIt<ReviewRepository>();
+      }
+    } catch (_) {}
+
+    return null;
+  }
 
   @override
   void initState() {
@@ -69,62 +90,118 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
     _initData();
   }
 
-  void _initData() {
-    if (widget.initialDoctors != null) {
-      _doctors = List<DoctorData>.from(widget.initialDoctors!);
-      _isLoading = false;
+  Future<void> _loadRealReviewSummaries(List<DoctorData> doctors,) async {
+    final repository = _reviewRepository;
+
+    if (repository == null) {
       return;
     }
 
-    Stream<List<DoctorEntity>>? stream = widget.doctorsStream;
+    final updatedDoctors = await Future.wait(
+      doctors.map(
+            (doctor) async {
+          final doctorId = doctor.id;
+
+          if (doctorId == null || doctorId
+              .trim()
+              .isEmpty) {
+            return doctor;
+          }
+
+          try {
+            final result = await repository.getReviewSummary(
+              targetId: doctorId,
+              targetType: 'doctor',
+            );
+
+            if (result is SuccessAPI<ReviewSummary>) {
+              final summary = result.data;
+
+              return doctor.copyWith(
+                rating: summary.rating,
+                reviewCount: summary.reviewCount,
+              );
+            }
+          } catch (e) {
+            debugPrint(
+              'CategoryDoctorsPage: Failed to load '
+                  'reviews for doctor $doctorId: $e',
+            );
+          }
+
+          return doctor;
+        },
+      ),
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      _doctors = updatedDoctors;
+    });
+  }
+
+  void _setDoctorsFromEntities(List<DoctorEntity> entities,) {
+    final doctors = entities
+        .map(
+          (entity) => DoctorData.fromEntity(entity),
+    )
+        .toList();
+
+    if (!mounted) return;
+
+    setState(() {
+      _doctors = doctors;
+      _isLoading = false;
+      _errorMessage = null;
+    });
+
+    _loadRealReviewSummaries(doctors);
+  }
+
+  void _initData() {
+    if (widget.initialDoctors != null) {
+      final doctors = List<DoctorData>.from(
+        widget.initialDoctors!,
+      );
+
+      _doctors = doctors;
+      _isLoading = false;
+
+      _loadRealReviewSummaries(doctors);
+
+      return;
+    }
+
+    final categoryId = widget.category?.id;
+
+    Stream<List<DoctorEntity>>? stream =
+        widget.doctorsStream;
 
     if (stream == null) {
-      final categoryName = _effectiveCategoryName.trim();
-      final categoryId = widget.category?.id?.trim();
-      final filterParam = (categoryName.isNotEmpty &&
-              categoryName.toLowerCase() != 'all doctors')
-          ? categoryName
-          : (categoryId != null && categoryId.isNotEmpty ? categoryId : null);
+      if (categoryId != null && categoryId.isNotEmpty) {
+        final useCase =
+            widget.getDoctorsByCategoryStream ??
+                (getIt.isRegistered<GetDoctorsByCategoryStream>()
+                    ? getIt<GetDoctorsByCategoryStream>()
+                    : null);
 
-      if (filterParam != null) {
-        final useCase = widget.getDoctorsByCategoryStream ??
-            (getIt.isRegistered<GetDoctorsByCategoryStream>()
-                ? getIt<GetDoctorsByCategoryStream>()
-                : null);
-        stream = useCase?.call(filterParam);
+        stream = useCase?.call(categoryId);
       } else {
-        final useCase = widget.getDoctorsStream ??
-            (getIt.isRegistered<GetDoctorsStream>()
-                ? getIt<GetDoctorsStream>()
-                : null);
+        final useCase =
+            widget.getDoctorsStream ??
+                (getIt.isRegistered<GetDoctorsStream>()
+                    ? getIt<GetDoctorsStream>()
+                    : null);
+
         stream = useCase?.call();
       }
     }
 
-    if (stream == null && getIt.isRegistered<DoctorRepository>()) {
-      final repo = getIt<DoctorRepository>();
-      final categoryName = _effectiveCategoryName.trim();
-      final categoryId = widget.category?.id?.trim();
-      final filterParam = (categoryName.isNotEmpty &&
-              categoryName.toLowerCase() != 'all doctors')
-          ? categoryName
-          : (categoryId != null && categoryId.isNotEmpty ? categoryId : null);
-
-      stream = filterParam != null
-          ? repo.getDoctorsByCategoryStream(filterParam)
-          : repo.getDoctorsStream();
-    }
-
     if (stream != null) {
       _subscription = stream.listen(
-        (entities) {
-          if (mounted) {
-            setState(() {
-              _doctors = entities.map((e) => DoctorData.fromEntity(e)).toList();
-              _isLoading = false;
-              _errorMessage = null;
-            });
-          }
+            (entities) {
+          _setDoctorsFromEntities(entities);
         },
         onError: (error) {
           if (mounted) {
@@ -149,59 +226,59 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
   }
 
   String get _effectiveCategoryName {
-    if (widget.categoryName != null && widget.categoryName!.isNotEmpty) {
+    if (widget.categoryName != null &&
+        widget.categoryName!.isNotEmpty) {
       return widget.categoryName!;
     }
-    if (widget.category != null && widget.category!.name.isNotEmpty) {
+
+    if (widget.category != null &&
+        widget.category!.name.isNotEmpty) {
       return widget.category!.name;
     }
+
     return '';
   }
 
   String get _effectiveTitle {
-    if (widget.pageTitle != null && widget.pageTitle!.isNotEmpty) {
+    if (widget.pageTitle != null &&
+        widget.pageTitle!.isNotEmpty) {
       return widget.pageTitle!;
     }
+
     final catName = _effectiveCategoryName;
-    if (catName.isNotEmpty && catName.toLowerCase() != 'all doctors') {
+
+    if (catName.isNotEmpty &&
+        catName.toLowerCase() != 'all doctors') {
       return catName;
     }
+
     return LocaleKeys.allDoctors.tr();
   }
 
   List<DoctorData> get _filteredDoctors {
     final baseDoctors = _doctors ?? <DoctorData>[];
-    final selectedCategory = _effectiveCategoryName.trim();
-    final hasCategoryFilter = selectedCategory.isNotEmpty &&
-        selectedCategory.toLowerCase() != 'all doctors';
 
-    final targetId = widget.category?.id?.trim();
-    final target = selectedCategory.toLowerCase();
+    final selectedCategory = _effectiveCategoryName;
 
-    final categoryFiltered = hasCategoryFilter
+    final hasCategoryFilter =
+        selectedCategory.isNotEmpty &&
+            selectedCategory.toLowerCase() != 'all doctors';
+
+    final categoryFiltered =
+    hasCategoryFilter && widget.category?.id == null
         ? baseDoctors.where((d) {
-            final catId = (d.rawEntity?.categoryId ?? '').trim();
-            final cat = (d.category ?? d.rawEntity?.categoryName ?? '').trim().toLowerCase();
-            final spec = d.specialty.trim().toLowerCase();
+      final cat = d.category?.toLowerCase() ?? '';
+      final spec = d.specialty.toLowerCase();
+      final target = selectedCategory.toLowerCase();
 
-            final matchesId = targetId != null &&
-                targetId.isNotEmpty &&
-                catId.isNotEmpty &&
-                (catId == targetId || catId.toLowerCase() == targetId.toLowerCase());
-
-            final matchesName = cat == target ||
-                spec == target ||
-                (target.length >= 3 &&
-                    (cat.contains(target) ||
-                        target.contains(cat) ||
-                        spec.contains(target) ||
-                        target.contains(spec)));
-
-            return matchesId || matchesName;
-          }).toList()
+      return cat == target ||
+          spec.contains(target) ||
+          target.contains(cat);
+    }).toList()
         : baseDoctors;
 
     final query = _searchQuery.trim().toLowerCase();
+
     if (query.isEmpty) {
       return categoryFiltered;
     }
@@ -217,21 +294,31 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
     if (widget.resultsCount != null) {
       return widget.resultsCount!;
     }
+
     return _filteredDoctors.length;
   }
 
   void _toggleFavorite(DoctorData doctor) {
     if (_doctors == null) return;
+
     setState(() {
-      final index = _doctors!.indexWhere((d) => d.id == doctor.id);
+      final index = _doctors!.indexWhere(
+            (d) => d.id == doctor.id,
+      );
+
       if (index != -1) {
-        _doctors![index] = doctor.copyWith(isFavorite: !doctor.isFavorite);
+        _doctors![index] = doctor.copyWith(
+          isFavorite: !doctor.isFavorite,
+        );
       }
     });
   }
 
   FirebaseAuth? get _auth {
-    if (widget.firebaseAuth != null) return widget.firebaseAuth;
+    if (widget.firebaseAuth != null) {
+      return widget.firebaseAuth;
+    }
+
     try {
       return getIt.isRegistered<FirebaseAuth>()
           ? getIt<FirebaseAuth>()
@@ -242,7 +329,10 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
   }
 
   UserRemoteDataSource? get _userRemoteDataSource {
-    if (widget.userRemoteDataSource != null) return widget.userRemoteDataSource;
+    if (widget.userRemoteDataSource != null) {
+      return widget.userRemoteDataSource;
+    }
+
     try {
       return getIt.isRegistered<UserRemoteDataSource>()
           ? getIt<UserRemoteDataSource>()
@@ -252,8 +342,9 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
     }
   }
 
-  Future<void> _navigateToEditDoctor(DoctorData doctor) async {
+  Future<void> _navigateToEditDoctor(DoctorData doctor,) async {
     final entity = doctor.toEntity();
+
     final updated = await Navigator.push<DoctorEntity>(
       context,
       MaterialPageRoute(
@@ -262,61 +353,111 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
         ),
       ),
     );
+
     if (updated != null && mounted) {
       setState(() {
         if (_doctors != null) {
-          final index = _doctors!.indexWhere((d) => d.id == updated.id);
+          final index = _doctors!.indexWhere(
+                (d) => d.id == updated.id,
+          );
+
           if (index != -1) {
             final oldFav = _doctors![index].isFavorite;
-            _doctors![index] =
-                DoctorData.fromEntity(updated).copyWith(isFavorite: oldFav);
+
+            _doctors![index] = DoctorData.fromEntity(updated).copyWith(
+              isFavorite: oldFav,
+            );
           }
         }
       });
+
+      final doctors = _doctors;
+
+      if (doctors != null && doctors.isNotEmpty) {
+        await _loadRealReviewSummaries(
+          List<DoctorData>.from(doctors),
+        );
+      }
     }
   }
 
-  void _navigateToDoctorDetails(DoctorData doctor) {
-    Navigator.pushNamed(
+  Future<void> _navigateToDoctorDetails(DoctorData doctor,) async {
+    await Navigator.pushNamed(
       context,
       Routes.doctorDetails,
       arguments: doctor,
+    );
+
+    if (!mounted) return;
+
+    // Refresh the real rating and review count after returning
+    // from the doctor details/review page.
+    final doctors = _doctors;
+
+    if (doctors == null || doctors.isEmpty) {
+      return;
+    }
+
+    await _loadRealReviewSummaries(
+      List<DoctorData>.from(doctors),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     if (widget.isAdmin != null) {
-      return _buildScaffold(context, isAdmin: widget.isAdmin!);
+      return _buildScaffold(
+        context,
+        isAdmin: widget.isAdmin!,
+      );
     }
 
     final firebaseAuth = _auth;
     final remoteDataSource = _userRemoteDataSource;
 
     if (firebaseAuth == null || remoteDataSource == null) {
-      return _buildScaffold(context, isAdmin: false);
+      return _buildScaffold(
+        context,
+        isAdmin: false,
+      );
     }
 
     return StreamBuilder<User?>(
       stream: firebaseAuth.authStateChanges(),
-      builder: (context, authSnapshot) {
-        final currentUser = authSnapshot.data ?? firebaseAuth.currentUser;
+      builder: (context,
+          authSnapshot,) {
+        final currentUser =
+            authSnapshot.data ?? firebaseAuth.currentUser;
+
         if (currentUser == null) {
-          return _buildScaffold(context, isAdmin: false);
+          return _buildScaffold(
+            context,
+            isAdmin: false,
+          );
         }
 
         return StreamBuilder<UserModel?>(
-          stream: remoteDataSource.getUserStream(currentUser.uid),
-          builder: (context, userSnapshot) {
-            final isAdmin = userSnapshot.data?.role == 'admin';
-            return _buildScaffold(context, isAdmin: isAdmin);
+          stream: remoteDataSource.getUserStream(
+            currentUser.uid,
+          ),
+          builder: (context,
+              userSnapshot,) {
+            final isAdmin =
+                userSnapshot.data?.role == 'admin';
+
+            return _buildScaffold(
+              context,
+              isAdmin: isAdmin,
+            );
           },
         );
       },
     );
   }
 
-  Widget _buildScaffold(BuildContext context, {required bool isAdmin}) {
+  Widget _buildScaffold(BuildContext context, {
+    required bool isAdmin,
+  }) {
     final doctors = _filteredDoctors;
 
     return Scaffold(
@@ -349,7 +490,10 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+          padding: EdgeInsets.symmetric(
+            horizontal: 20.w,
+            vertical: 16.h,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -371,7 +515,9 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
               if (_errorMessage != null)
                 Container(
                   width: double.infinity,
-                  padding: EdgeInsets.symmetric(vertical: 32.h),
+                  padding: EdgeInsets.symmetric(
+                    vertical: 32.h,
+                  ),
                   alignment: Alignment.center,
                   child: Text(
                     _errorMessage!,
@@ -385,7 +531,9 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
               else if (_isLoading && _doctors == null)
                 Container(
                   width: double.infinity,
-                  padding: EdgeInsets.symmetric(vertical: 48.h),
+                  padding: EdgeInsets.symmetric(
+                    vertical: 48.h,
+                  ),
                   alignment: Alignment.center,
                   child: const CircularProgressIndicator(
                     color: AppColors.darkTeal,

@@ -17,139 +17,162 @@ class DoctorModel extends DoctorEntity {
     super.createdAt,
     super.latitude,
     super.longitude,
+    super.schedule = const [],
   });
 
   static double _parseDouble(dynamic value, [
     double defaultValue = 0.0,
   ]) {
-    if (value == null) return defaultValue;
+    if (value == null) {
+      return defaultValue;
+    }
+
+    if (value is double) {
+      return value;
+    }
+
+    if (value is int) {
+      return value.toDouble();
+    }
 
     if (value is num) {
       return value.toDouble();
     }
 
     if (value is String) {
-      final normalized =
-      value.trim().replaceAll(',', '.');
+      final trimmed = value.trim();
 
-      if (normalized.isEmpty) {
+      if (trimmed.isEmpty) {
         return defaultValue;
       }
 
-      final parsed = double.tryParse(normalized);
-
-      if (parsed != null) {
-        return parsed;
-      }
-
-      final match = RegExp(
-        r'-?[0-9]+(?:\.[0-9]+)?',
-      ).firstMatch(normalized);
-
-      if (match != null) {
-        return double.tryParse(
-          match.group(0)!,
-        ) ??
-            defaultValue;
-      }
+      return double.tryParse(
+        trimmed.replaceAll(',', '.'),
+      ) ??
+          defaultValue;
     }
 
     return defaultValue;
-  }
-
-  static double? _parseNullableDouble(dynamic value,) {
-    if (value == null) return null;
-
-    if (value is num) {
-      return value.toDouble();
-    }
-
-    if (value is String) {
-      final normalized =
-      value.trim().replaceAll(',', '.');
-
-      if (normalized.isEmpty) return null;
-
-      return double.tryParse(normalized);
-    }
-
-    return null;
   }
 
   static int _parseInt(dynamic value, [
     int defaultValue = 0,
   ]) {
-    if (value == null) return defaultValue;
+    if (value == null) {
+      return defaultValue;
+    }
 
-    if (value is int) return value;
+    if (value is int) {
+      return value;
+    }
 
-    if (value is num) return value.toInt();
+    if (value is num) {
+      return value.toInt();
+    }
 
     if (value is String) {
       final trimmed = value.trim();
 
-      if (trimmed.isEmpty) return defaultValue;
-
-      final parsed = int.tryParse(trimmed);
-
-      if (parsed != null) {
-        return parsed;
+      if (trimmed.isEmpty) {
+        return defaultValue;
       }
 
-      final match = RegExp(
-        r'-?[0-9]+',
-      ).firstMatch(trimmed);
-
-      if (match != null) {
-        return int.tryParse(
-          match.group(0)!,
-        ) ??
-            defaultValue;
-      }
+      return int.tryParse(trimmed) ?? defaultValue;
     }
 
     return defaultValue;
   }
 
+  static DateTime? _parseDateTime(dynamic value) {
+    if (value is Timestamp) {
+      return value.toDate();
+    }
+
+    if (value is String) {
+      return DateTime.tryParse(value);
+    }
+
+    if (value is int) {
+      return DateTime.fromMillisecondsSinceEpoch(value);
+    }
+
+    return null;
+  }
+
+  static List<DoctorSchedule> _parseSchedule(dynamic value,) {
+    if (value is! Map) {
+      return [];
+    }
+
+    final result = <DoctorSchedule>[];
+
+    const days = [
+      'sunday',
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+    ];
+
+    for (final day in days) {
+      final rawDay = value[day];
+
+      if (rawDay is Map) {
+        result.add(
+          DoctorSchedule(
+            day: day,
+            enabled: rawDay['enabled'] == true,
+            startTime:
+            rawDay['startTime']?.toString() ?? '09:00',
+            endTime:
+            rawDay['endTime']?.toString() ?? '17:00',
+          ),
+        );
+      }
+    }
+
+    return result;
+  }
+
+  static Map<String, dynamic> _scheduleToFirestore(
+      List<DoctorSchedule> schedule,) {
+    final result = <String, dynamic>{};
+
+    for (final item in schedule) {
+      result[item.day] = {
+        'enabled': item.enabled,
+        'startTime': item.startTime,
+        'endTime': item.endTime,
+      };
+    }
+
+    return result;
+  }
+
   factory DoctorModel.fromFirestore(Map<String, dynamic> json, [
     String? docId,
   ]) {
-    DateTime? parsedCreatedAt;
+    DateTime? parsedCreatedAt =
+    _parseDateTime(json['createdAt']);
 
-    final rawCreatedAt = json['createdAt'];
-
-    if (rawCreatedAt is Timestamp) {
-      parsedCreatedAt = rawCreatedAt.toDate();
-    } else if (rawCreatedAt is String) {
-      parsedCreatedAt = DateTime.tryParse(
-        rawCreatedAt,
-      );
-    } else if (rawCreatedAt is int) {
-      parsedCreatedAt =
-          DateTime.fromMillisecondsSinceEpoch(
-            rawCreatedAt,
-          );
-    }
+    final parsedSchedule =
+    _parseSchedule(json['schedule']);
 
     return DoctorModel(
       id: docId,
       name: json['name']?.toString() ?? '',
-      specialty:
-      json['specialty']?.toString() ?? '',
-      categoryId:
-      json['categoryId']?.toString() ?? '',
+      specialty: json['specialty']?.toString() ??
+          json['categoryName']?.toString() ??
+          '',
+      categoryId: json['categoryId']?.toString() ?? '',
       categoryName:
       json['categoryName']?.toString() ?? '',
-      address:
-      json['address']?.toString() ??
-          json['location']?.toString() ??
-          '',
-      rating: _parseDouble(
-        json['rating'],
-      ),
+      address: json['address']?.toString() ?? '',
+      rating: _parseDouble(json['rating']),
       reviewsCount: _parseInt(
-        json['reviewsCount'] ??
-            json['reviewCount'],
+        json['reviewsCount'] ?? json['reviewCount'],
       ),
       imagePath:
       json['imagePath']?.toString() ??
@@ -157,7 +180,6 @@ class DoctorModel extends DoctorEntity {
           '',
       availableTime:
       json['availableTime']?.toString() ??
-          json['schedule']?.toString() ??
           'Mon - Sat: 09:00 AM - 05:00 PM',
       createdAt: parsedCreatedAt,
       latitude: _parseNullableDouble(
@@ -168,36 +190,107 @@ class DoctorModel extends DoctorEntity {
             json['lng'] ??
             json['lon'],
       ),
+      schedule: parsedSchedule.isNotEmpty
+          ? parsedSchedule
+          : const [
+        DoctorSchedule(
+          day: 'sunday',
+          enabled: false,
+          startTime: '09:00',
+          endTime: '17:00',
+        ),
+        DoctorSchedule(
+          day: 'monday',
+          enabled: true,
+          startTime: '09:00',
+          endTime: '17:00',
+        ),
+        DoctorSchedule(
+          day: 'tuesday',
+          enabled: true,
+          startTime: '09:00',
+          endTime: '17:00',
+        ),
+        DoctorSchedule(
+          day: 'wednesday',
+          enabled: true,
+          startTime: '09:00',
+          endTime: '17:00',
+        ),
+        DoctorSchedule(
+          day: 'thursday',
+          enabled: true,
+          startTime: '09:00',
+          endTime: '17:00',
+        ),
+        DoctorSchedule(
+          day: 'friday',
+          enabled: true,
+          startTime: '09:00',
+          endTime: '17:00',
+        ),
+        DoctorSchedule(
+          day: 'saturday',
+          enabled: true,
+          startTime: '09:00',
+          endTime: '17:00',
+        ),
+      ],
     );
   }
 
-  Map<String, dynamic> toFirestore() {
-    final data = <String, dynamic>{
+  static double? _parseNullableDouble(dynamic value) {
+    if (value == null) {
+      return null;
+    }
+
+    if (value is double) {
+      return value;
+    }
+
+    if (value is int) {
+      return value.toDouble();
+    }
+
+    if (value is num) {
+      return value.toDouble();
+    }
+
+    if (value is String) {
+      final trimmed = value.trim();
+
+      if (trimmed.isEmpty) {
+        return null;
+      }
+
+      return double.tryParse(
+        trimmed.replaceAll(',', '.'),
+      );
+    }
+
+    return null;
+  }
+
+  Map<String, dynamic> toFirestore({
+    bool isNew = false,
+  }) {
+    return {
       'name': name,
       'specialty': specialty,
       'categoryId': categoryId,
       'categoryName': categoryName,
       'address': address,
-      'location': address,
       'rating': rating,
       'reviewsCount': reviewsCount,
-      'imagePath': imagePath,
       'availableTime': availableTime,
-      'schedule': availableTime,
-      'createdAt': createdAt != null
-          ? Timestamp.fromDate(createdAt!)
-          : FieldValue.serverTimestamp(),
+      'imagePath': imagePath,
+      'latitude': latitude,
+      'longitude': longitude,
+      'schedule': _scheduleToFirestore(schedule),
+      'createdAt': isNew || createdAt == null
+          ? FieldValue.serverTimestamp()
+          : Timestamp.fromDate(createdAt!),
     };
-
-    if (latitude != null) {
-      data['latitude'] = latitude;
-    }
-
-    if (longitude != null) {
-      data['longitude'] = longitude;
-    }
-
-    return data;
   }
 
   factory DoctorModel.fromEntity(DoctorEntity entity,) {
@@ -210,11 +303,12 @@ class DoctorModel extends DoctorEntity {
       address: entity.address,
       rating: entity.rating,
       reviewsCount: entity.reviewsCount,
-      imagePath: entity.imagePath,
       availableTime: entity.availableTime,
+      imagePath: entity.imagePath,
       createdAt: entity.createdAt,
       latitude: entity.latitude,
       longitude: entity.longitude,
+      schedule: entity.schedule,
     );
   }
 }

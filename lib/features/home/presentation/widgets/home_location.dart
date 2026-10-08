@@ -10,7 +10,7 @@ import 'package:medical_app/core/utils/app_assets.dart';
 class HomeLocation extends StatelessWidget {
   const HomeLocation({
     super.key,
-    this.location = 'Seattle, USA',
+    this.location = 'Current Location',
     this.hasNotification = true,
     this.onNotificationPressed,
     this.onLocationPressed,
@@ -88,18 +88,19 @@ class HomeLocation extends StatelessWidget {
                   width: 22.r,
                   height: 22.r,
                 ),
-                Positioned(
-                  top: 9.r,
-                  right: 10.r,
-                  child: Container(
-                    width: 7.r,
-                    height: 7.r,
-                    decoration: const BoxDecoration(
-                      color: AppColors.red,
-                      shape: BoxShape.circle,
+                if (hasNotification)
+                  Positioned(
+                    top: 9.r,
+                    right: 10.r,
+                    child: Container(
+                      width: 7.r,
+                      height: 7.r,
+                      decoration: const BoxDecoration(
+                        color: AppColors.red,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
           ),

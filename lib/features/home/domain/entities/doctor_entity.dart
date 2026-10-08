@@ -1,5 +1,89 @@
 import 'package:equatable/equatable.dart';
 
+class DoctorSchedule extends Equatable {
+  const DoctorSchedule({
+    required this.day,
+    required this.enabled,
+    required this.startTime,
+    required this.endTime,
+  });
+
+  final String day;
+  final bool enabled;
+  final String startTime;
+  final String endTime;
+
+  DoctorSchedule copyWith({
+    String? day,
+    bool? enabled,
+    String? startTime,
+    String? endTime,
+  }) {
+    return DoctorSchedule(
+      day: day ?? this.day,
+      enabled: enabled ?? this.enabled,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+    );
+  }
+
+  static List<DoctorSchedule> defaultWeek() {
+    return const [
+      DoctorSchedule(
+        day: 'sunday',
+        enabled: false,
+        startTime: '09:00',
+        endTime: '17:00',
+      ),
+      DoctorSchedule(
+        day: 'monday',
+        enabled: false,
+        startTime: '09:00',
+        endTime: '17:00',
+      ),
+      DoctorSchedule(
+        day: 'tuesday',
+        enabled: false,
+        startTime: '09:00',
+        endTime: '17:00',
+      ),
+      DoctorSchedule(
+        day: 'wednesday',
+        enabled: false,
+        startTime: '09:00',
+        endTime: '17:00',
+      ),
+      DoctorSchedule(
+        day: 'thursday',
+        enabled: false,
+        startTime: '09:00',
+        endTime: '17:00',
+      ),
+      DoctorSchedule(
+        day: 'friday',
+        enabled: false,
+        startTime: '09:00',
+        endTime: '17:00',
+      ),
+      DoctorSchedule(
+        day: 'saturday',
+        enabled: false,
+        startTime: '09:00',
+        endTime: '17:00',
+      ),
+    ];
+  }
+
+  @override
+  List<Object?> get props =>
+      [
+        day,
+        enabled,
+        startTime,
+        endTime,
+      ];
+}
+
 class DoctorEntity extends Equatable {
   const DoctorEntity({
     this.id,
@@ -15,6 +99,7 @@ class DoctorEntity extends Equatable {
     this.createdAt,
     this.latitude,
     this.longitude,
+    this.schedule = const [],
   });
 
   final String? id;
@@ -28,41 +113,9 @@ class DoctorEntity extends Equatable {
   final String availableTime;
   final String imagePath;
   final DateTime? createdAt;
-
   final double? latitude;
   final double? longitude;
-
-  DoctorEntity copyWith({
-    String? id,
-    String? name,
-    String? specialty,
-    String? categoryId,
-    String? categoryName,
-    String? address,
-    double? rating,
-    int? reviewsCount,
-    String? availableTime,
-    String? imagePath,
-    DateTime? createdAt,
-    double? latitude,
-    double? longitude,
-  }) {
-    return DoctorEntity(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      specialty: specialty ?? this.specialty,
-      categoryId: categoryId ?? this.categoryId,
-      categoryName: categoryName ?? this.categoryName,
-      address: address ?? this.address,
-      rating: rating ?? this.rating,
-      reviewsCount: reviewsCount ?? this.reviewsCount,
-      availableTime: availableTime ?? this.availableTime,
-      imagePath: imagePath ?? this.imagePath,
-      createdAt: createdAt ?? this.createdAt,
-      latitude: latitude ?? this.latitude,
-      longitude: longitude ?? this.longitude,
-    );
-  }
+  final List<DoctorSchedule> schedule;
 
   @override
   List<Object?> get props => [
@@ -79,5 +132,6 @@ class DoctorEntity extends Equatable {
     createdAt,
     latitude,
     longitude,
+    schedule,
   ];
 }

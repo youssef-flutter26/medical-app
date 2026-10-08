@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:medical_app/core/di/service_locator.dart';
 import 'package:medical_app/core/routing/routes.dart';
@@ -26,6 +27,11 @@ import 'package:medical_app/features/home/presentation/widgets/banner_section.da
 import 'package:medical_app/features/home/presentation/widgets/categories_section.dart';
 import 'package:medical_app/features/home/presentation/widgets/home_header.dart';
 import 'package:medical_app/features/home/presentation/widgets/medical_centers_section.dart';
+
+import '../../../../core/error/result.dart';
+import '../../../reviews/domain/entities/review_summary.dart';
+import '../../../reviews/domain/repositories/review_repository.dart';
+import 'medical_center_details_page.dart';
 
 class HomeScreen extends StatefulWidget {
   final FirebaseAuth? auth;
@@ -51,6 +57,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen>
     with WidgetsBindingObserver {
+  final Geocoding _geocoding = Geocoding();
+
   Stream<List<BannerEntity>>? _bannersStream;
   Stream<List<MedicalCenterEntity>>? _medicalCentersStream;
   Stream<List<CategoryEntity>>? _categoriesStream;
@@ -68,6 +76,8 @@ class _HomeScreenState extends State<HomeScreen>
   String? _nearbyError;
   bool _isCalculatingNearby = false;
   bool? _lastLocationServiceStatus;
+
+  String _currentLocation = 'Current Location';
 
   FirebaseAuth? get _auth {
     if (widget.auth != null) {
@@ -103,6 +113,106 @@ class _HomeScreenState extends State<HomeScreen>
       Routes.allMedicalCenters,
       arguments: _nearbyMedicalCenters,
     );
+  }
+
+  ReviewRepository? get _reviewRepository {
+    try {
+      return getIt.isRegistered<ReviewRepository>()
+          ? getIt<ReviewRepository>()
+          : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<List<MedicalCenterEntity>>
+  _applyMedicalCenterReviewSummaries(List<MedicalCenterEntity> centers,) async {
+    final repository = _reviewRepository;
+
+    if (repository == null) {
+      return centers;
+    }
+
+    final updatedCenters = await Future.wait(
+      centers.map(
+            (center) async {
+          if (center.id == null ||
+              center.id!.trim().isEmpty) {
+            return center;
+          }
+
+          try {
+            final result = await repository.getReviewSummary(
+              targetId: center.id!,
+              targetType: 'medicalCenter',
+            );
+
+            if (result is SuccessAPI<ReviewSummary>) {
+              final summary = result.data;
+
+              return center.copyWith(
+                rating: summary.rating,
+                reviewsCount: summary.reviewCount,
+              );
+            }
+          } catch (e) {
+            debugPrint(
+              'HomeScreen: Failed to load reviews '
+                  'for medical center ${center.id}: $e',
+            );
+          }
+
+          return center;
+        },
+      ),
+    );
+
+    return updatedCenters;
+  }
+
+
+  Future<void> _navigateToMedicalCenterDetails(BuildContext context,
+      MedicalCenterEntity center,) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            MedicalCenterDetailsPage(
+              center: center,
+            ),
+      ),
+    );
+
+    if (!mounted) return;
+
+    final updatedCenters =
+    await _applyMedicalCenterReviewSummaries(
+      _allMedicalCenters,
+    );
+
+    if (!mounted) return;
+
+    final updatedById = <String, MedicalCenterEntity>{
+      for (final item in updatedCenters)
+        if (item.id != null && item.id!.isNotEmpty)
+          item.id!: item,
+    };
+
+    setState(() {
+      _allMedicalCenters = updatedCenters;
+      _nearbyMedicalCenters = _nearbyMedicalCenters.map((item) {
+        final updated =
+        item.id == null ? null : updatedById[item.id!];
+
+        if (updated == null) {
+          return item;
+        }
+
+        return updated.copyWith(
+          distance: item.distance,
+        );
+      }).toList();
+    });
   }
 
   @override
@@ -208,12 +318,21 @@ class _HomeScreenState extends State<HomeScreen>
 
     _medicalCentersSubscription =
         _medicalCentersStream!.listen(
-              (centers) {
-            _allMedicalCenters =
+              (centers) async {
+            final centersList =
             List<MedicalCenterEntity>.from(centers);
+            final updatedCenters =
+            await _applyMedicalCenterReviewSummaries(
+              centersList,
+            );
 
-            _calculateNearbyMedicalCenters(
+            if (!mounted) return;
+
+            _allMedicalCenters = updatedCenters;
+
+            await _calculateNearbyMedicalCenters(
               _allMedicalCenters,
+              force: true,
             );
           },
           onError: (error) {
@@ -278,6 +397,7 @@ class _HomeScreenState extends State<HomeScreen>
       _isNearbyLoading = false;
       _nearbyError =
       'Location services are disabled.';
+      _currentLocation = 'Location unavailable';
     });
   }
 
@@ -288,6 +408,72 @@ class _HomeScreenState extends State<HomeScreen>
       _allMedicalCenters,
       force: true,
     );
+  }
+
+  Future<void> _updateCurrentLocationName(Position position,) async {
+    try {
+      final placemarks =
+      await _geocoding.placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      if (placemarks.isEmpty) {
+        return;
+      }
+
+      final placemark = placemarks.first;
+
+      final locality = placemark.locality;
+      final subAdministrativeArea =
+          placemark.subAdministrativeArea;
+      final administrativeArea =
+          placemark.administrativeArea;
+      final country = placemark.country;
+
+      String city = '';
+
+      if (locality != null &&
+          locality
+              .trim()
+              .isNotEmpty) {
+        city = locality.trim();
+      } else if (subAdministrativeArea != null &&
+          subAdministrativeArea
+              .trim()
+              .isNotEmpty) {
+        city = subAdministrativeArea.trim();
+      } else if (administrativeArea != null &&
+          administrativeArea
+              .trim()
+              .isNotEmpty) {
+        city = administrativeArea.trim();
+      }
+
+      final cleanCountry =
+          country?.trim() ?? '';
+
+      final locationParts = <String>[
+        if (city.isNotEmpty) city,
+        if (cleanCountry.isNotEmpty) cleanCountry,
+      ];
+
+      final locationName =
+      locationParts.join(', ');
+
+      if (!mounted) return;
+
+      setState(() {
+        _currentLocation =
+        locationName.isNotEmpty
+            ? locationName
+            : 'Current Location';
+      });
+    } catch (e) {
+      debugPrint(
+        'HomeScreen: Failed to get location name: $e',
+      );
+    }
   }
 
   Future<void> _calculateNearbyMedicalCenters(List<MedicalCenterEntity> centers,
@@ -306,6 +492,7 @@ class _HomeScreenState extends State<HomeScreen>
       setState(() {
         _isNearbyLoading = true;
         _nearbyError = null;
+        _nearbyMedicalCenters = [];
       });
     }
 
@@ -321,6 +508,8 @@ class _HomeScreenState extends State<HomeScreen>
           _isNearbyLoading = false;
           _nearbyError =
           'Location services are disabled.';
+          _currentLocation =
+          'Location unavailable';
         });
 
         return;
@@ -329,12 +518,14 @@ class _HomeScreenState extends State<HomeScreen>
       LocationPermission permission =
       await Geolocator.checkPermission();
 
-      if (permission == LocationPermission.denied) {
+      if (permission ==
+          LocationPermission.denied) {
         permission =
         await Geolocator.requestPermission();
       }
 
-      if (permission == LocationPermission.denied ||
+      if (permission ==
+          LocationPermission.denied ||
           permission ==
               LocationPermission.deniedForever) {
         if (!mounted) return;
@@ -344,6 +535,8 @@ class _HomeScreenState extends State<HomeScreen>
           _isNearbyLoading = false;
           _nearbyError =
           'Location permission was denied.';
+          _currentLocation =
+          'Location unavailable';
         });
 
         return;
@@ -355,6 +548,10 @@ class _HomeScreenState extends State<HomeScreen>
         const LocationSettings(
           accuracy: LocationAccuracy.high,
         ),
+      );
+
+      await _updateCurrentLocationName(
+        position,
       );
 
       final calculatedCenters = centers
@@ -393,8 +590,7 @@ class _HomeScreenState extends State<HomeScreen>
       if (!mounted) return;
 
       setState(() {
-        _nearbyMedicalCenters =
-            calculatedCenters;
+        _nearbyMedicalCenters = calculatedCenters;
         _isNearbyLoading = false;
         _nearbyError = null;
       });
@@ -410,6 +606,8 @@ class _HomeScreenState extends State<HomeScreen>
         _nearbyMedicalCenters = [];
         _isNearbyLoading = false;
         _nearbyError = e.toString();
+        _currentLocation =
+        'Location unavailable';
       });
     } finally {
       _isCalculatingNearby = false;
@@ -464,7 +662,9 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(
+      this,
+    );
 
     _medicalCentersSubscription?.cancel();
     _locationServiceSubscription?.cancel();
@@ -487,7 +687,8 @@ class _HomeScreenState extends State<HomeScreen>
     }
 
     return StreamBuilder<User?>(
-      stream: firebaseAuth.authStateChanges(),
+      stream:
+      firebaseAuth.authStateChanges(),
       builder: (context,
           authSnapshot,) {
         final currentUser =
@@ -545,7 +746,9 @@ class _HomeScreenState extends State<HomeScreen>
             crossAxisAlignment:
             CrossAxisAlignment.start,
             children: [
-              const HomeHeader(),
+              HomeHeader(
+                location: _currentLocation,
+              ),
 
               SizedBox(height: 20.h),
 
@@ -626,16 +829,18 @@ class _HomeScreenState extends State<HomeScreen>
                 isLoading: _isNearbyLoading,
                 errorMessage: _nearbyError,
                 onSeeAll: _navigateToAllMedicalCenters,
-
                 isAdmin: isAdmin,
-                onEditCenter:
-                    (center) =>
+                onEditCenter: (center) =>
                     _navigateToEditMedicalCenter(
                       context,
                       center,
                     ),
+                onCenterTap: (center) =>
+                    _navigateToMedicalCenterDetails(
+                      context,
+                      center,
+                    ),
               ),
-
               SizedBox(height: 24.h),
             ],
           ),

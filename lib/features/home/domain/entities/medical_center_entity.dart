@@ -20,13 +20,10 @@ class MedicalCenterEntity extends Equatable {
   final String address;
   final double rating;
   final int reviewsCount;
-
   final double distance;
-
   final String type;
   final String imagePath;
   final DateTime? createdAt;
-
   final double? latitude;
   final double? longitude;
 

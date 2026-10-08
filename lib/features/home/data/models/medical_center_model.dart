@@ -19,57 +19,33 @@ class MedicalCenterModel extends MedicalCenterEntity {
   static double _parseDouble(dynamic value, [
     double defaultValue = 0.0,
   ]) {
-    if (value == null) return defaultValue;
-
     if (value is num) {
       return value.toDouble();
     }
 
     if (value is String) {
-      final normalized =
-      value.trim().replaceAll(',', '.');
-
-      if (normalized.isEmpty) {
-        return defaultValue;
-      }
-
-      final parsed = double.tryParse(normalized);
-
-      if (parsed != null) {
-        return parsed;
-      }
-
-      final match = RegExp(
-        r'-?[0-9]+(?:\.[0-9]+)?',
-      ).firstMatch(normalized);
-
-      if (match != null) {
-        return double.tryParse(
-          match.group(0)!,
-        ) ??
-            defaultValue;
-      }
+      return double.tryParse(
+        value.trim().replaceAll(',', '.'),
+      ) ??
+          defaultValue;
     }
 
     return defaultValue;
   }
 
   static double? _parseNullableDouble(dynamic value,) {
-    if (value == null) return null;
+    if (value == null) {
+      return null;
+    }
 
     if (value is num) {
       return value.toDouble();
     }
 
     if (value is String) {
-      final normalized =
-      value.trim().replaceAll(',', '.');
-
-      if (normalized.isEmpty) {
-        return null;
-      }
-
-      return double.tryParse(normalized);
+      return double.tryParse(
+        value.trim().replaceAll(',', '.'),
+      );
     }
 
     return null;
@@ -78,37 +54,19 @@ class MedicalCenterModel extends MedicalCenterEntity {
   static int _parseInt(dynamic value, [
     int defaultValue = 0,
   ]) {
-    if (value == null) return defaultValue;
-
-    if (value is int) return value;
+    if (value is int) {
+      return value;
+    }
 
     if (value is num) {
       return value.toInt();
     }
 
     if (value is String) {
-      final trimmed = value.trim();
-
-      if (trimmed.isEmpty) {
-        return defaultValue;
-      }
-
-      final parsed = int.tryParse(trimmed);
-
-      if (parsed != null) {
-        return parsed;
-      }
-
-      final match = RegExp(
-        r'-?[0-9]+',
-      ).firstMatch(trimmed);
-
-      if (match != null) {
-        return int.tryParse(
-          match.group(0)!,
-        ) ??
-            defaultValue;
-      }
+      return int.tryParse(
+        value.trim(),
+      ) ??
+          defaultValue;
     }
 
     return defaultValue;
@@ -119,14 +77,15 @@ class MedicalCenterModel extends MedicalCenterEntity {
   ]) {
     DateTime? parsedCreatedAt;
 
-    final rawCreatedAt = json['createdAt'];
+    final rawCreatedAt =
+    json['createdAt'];
 
     if (rawCreatedAt is Timestamp) {
-      parsedCreatedAt = rawCreatedAt.toDate();
+      parsedCreatedAt =
+          rawCreatedAt.toDate();
     } else if (rawCreatedAt is String) {
-      parsedCreatedAt = DateTime.tryParse(
-        rawCreatedAt,
-      );
+      parsedCreatedAt =
+          DateTime.tryParse(rawCreatedAt);
     } else if (rawCreatedAt is int) {
       parsedCreatedAt =
           DateTime.fromMillisecondsSinceEpoch(
@@ -137,20 +96,21 @@ class MedicalCenterModel extends MedicalCenterEntity {
     return MedicalCenterModel(
       id: docId,
       name: json['name']?.toString() ?? '',
-      address: json['address']?.toString() ?? '',
+      address:
+      json['address']?.toString() ?? '',
       rating: _parseDouble(
         json['rating'],
       ),
+
       reviewsCount: _parseInt(
         json['reviewsCount'] ??
             json['reviewCount'],
       ),
 
-      // Firebase does NOT provide distance.
-      // It will be calculated at runtime.
       distance: 0.0,
 
-      type: json['type']?.toString() ??
+      type:
+      json['type']?.toString() ??
           json['category']?.toString() ??
           'Hospital',
 
@@ -183,6 +143,7 @@ class MedicalCenterModel extends MedicalCenterEntity {
       'imagePath': imagePath,
     };
 
+
     if (createdAt != null) {
       data['createdAt'] =
           Timestamp.fromDate(createdAt!);
@@ -199,9 +160,6 @@ class MedicalCenterModel extends MedicalCenterEntity {
       data['longitude'] = longitude;
     }
 
-    // IMPORTANT:
-    // distance is intentionally NOT stored in Firestore.
-
     return data;
   }
 
@@ -211,7 +169,8 @@ class MedicalCenterModel extends MedicalCenterEntity {
       name: entity.name,
       address: entity.address,
       rating: entity.rating,
-      reviewsCount: entity.reviewsCount,
+      reviewsCount:
+      entity.reviewsCount,
       distance: entity.distance,
       type: entity.type,
       imagePath: entity.imagePath,

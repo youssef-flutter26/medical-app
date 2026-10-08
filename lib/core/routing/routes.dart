@@ -19,4 +19,5 @@ abstract final class Routes {
   static const String nearbyMedicalCenters = '/nearby-medical-centers';
   static const String allMedicalCenters = '/all-medical-centers';
   static const String profile = '/profile';
+  static const String medicalCenterDetails = '/medical-center-details';
 }
