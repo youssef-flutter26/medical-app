@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
@@ -84,6 +85,12 @@ import 'package:medical_app/features/reviews/domain/usecases/get_my_review.dart'
 import 'package:medical_app/features/reviews/domain/usecases/get_reviews.dart';
 import 'package:medical_app/features/reviews/domain/usecases/submit_review.dart';
 import 'package:medical_app/features/reviews/presentation/cubit/review_cubit.dart';
+
+import '../../features/ai_assistant/data/datasources/assistant_remote_data_source.dart';
+import '../../features/ai_assistant/data/repositories/assistant_repository_impl.dart';
+import '../../features/ai_assistant/domain/repositories/assistant_repository.dart';
+import '../../features/ai_assistant/domain/usecases/send_assistant_message.dart';
+import '../../features/ai_assistant/presentation/cubit/assistant_cubit.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -527,6 +534,38 @@ void setupServiceLocator() {
           getDoctorReviews: getIt<GetReviews>(),
           getMyDoctorReview: getIt<GetMyReview>(),
           submitDoctorReview: getIt<SubmitReview>(),
+        ),
+  );
+
+
+  getIt.registerLazySingleton<AssistantRemoteDataSource>(
+        () =>
+        AssistantRemoteDataSource(
+          firestore: getIt<FirebaseFirestore>(),
+        ),
+  );
+
+
+  getIt.registerLazySingleton<AssistantRepository>(
+        () =>
+        AssistantRepositoryImpl(
+          getIt<AssistantRemoteDataSource>(),
+          getIt<ReviewRepository>(),
+        ),
+  );
+
+
+  getIt.registerLazySingleton<SendAssistantMessage>(
+        () =>
+        SendAssistantMessage(
+          getIt<AssistantRepository>(),
+        ),
+  );
+
+  getIt.registerFactory<AssistantCubit>(
+        () =>
+        AssistantCubit(
+          getIt<SendAssistantMessage>(),
         ),
   );
 }

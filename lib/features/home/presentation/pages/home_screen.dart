@@ -33,6 +33,10 @@ import '../../../reviews/domain/entities/review_summary.dart';
 import '../../../reviews/domain/repositories/review_repository.dart';
 import 'medical_center_details_page.dart';
 
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:medical_app/features/ai_assistant/presentation/cubit/assistant_cubit.dart';
+import 'package:medical_app/features/ai_assistant/presentation/pages/assistant_page.dart';
+
 class HomeScreen extends StatefulWidget {
   final FirebaseAuth? auth;
   final UserRemoteDataSource? userRemoteDataSource;
@@ -220,6 +224,19 @@ class _HomeScreenState extends State<HomeScreen>
         );
       }).toList();
     });
+  }
+
+  void _navigateToAssistant() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            BlocProvider(
+              create: (_) => getIt<AssistantCubit>(),
+              child: const AssistantPage(),
+            ),
+      ),
+    );
   }
 
   @override
@@ -757,11 +774,42 @@ class _HomeScreenState extends State<HomeScreen>
             crossAxisAlignment:
             CrossAxisAlignment.start,
             children: [
+
               HomeHeader(
                 location: _currentLocation,
               ),
 
+              SizedBox(height: 16.h),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: _navigateToAssistant,
+                  icon: const Icon(Icons.auto_awesome),
+                  label: Text(
+                    'AI Assistant',
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.darkTeal,
+                    foregroundColor: AppColors.white,
+                    padding: EdgeInsets.symmetric(
+                      vertical: 14.h,
+                      horizontal: 16.w,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14.r),
+                    ),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+
               SizedBox(height: 20.h),
+
 
               StreamBuilder<List<BannerEntity>>(
                 stream: _bannersStream,
