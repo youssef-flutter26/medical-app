@@ -1,0 +1,162 @@
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:medical_app/core/di/service_locator.dart';
+import 'package:medical_app/core/localization/locale_keys.dart';
+import 'package:medical_app/core/routing/routes.dart';
+import 'package:medical_app/core/theme/app_colors.dart';
+import 'package:medical_app/core/theme/app_text_styles.dart';
+import '../cubit/profile_cubit.dart';
+import '../cubit/profile_state.dart';
+import '../widgets/logout_bottom_sheet.dart';
+import '../widgets/profile_avatar_section.dart';
+import '../widgets/profile_menu_list.dart';
+
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => getIt<ProfileCubit>()..init(),
+      child: const _ProfileView(),
+    );
+  }
+}
+
+class _ProfileView extends StatelessWidget {
+  const _ProfileView();
+
+  void _navigateToEditProfile(BuildContext context, ProfileState state) {
+    String name = 'Daniel Martinez';
+    String email = '';
+
+    if (state is ProfileLoaded && state.user != null) {
+      if (state.user!.name != null && state.user!.name!.trim().isNotEmpty) {
+        name = state.user!.name!.trim();
+      }
+      email = state.user!.email;
+    }
+
+    Navigator.pushNamed(
+      context,
+      Routes.fillProfile,
+      arguments: {
+        'name': name,
+        'email': email,
+      },
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    final profileCubit = context.read<ProfileCubit>();
+
+    LogoutBottomSheet.show(
+      context,
+      onConfirmLogout: () async {
+        final success = await profileCubit.logout();
+        if (context.mounted && success) {
+          Navigator.of(context).pop(); // Dismiss bottom sheet
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            Routes.login,
+            (route) => false,
+          );
+        }
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final canPop = Navigator.canPop(context);
+
+    return Scaffold(
+      backgroundColor: AppColors.white,
+      appBar: AppBar(
+        backgroundColor: AppColors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: true,
+        automaticallyImplyLeading: canPop,
+        leading: canPop
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back, color: AppColors.gray700),
+                onPressed: () => Navigator.pop(context),
+              )
+            : null,
+        title: Text(
+          LocaleKeys.profile.tr(),
+          style: AppTextStyles.inter18W700.copyWith(
+            fontSize: 18.sp,
+            color: AppColors.darkTeal,
+          ),
+        ),
+      ),
+      body: BlocConsumer<ProfileCubit, ProfileState>(
+        listener: (context, state) {
+          if (state is ProfileLogoutFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: AppColors.red,
+              ),
+            );
+          }
+        },
+        builder: (context, state) {
+          String? userName;
+          String? userSubtitle;
+
+          if (state is ProfileLoaded && state.user != null) {
+            final user = state.user!;
+            if (user.name != null && user.name!.trim().isNotEmpty) {
+              userName = user.name!.trim();
+            }
+            if (user.email.isNotEmpty) {
+              userSubtitle = user.email;
+            }
+          }
+
+          return SafeArea(
+            top: false,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
+                children: [
+                  SizedBox(height: 12.h),
+                  ProfileAvatarSection(
+                    name: userName,
+                    subtitle: userSubtitle,
+                    onEdit: () => _navigateToEditProfile(context, state),
+                  ),
+                  SizedBox(height: 24.h),
+                  ProfileMenuList(
+                    onEditProfile: () => _navigateToEditProfile(context, state),
+                    onFavorite: () {
+                      // Navigate to favorite or show info
+                    },
+                    onNotifications: () {
+                      // Navigate to notifications or show info
+                    },
+                    onSettings: () {
+                      // Navigate to settings or show info
+                    },
+                    onHelpAndSupport: () {
+                      // Navigate to help or show info
+                    },
+                    onTermsAndConditions: () {
+                      // Navigate to terms or show info
+                    },
+                    onLogout: () => _showLogoutDialog(context),
+                  ),
+                  SizedBox(height: 16.h),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}

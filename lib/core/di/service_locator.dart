@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
@@ -37,10 +36,12 @@ import 'package:medical_app/features/auth/domain/usecases/check_name_availabilit
 import 'package:medical_app/features/auth/domain/usecases/forgot_password.dart';
 import 'package:medical_app/features/auth/domain/usecases/login.dart';
 import 'package:medical_app/features/auth/domain/usecases/login_with_google.dart';
+import 'package:medical_app/features/auth/domain/usecases/logout.dart';
 import 'package:medical_app/features/auth/domain/usecases/save_user_profile.dart';
 import 'package:medical_app/features/auth/domain/usecases/send_email_verification.dart';
 import 'package:medical_app/features/auth/domain/usecases/signup.dart';
 import 'package:medical_app/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:medical_app/features/profile/presentation/cubit/profile_cubit.dart';
 // ==========================================
 // DOCTOR
 // ==========================================
@@ -205,6 +206,13 @@ void setupServiceLocator() {
   getIt.registerLazySingleton<ForgotPassword>(
         () =>
         ForgotPassword(
+          getIt<AuthRepository>(),
+        ),
+  );
+
+  getIt.registerLazySingleton<Logout>(
+        () =>
+        Logout(
           getIt<AuthRepository>(),
         ),
   );
@@ -566,6 +574,19 @@ void setupServiceLocator() {
         () =>
         AssistantCubit(
           getIt<SendAssistantMessage>(),
+        ),
+  );
+
+  // ==========================================
+  // PROFILE
+  // ==========================================
+
+  getIt.registerFactory<ProfileCubit>(
+        () =>
+        ProfileCubit(
+          authRepository: getIt<AuthRepository>(),
+          userRemoteDataSource: getIt<UserRemoteDataSource>(),
+          firebaseAuth: getIt<FirebaseAuth>(),
         ),
   );
 }

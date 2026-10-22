@@ -27,6 +27,7 @@ import 'package:medical_app/features/onboarding/presentation/pages/onboarding_sc
 import 'package:medical_app/features/splash/presentation/pages/splash_screen.dart';
 
 import '../../features/home/presentation/pages/medical_center_details_page.dart';
+import '../../features/profile/presentation/pages/profile_screen.dart';
 
 class AppRouter {
   Route<dynamic>? generateRoute(RouteSettings settings) {
@@ -259,8 +260,11 @@ class AppRouter {
         }
         return null;
 
-
-
+      case Routes.profile:
+        return MaterialPageRoute(
+          builder: (_) => const ProfileScreen(),
+          settings: settings,
+        );
 
       default:
         return null;

@@ -28,4 +28,5 @@ class AppAssets {
   static const String imagesOnboarding2 = 'assets/images/onboarding_2.png';
   static const String imagesOnboarding3 = 'assets/images/onboarding_3.png';
   static const String imagesSplash = 'assets/images/Splash.png';
+  static const String imagesUserAvatar = 'assets/images/user_avatar.jpg';
 }
