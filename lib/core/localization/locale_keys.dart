@@ -288,14 +288,14 @@ abstract class LocaleKeys {
   static const doctorNoAvailability = 'doctorNoAvailability';
   static const doctorNotFound = 'doctorNotFound';
   static const back = 'back';
-  static const editProfile = 'editProfile';
-  static const favorite = 'favorite';
-  static const notifications = 'notifications';
-  static const settings = 'settings';
-  static const helpAndSupport = 'helpAndSupport';
-  static const termsAndConditions = 'termsAndConditions';
-  static const logout = 'logout';
-  static const yesLogout = 'yes,Logout';
+  static const editProfile = 'Edit Profile';
+  static const favorite = 'Favorite';
+  static const notifications = 'N   otifications';
+  static const settings = 'Settings';
+  static const helpAndSupport = 'Help & Support';
+  static const termsAndConditions = 'Terms & Conditions';
+  static const logout = 'Logout';
+  static const yesLogout = 'Yes, Logout';
 }
 
 
