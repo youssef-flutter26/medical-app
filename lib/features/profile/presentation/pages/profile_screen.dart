@@ -2,11 +2,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:medical_app/core/di/service_locator.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
+import 'package:medical_app/core/utils/app_assets.dart';
 import '../cubit/profile_cubit.dart';
 import '../cubit/profile_state.dart';
 import '../widgets/logout_bottom_sheet.dart';
@@ -81,7 +83,15 @@ class _ProfileView extends StatelessWidget {
         automaticallyImplyLeading: canPop,
         leading: canPop
             ? IconButton(
-                icon: const Icon(Icons.arrow_back, color: AppColors.gray700),
+                icon: SvgPicture.asset(
+                  AppAssets.iconsBackIcon,
+                  width: 24.r,
+                  height: 24.r,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.gray700,
+                    BlendMode.srcIn,
+                  ),
+                ),
                 onPressed: () => Navigator.pop(context),
               )
             : null,

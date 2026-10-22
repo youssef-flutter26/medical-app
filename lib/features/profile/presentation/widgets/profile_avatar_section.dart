@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
@@ -25,10 +26,15 @@ class ProfileAvatarSection extends StatelessWidget {
       width: 120.r,
       height: 120.r,
       color: AppColors.gray100,
-      child: Icon(
-        Icons.person,
-        size: 64.r,
-        color: AppColors.gray400,
+      alignment: Alignment.center,
+      child: SvgPicture.asset(
+        AppAssets.iconsUser,
+        width: 50.r,
+        height: 50.r,
+        colorFilter: const ColorFilter.mode(
+          AppColors.gray400,
+          BlendMode.srcIn,
+        ),
       ),
     );
   }
@@ -65,7 +71,8 @@ class ProfileAvatarSection extends StatelessWidget {
                         width: 120.r,
                         height: 120.r,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+                        errorBuilder: (context, error, stackTrace) =>
+                            _buildPlaceholder(),
                       )
                     : (avatarUrl != null && avatarUrl!.startsWith('http'))
                         ? Image.network(
@@ -73,14 +80,16 @@ class ProfileAvatarSection extends StatelessWidget {
                             width: 120.r,
                             height: 120.r,
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+                            errorBuilder: (context, error, stackTrace) =>
+                                _buildPlaceholder(),
                           )
                         : Image.asset(
                             AppAssets.imagesUserAvatar,
                             width: 120.r,
                             height: 120.r,
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+                            errorBuilder: (context, error, stackTrace) =>
+                                _buildPlaceholder(),
                           ),
               ),
             ),
@@ -104,10 +113,14 @@ class ProfileAvatarSection extends StatelessWidget {
                     ],
                   ),
                   alignment: Alignment.center,
-                  child: Icon(
-                    Icons.edit,
-                    size: 15.r,
-                    color: AppColors.white,
+                  child: SvgPicture.asset(
+                    AppAssets.iconsEdit,
+                    width: 14.r,
+                    height: 14.r,
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.white,
+                      BlendMode.srcIn,
+                    ),
                   ),
                 ),
               ),

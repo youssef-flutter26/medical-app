@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medical_app/core/common/widgets/app_button.dart';
 import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
+import 'package:medical_app/core/utils/app_assets.dart';
 import 'package:medical_app/features/profile/presentation/widgets/logout_bottom_sheet.dart';
 import 'package:medical_app/features/profile/presentation/widgets/profile_avatar_section.dart';
 import 'package:medical_app/features/profile/presentation/widgets/profile_menu_item.dart';
@@ -30,9 +32,11 @@ void main() {
 
       expect(find.text('Daniel Martinez'), findsOneWidget);
       expect(find.text('+123 856479683'), findsOneWidget);
-      expect(find.byIcon(Icons.edit), findsOneWidget);
+      expect(find.byType(SvgPicture), findsWidgets);
 
-      await tester.tap(find.byIcon(Icons.edit));
+      final editFinder = find.byType(GestureDetector);
+      expect(editFinder, findsOneWidget);
+      await tester.tap(editFinder);
       expect(editTapped, isTrue);
     });
 
@@ -45,7 +49,7 @@ void main() {
           child: MaterialApp(
             home: Scaffold(
               body: ProfileMenuItem(
-                leadingIcon: const Icon(Icons.settings_outlined),
+                leadingIcon: SvgPicture.asset(AppAssets.iconsSetting2),
                 title: 'Settings',
                 onTap: () {
                   tapped = true;
@@ -57,8 +61,7 @@ void main() {
       );
 
       expect(find.text('Settings'), findsOneWidget);
-      expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.chevron_right_rounded), findsOneWidget);
+      expect(find.byType(SvgPicture), findsNWidgets(2)); // leading + chevron
 
       await tester.tap(find.text('Settings'));
       expect(tapped, isTrue);

@@ -1,8 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:medical_app/core/localization/locale_keys.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
+import 'package:medical_app/core/utils/app_assets.dart';
 import 'profile_menu_item.dart';
 
 class ProfileMenuList extends StatelessWidget {
@@ -30,24 +32,14 @@ class ProfileMenuList extends StatelessWidget {
     return Column(
       children: [
         ProfileMenuItem(
-          leadingIcon: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Icon(
-                Icons.person_outline_rounded,
-                size: 22.r,
-                color: AppColors.gray700,
-              ),
-              PositionedDirectional(
-                top: 0,
-                start: -1,
-                child: Icon(
-                  Icons.edit,
-                  size: 9.r,
-                  color: AppColors.gray700,
-                ),
-              ),
-            ],
+          leadingIcon: SvgPicture.asset(
+            AppAssets.iconsUserEdit,
+            width: 22.r,
+            height: 22.r,
+            colorFilter: const ColorFilter.mode(
+              AppColors.gray700,
+              BlendMode.srcIn,
+            ),
           ),
           title: LocaleKeys.editProfile.tr(),
           onTap: onEditProfile,
@@ -58,10 +50,14 @@ class ProfileMenuList extends StatelessWidget {
           color: AppColors.gray100,
         ),
         ProfileMenuItem(
-          leadingIcon: Icon(
-            Icons.favorite_border_rounded,
-            size: 21.r,
-            color: AppColors.gray700,
+          leadingIcon: SvgPicture.asset(
+            AppAssets.iconsHeart,
+            width: 22.r,
+            height: 22.r,
+            colorFilter: const ColorFilter.mode(
+              AppColors.gray700,
+              BlendMode.srcIn,
+            ),
           ),
           title: LocaleKeys.favorite.tr(),
           onTap: onFavorite,
@@ -72,10 +68,14 @@ class ProfileMenuList extends StatelessWidget {
           color: AppColors.gray100,
         ),
         ProfileMenuItem(
-          leadingIcon: Icon(
-            Icons.notifications_none_rounded,
-            size: 22.r,
-            color: AppColors.gray700,
+          leadingIcon: SvgPicture.asset(
+            AppAssets.iconsNotificationSingle,
+            width: 22.r,
+            height: 22.r,
+            colorFilter: const ColorFilter.mode(
+              AppColors.gray700,
+              BlendMode.srcIn,
+            ),
           ),
           title: LocaleKeys.notifications.tr(),
           onTap: onNotifications,
@@ -86,10 +86,14 @@ class ProfileMenuList extends StatelessWidget {
           color: AppColors.gray100,
         ),
         ProfileMenuItem(
-          leadingIcon: Icon(
-            Icons.settings_outlined,
-            size: 22.r,
-            color: AppColors.gray700,
+          leadingIcon: SvgPicture.asset(
+            AppAssets.iconsSetting2,
+            width: 22.r,
+            height: 22.r,
+            colorFilter: const ColorFilter.mode(
+              AppColors.gray700,
+              BlendMode.srcIn,
+            ),
           ),
           title: LocaleKeys.settings.tr(),
           onTap: onSettings,
@@ -100,10 +104,14 @@ class ProfileMenuList extends StatelessWidget {
           color: AppColors.gray100,
         ),
         ProfileMenuItem(
-          leadingIcon: Icon(
-            Icons.contact_support_outlined,
-            size: 22.r,
-            color: AppColors.gray700,
+          leadingIcon: SvgPicture.asset(
+            AppAssets.iconsMessageQuestion,
+            width: 22.r,
+            height: 22.r,
+            colorFilter: const ColorFilter.mode(
+              AppColors.gray700,
+              BlendMode.srcIn,
+            ),
           ),
           title: LocaleKeys.helpAndSupport.tr(),
           onTap: onHelpAndSupport,
@@ -114,10 +122,14 @@ class ProfileMenuList extends StatelessWidget {
           color: AppColors.gray100,
         ),
         ProfileMenuItem(
-          leadingIcon: Icon(
-            Icons.privacy_tip_outlined,
-            size: 22.r,
-            color: AppColors.gray700,
+          leadingIcon: SvgPicture.asset(
+            AppAssets.iconsSecuritySafe,
+            width: 22.r,
+            height: 22.r,
+            colorFilter: const ColorFilter.mode(
+              AppColors.gray700,
+              BlendMode.srcIn,
+            ),
           ),
           title: LocaleKeys.termsAndConditions.tr(),
           onTap: onTermsAndConditions,
@@ -128,10 +140,14 @@ class ProfileMenuList extends StatelessWidget {
           color: AppColors.gray100,
         ),
         ProfileMenuItem(
-          leadingIcon: Icon(
-            Icons.logout_rounded,
-            size: 22.r,
-            color: AppColors.gray700,
+          leadingIcon: SvgPicture.asset(
+            AppAssets.iconsLogout,
+            width: 22.r,
+            height: 22.r,
+            colorFilter: const ColorFilter.mode(
+              AppColors.gray700,
+              BlendMode.srcIn,
+            ),
           ),
           title: LocaleKeys.logOut.tr(),
           showChevron: false,

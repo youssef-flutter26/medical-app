@@ -1,7 +1,10 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
+import 'package:medical_app/core/utils/app_assets.dart';
 
 class ProfileMenuItem extends StatelessWidget {
   final Widget leadingIcon;
@@ -48,10 +51,17 @@ class ProfileMenuItem extends StatelessWidget {
               ),
             ),
             if (showChevron)
-              Icon(
-                Icons.chevron_right_rounded,
-                size: 20.r,
-                color: AppColors.gray400,
+              Transform.rotate(
+                angle: -math.pi / 2,
+                child: SvgPicture.asset(
+                  AppAssets.iconsArrowDown,
+                  width: 14.r,
+                  height: 14.r,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.gray400,
+                    BlendMode.srcIn,
+                  ),
+                ),
               ),
           ],
         ),

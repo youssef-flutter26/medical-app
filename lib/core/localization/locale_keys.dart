@@ -295,7 +295,7 @@ abstract class LocaleKeys {
   static const helpAndSupport = 'helpAndSupport';
   static const termsAndConditions = 'termsAndConditions';
   static const logout = 'logout';
-  static const yesLogout = 'yesLogout';
+  static const yesLogout = 'yes,Logout';
 }
 
 
