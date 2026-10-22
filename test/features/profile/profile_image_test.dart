@@ -334,7 +334,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Choose from Gallery'), findsOneWidget);
-      expect(find.text('Take Photo'), findsOneWidget);
+      expect(find.text('Take Photo'), findsNothing);
       expect(find.text('Remove Profile Picture'), findsNothing);
 
       // Now with hasExistingPhoto = true

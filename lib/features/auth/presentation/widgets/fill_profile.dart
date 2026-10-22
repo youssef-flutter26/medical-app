@@ -131,9 +131,6 @@ class _FillProfileState extends State<FillProfile> {
       case ProfilePhotoAction.gallery:
         await _chooseImage(ImageSource.gallery);
         break;
-      case ProfilePhotoAction.camera:
-        await _chooseImage(ImageSource.camera);
-        break;
       case ProfilePhotoAction.remove:
         final confirmed =
             await ProfilePhotoBottomSheet.showConfirmRemove(context);

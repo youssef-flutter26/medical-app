@@ -8,7 +8,6 @@ import 'package:medical_app/core/theme/app_text_styles.dart';
 
 enum ProfilePhotoAction {
   gallery,
-  camera,
   remove,
 }
 
@@ -163,12 +162,6 @@ class ProfilePhotoBottomSheet extends StatelessWidget {
             title: LocaleKeys.chooseFromGallery.tr(),
             color: AppColors.darkTeal,
             onTap: () => onActionSelected(ProfilePhotoAction.gallery),
-          ),
-          _buildOptionTile(
-            icon: Icons.camera_alt_outlined,
-            title: LocaleKeys.takePhoto.tr(),
-            color: AppColors.darkTeal,
-            onTap: () => onActionSelected(ProfilePhotoAction.camera),
           ),
           if (hasExistingPhoto)
             _buildOptionTile(

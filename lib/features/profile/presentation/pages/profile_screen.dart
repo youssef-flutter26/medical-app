@@ -68,9 +68,6 @@ class _ProfileView extends StatelessWidget {
       case ProfilePhotoAction.gallery:
         await _pickAndSavePhoto(context, ImageSource.gallery);
         break;
-      case ProfilePhotoAction.camera:
-        await _pickAndSavePhoto(context, ImageSource.camera);
-        break;
       case ProfilePhotoAction.remove:
         await _confirmAndRemovePhoto(context);
         break;
