@@ -134,6 +134,7 @@ class AuthCubit extends Cubit<AuthState> {
     required String email,
     required String birthDate,
     required String gender,
+    String? photoUrl,
   }) async {
     emit(const AuthLoading());
 
@@ -143,6 +144,7 @@ class AuthCubit extends Cubit<AuthState> {
       email: email,
       birthDate: birthDate,
       gender: gender,
+      photoUrl: photoUrl,
     );
 
     switch (result) {

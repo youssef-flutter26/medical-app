@@ -12,6 +12,7 @@ class SaveUserProfile {
     required String email,
     required String birthDate,
     required String gender,
+    String? photoUrl,
   }) {
     return repository.saveUserProfile(
       name: name,
@@ -19,6 +20,7 @@ class SaveUserProfile {
       email: email,
       birthDate: birthDate,
       gender: gender,
+      photoUrl: photoUrl,
     );
   }
 }

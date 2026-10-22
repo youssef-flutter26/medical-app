@@ -4,6 +4,9 @@ import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/features/home/domain/entities/medical_center_entity.dart';
 import 'package:medical_app/features/home/presentation/widgets/nearby_medical_centers.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:medical_app/features/favorites/presentation/cubit/favorites_cubit.dart';
+import 'package:medical_app/features/favorites/presentation/cubit/favorites_state.dart';
 
 import 'medical_center_details_page.dart';
 
@@ -67,27 +70,37 @@ class AllMedicalCentersPage extends StatelessWidget {
           horizontal: 16.w,
           vertical: 16.h,
         ),
-        child: NearbyMedicalCenters(
-          isAdmin: false,
-          isVertical: true,
-          onSeeAllPressed: null,
-          medicalCenters: medicalCenters
-              .map(
-                (center) =>
-                MedicalCenterData(
-                  id: center.id,
-                  name: center.name,
-                  category: center.type,
-                  address: center.address,
-                  rating: center.rating,
-                  reviewCount: center.reviewsCount,
-                  distance: center.formattedDistance,
-                  type: center.type,
-                  imagePath: center.imagePath,
-                ),
-          )
-              .toList(),
-          onCenterTap: (centerData) {
+        child: BlocBuilder<FavoritesCubit, FavoritesState>(
+          builder: (context, favState) {
+            return NearbyMedicalCenters(
+              isAdmin: false,
+              isVertical: true,
+              onSeeAllPressed: null,
+              onFavoriteTap: (centerData) {
+                if (centerData.id != null && centerData.id!.isNotEmpty) {
+                  context
+                      .read<FavoritesCubit>()
+                      .toggleMedicalCenterFavorite(centerData.id!);
+                }
+              },
+              medicalCenters: medicalCenters
+                  .map(
+                    (center) => MedicalCenterData(
+                      id: center.id,
+                      name: center.name,
+                      category: center.type,
+                      address: center.address,
+                      rating: center.rating,
+                      reviewCount: center.reviewsCount,
+                      distance: center.formattedDistance,
+                      type: center.type,
+                      imagePath: center.imagePath,
+                      isFavorite: center.id != null &&
+                          favState.isMedicalCenterFavorite(center.id),
+                    ),
+                  )
+                  .toList(),
+              onCenterTap: (centerData) {
             final centerId = centerData.id;
 
             if (centerId == null || centerId.isEmpty) {
@@ -112,8 +125,10 @@ class AllMedicalCentersPage extends StatelessWidget {
               selectedCenter,
             );
           },
-        ),
-      ),
-    );
+        );
+      },
+    ),
+  ),
+);
   }
 }

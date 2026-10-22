@@ -93,6 +93,12 @@ import '../../features/ai_assistant/domain/repositories/assistant_repository.dar
 import '../../features/ai_assistant/domain/usecases/send_assistant_message.dart';
 import '../../features/ai_assistant/presentation/cubit/assistant_cubit.dart';
 
+import 'package:medical_app/features/favorites/data/datasources/favorite_local_data_source.dart';
+import 'package:medical_app/features/favorites/data/datasources/favorite_remote_data_source.dart';
+import 'package:medical_app/features/favorites/data/repositories/favorite_repository_impl.dart';
+import 'package:medical_app/features/favorites/domain/repositories/favorite_repository.dart';
+import 'package:medical_app/features/favorites/presentation/cubit/favorites_cubit.dart';
+
 final GetIt getIt = GetIt.instance;
 
 void setupServiceLocator() {
@@ -588,5 +594,35 @@ void setupServiceLocator() {
           userRemoteDataSource: getIt<UserRemoteDataSource>(),
           firebaseAuth: getIt<FirebaseAuth>(),
         ),
+  );
+
+  // ==========================================
+  // FAVORITES
+  // ==========================================
+
+  getIt.registerLazySingleton<FavoriteLocalDataSource>(
+    () => FavoriteLocalDataSourceImpl(),
+  );
+
+  getIt.registerLazySingleton<FavoriteRemoteDataSource>(
+    () => FavoriteRemoteDataSourceImpl(
+      getIt<FirebaseFirestore>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<FavoriteRepository>(
+    () => FavoriteRepositoryImpl(
+      remoteDataSource: getIt<FavoriteRemoteDataSource>(),
+      localDataSource: getIt<FavoriteLocalDataSource>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<FavoritesCubit>(
+    () => FavoritesCubit(
+      favoriteRepository: getIt<FavoriteRepository>(),
+      doctorRepository: getIt<DoctorRepository>(),
+      homeRepository: getIt<HomeRepository>(),
+      firebaseAuth: getIt<FirebaseAuth>(),
+    )..init(),
   );
 }

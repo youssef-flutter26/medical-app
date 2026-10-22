@@ -28,6 +28,7 @@ import 'package:medical_app/features/splash/presentation/pages/splash_screen.dar
 
 import '../../features/home/presentation/pages/medical_center_details_page.dart';
 import '../../features/profile/presentation/pages/profile_screen.dart';
+import 'package:medical_app/features/favorites/presentation/pages/favorites_page.dart';
 
 class AppRouter {
   Route<dynamic>? generateRoute(RouteSettings settings) {
@@ -263,6 +264,12 @@ class AppRouter {
       case Routes.profile:
         return MaterialPageRoute(
           builder: (_) => const ProfileScreen(),
+          settings: settings,
+        );
+
+      case Routes.favorites:
+        return MaterialPageRoute(
+          builder: (_) => const FavoritesPage(),
           settings: settings,
         );
 

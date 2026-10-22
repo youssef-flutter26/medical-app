@@ -30,6 +30,7 @@ class ProfileMenuList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ProfileMenuItem(
           leadingIcon: SvgPicture.asset(
@@ -47,6 +48,8 @@ class ProfileMenuList extends StatelessWidget {
         const Divider(
           height: 1,
           thickness: 1,
+          indent: 0,
+          endIndent: 0,
           color: AppColors.gray100,
         ),
         ProfileMenuItem(
@@ -65,6 +68,8 @@ class ProfileMenuList extends StatelessWidget {
         const Divider(
           height: 1,
           thickness: 1,
+          indent: 0,
+          endIndent: 0,
           color: AppColors.gray100,
         ),
         ProfileMenuItem(
@@ -83,6 +88,8 @@ class ProfileMenuList extends StatelessWidget {
         const Divider(
           height: 1,
           thickness: 1,
+          indent: 0,
+          endIndent: 0,
           color: AppColors.gray100,
         ),
         ProfileMenuItem(
@@ -101,6 +108,8 @@ class ProfileMenuList extends StatelessWidget {
         const Divider(
           height: 1,
           thickness: 1,
+          indent: 0,
+          endIndent: 0,
           color: AppColors.gray100,
         ),
         ProfileMenuItem(
@@ -119,6 +128,8 @@ class ProfileMenuList extends StatelessWidget {
         const Divider(
           height: 1,
           thickness: 1,
+          indent: 0,
+          endIndent: 0,
           color: AppColors.gray100,
         ),
         ProfileMenuItem(
@@ -137,6 +148,8 @@ class ProfileMenuList extends StatelessWidget {
         const Divider(
           height: 1,
           thickness: 1,
+          indent: 0,
+          endIndent: 0,
           color: AppColors.gray100,
         ),
         ProfileMenuItem(

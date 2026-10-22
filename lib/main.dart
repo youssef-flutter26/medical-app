@@ -10,6 +10,8 @@ import 'package:medical_app/core/responsive/app_screen_util_scope.dart';
 import 'package:medical_app/core/routing/app_router.dart';
 import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_theme.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:medical_app/features/favorites/presentation/cubit/favorites_cubit.dart';
 
 import 'firebase_options.dart';
 
@@ -45,22 +47,25 @@ class MyApp extends StatelessWidget {
                 ? ui.TextDirection.rtl
                 : ui.TextDirection.ltr;
 
-            return MaterialApp(
-              key: ValueKey(locale.languageCode),
-              title: LocaleKeys.appName.tr(),
-              theme: AppTheme.theme,
-              debugShowCheckedModeBanner: false,
-              localizationsDelegates: context.localizationDelegates,
-              supportedLocales: context.supportedLocales,
-              locale: locale,
-              initialRoute: Routes.splash,
-              onGenerateRoute: getIt<AppRouter>().generateRoute,
-              builder: (context, child) {
-                return Directionality(
-                  textDirection: textDirection,
-                  child: child ?? const SizedBox.shrink(),
-                );
-              },
+            return BlocProvider<FavoritesCubit>.value(
+              value: getIt<FavoritesCubit>(),
+              child: MaterialApp(
+                key: ValueKey(locale.languageCode),
+                title: LocaleKeys.appName.tr(),
+                theme: AppTheme.theme,
+                debugShowCheckedModeBanner: false,
+                localizationsDelegates: context.localizationDelegates,
+                supportedLocales: context.supportedLocales,
+                locale: locale,
+                initialRoute: Routes.splash,
+                onGenerateRoute: getIt<AppRouter>().generateRoute,
+                builder: (context, child) {
+                  return Directionality(
+                    textDirection: textDirection,
+                    child: child ?? const SizedBox.shrink(),
+                  );
+                },
+              ),
             );
           },
         ),

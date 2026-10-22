@@ -11,6 +11,8 @@ import '../../../reviews/domain/entities/review_entity.dart';
 import '../../../reviews/presentation/cubit/review_cubit.dart';
 import '../../../reviews/presentation/cubit/review_state.dart';
 import '../../../reviews/presentation/pages/add_review_page.dart';
+import 'package:medical_app/features/favorites/presentation/cubit/favorites_cubit.dart';
+import 'package:medical_app/features/favorites/presentation/cubit/favorites_state.dart';
 
 class MedicalCenterDetailsPage extends StatefulWidget {
   const MedicalCenterDetailsPage({super.key, required this.center});
@@ -116,6 +118,32 @@ class _MedicalCenterDetailsPageState extends State<MedicalCenterDetailsPage> {
             'Medical Center Details',
             style: AppTextStyles.inter16W500,
           ),
+          actions: [
+            BlocBuilder<FavoritesCubit, FavoritesState>(
+              builder: (context, favState) {
+                final centerId = widget.center.id;
+                final isFav = centerId != null &&
+                    favState.isMedicalCenterFavorite(centerId);
+                return IconButton(
+                  icon: Icon(
+                    isFav
+                        ? Icons.favorite_rounded
+                        : Icons.favorite_border_rounded,
+                    color: isFav ? Colors.red : AppColors.gray500,
+                    size: 24.r,
+                  ),
+                  onPressed: () {
+                    if (centerId != null && centerId.isNotEmpty) {
+                      context
+                          .read<FavoritesCubit>()
+                          .toggleMedicalCenterFavorite(centerId);
+                    }
+                  },
+                );
+              },
+            ),
+            SizedBox(width: 8.w),
+          ],
         ),
         body: BlocBuilder<ReviewCubit, ReviewState>(
           builder: (context, state) {
@@ -237,7 +265,7 @@ class _MedicalCenterDetailsPageState extends State<MedicalCenterDetailsPage> {
           width: double.infinity,
           height: 220.h,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) {
+          errorBuilder: (context, error, stackTrace) {
             return _imagePlaceholder();
           },
         ),
@@ -251,7 +279,7 @@ class _MedicalCenterDetailsPageState extends State<MedicalCenterDetailsPage> {
         width: double.infinity,
         height: 220.h,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) {
+        errorBuilder: (context, error, stackTrace) {
           return _imagePlaceholder();
         },
       ),

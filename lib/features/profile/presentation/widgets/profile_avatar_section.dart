@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -11,6 +12,7 @@ class ProfileAvatarSection extends StatelessWidget {
   final String? avatarUrl;
   final ImageProvider? imageProvider;
   final VoidCallback? onEdit;
+  final VoidCallback? onPickPhoto;
 
   const ProfileAvatarSection({
     super.key,
@@ -19,6 +21,7 @@ class ProfileAvatarSection extends StatelessWidget {
     this.avatarUrl,
     this.imageProvider,
     this.onEdit,
+    this.onPickPhoto,
   });
 
   Widget _buildPlaceholder() {
@@ -39,65 +42,92 @@ class ProfileAvatarSection extends StatelessWidget {
     );
   }
 
+  Widget _buildAvatarImage() {
+    if (imageProvider != null) {
+      return Image(
+        image: imageProvider!,
+        width: 120.r,
+        height: 120.r,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+      );
+    }
+
+    if (avatarUrl != null && avatarUrl!.trim().isNotEmpty) {
+      final url = avatarUrl!.trim();
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        return Image.network(
+          url,
+          width: 120.r,
+          height: 120.r,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) =>
+              _buildDefaultAssetImage(),
+        );
+      }
+
+      final file = File(url);
+      if (file.existsSync()) {
+        return Image.file(
+          file,
+          width: 120.r,
+          height: 120.r,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) =>
+              _buildDefaultAssetImage(),
+        );
+      }
+    }
+
+    return _buildDefaultAssetImage();
+  }
+
+  Widget _buildDefaultAssetImage() {
+    return Image.asset(
+      AppAssets.imagesUserAvatar,
+      width: 120.r,
+      height: 120.r,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final displayName = (name != null && name!.trim().isNotEmpty)
         ? name!.trim()
-        : 'Daniel Martinez';
+        : null;
 
     final displaySubtitle = (subtitle != null && subtitle!.trim().isNotEmpty)
         ? subtitle!.trim()
-        : '+123 856479683';
+        : null;
+
+    final effectiveOnTap = onPickPhoto ?? onEdit;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Stack(
-          clipBehavior: Clip.none,
-          alignment: Alignment.center,
-          children: [
-            Container(
-              width: 120.r,
-              height: 120.r,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.gray100,
+        GestureDetector(
+          onTap: effectiveOnTap,
+          child: Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.center,
+            children: [
+              Container(
+                width: 120.r,
+                height: 120.r,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.gray100,
+                ),
+                child: ClipOval(
+                  child: _buildAvatarImage(),
+                ),
               ),
-              child: ClipOval(
-                child: imageProvider != null
-                    ? Image(
-                        image: imageProvider!,
-                        width: 120.r,
-                        height: 120.r,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            _buildPlaceholder(),
-                      )
-                    : (avatarUrl != null && avatarUrl!.startsWith('http'))
-                        ? Image.network(
-                            avatarUrl!,
-                            width: 120.r,
-                            height: 120.r,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                _buildPlaceholder(),
-                          )
-                        : Image.asset(
-                            AppAssets.imagesUserAvatar,
-                            width: 120.r,
-                            height: 120.r,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                _buildPlaceholder(),
-                          ),
-              ),
-            ),
-            PositionedDirectional(
-              bottom: 4.r,
-              end: 4.r,
-              child: GestureDetector(
-                onTap: onEdit,
+              PositionedDirectional(
+                bottom: 4.r,
+                end: 4.r,
                 child: Container(
                   width: 28.r,
                   height: 28.r,
@@ -124,27 +154,31 @@ class ProfileAvatarSection extends StatelessWidget {
                   ),
                 ),
               ),
+            ],
+          ),
+        ),
+        if (displayName != null) ...[
+          SizedBox(height: 14.h),
+          Text(
+            displayName,
+            style: AppTextStyles.inter18W700.copyWith(
+              fontSize: 18.sp,
+              color: AppColors.darkTeal,
             ),
-          ],
-        ),
-        SizedBox(height: 14.h),
-        Text(
-          displayName,
-          style: AppTextStyles.inter18W700.copyWith(
-            fontSize: 18.sp,
-            color: AppColors.darkTeal,
+            textAlign: TextAlign.center,
           ),
-          textAlign: TextAlign.center,
-        ),
-        SizedBox(height: 4.h),
-        Text(
-          displaySubtitle,
-          style: AppTextStyles.inter14W400.copyWith(
-            fontSize: 13.sp,
-            color: AppColors.gray400,
+        ],
+        if (displaySubtitle != null) ...[
+          SizedBox(height: 4.h),
+          Text(
+            displaySubtitle,
+            style: AppTextStyles.inter14W400.copyWith(
+              fontSize: 13.sp,
+              color: AppColors.gray400,
+            ),
+            textAlign: TextAlign.center,
           ),
-          textAlign: TextAlign.center,
-        ),
+        ],
       ],
     );
   }

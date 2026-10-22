@@ -29,6 +29,7 @@ abstract class AuthRepository {
     required String email,
     required String birthDate,
     required String gender,
+    String? photoUrl,
   });
 
   Future<Result<void>> sendPasswordResetEmail({required String email});

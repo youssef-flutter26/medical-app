@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/error/app_exception.dart';
 import '../../../../core/error/failure.dart';
@@ -244,6 +245,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String birthDate,
     required String gender,
+    String? photoUrl,
   }) async {
     try {
       final user = await remoteDataSource.getCurrentUser();
@@ -274,13 +276,21 @@ class AuthRepositoryImpl implements AuthRepository {
       final role = isAdmin ? 'admin' : (existingUser?.role ?? 'user');
       final assignedName = isAdmin && name.trim().isEmpty
           ? _adminName
-          : (name.isNotEmpty
-              ? name
+          : (name.trim().isNotEmpty
+              ? name.trim()
               : (existingUser?.name ?? refreshedUser.displayName));
+
+      final assignedEmail = email.trim().isNotEmpty
+          ? email.trim()
+          : (existingUser?.email ?? refreshedUser.email ?? '');
+
+      final assignedPhotoUrl = (photoUrl != null && photoUrl.trim().isNotEmpty)
+          ? photoUrl.trim()
+          : (existingUser?.photoUrl ?? refreshedUser.photoURL);
 
       final userModel = UserModel(
         id: refreshedUser.uid,
-        email: email.isNotEmpty ? email : (refreshedUser.email ?? ''),
+        email: assignedEmail,
         name: assignedName,
         nickname:
             nickname.trim().isEmpty ? existingUser?.nickname : nickname.trim(),
@@ -288,14 +298,34 @@ class AuthRepositoryImpl implements AuthRepository {
             ? existingUser?.birthDate
             : birthDate.trim(),
         gender: gender.trim().isEmpty ? existingUser?.gender : gender.trim(),
+        photoUrl: assignedPhotoUrl,
         role: role,
       );
 
       await userRemoteDataSource.saveUser(userModel);
 
-      if (name.isNotEmpty && name != refreshedUser.displayName) {
+      if (assignedPhotoUrl != null && assignedPhotoUrl.isNotEmpty) {
         try {
-          await refreshedUser.updateDisplayName(name);
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString(
+            'profile_photo_${refreshedUser.uid}',
+            assignedPhotoUrl,
+          );
+        } catch (_) {}
+
+        if (assignedPhotoUrl.startsWith('http://') ||
+            assignedPhotoUrl.startsWith('https://')) {
+          try {
+            await refreshedUser.updatePhotoURL(assignedPhotoUrl);
+          } catch (_) {}
+        }
+      }
+
+      if (assignedName != null &&
+          assignedName.isNotEmpty &&
+          assignedName != refreshedUser.displayName) {
+        try {
+          await refreshedUser.updateDisplayName(assignedName);
         } catch (_) {}
       }
 

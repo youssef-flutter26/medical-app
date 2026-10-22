@@ -124,7 +124,6 @@
   "doctor": "طبيب",
   "addDoctor": "إضافة طبيب",
   "addBanner": "إضافة إعلان",
-  "addCategory": "إضافة فئة",
   "bannerDetails": "تفاصيل الإعلان",
   "addBannerInformation": "أضف المعلومات التي ستظهر على إعلان الصفحة الرئيسية.",
   "bannerTitle": "عنوان الإعلان",
@@ -277,5 +276,13 @@
   "pleaseSelectSlotToProceed": "يرجى تحديد موعد أعلاه للمتابعة",
   "doctorNoAvailability": "لا توجد مواعيد متاحة لهذا الطبيب حالياً.",
   "doctorNotFound": "تعذر العثور على بيانات الطبيب.",
-  "back": "رجوع"
+  "back": "رجوع",
+  "favorites": "المفضلة",
+  "doctors": "الأطباء",
+  "hospitals": "المستشفيات",
+  "removeFromFavorites": "إزالة من المفضلة؟",
+  "yesRemove": "نعم، إزالة",
+  "noFavoriteDoctors": "لا يوجد أطباء في المفضلة بعد",
+  "noFavoriteHospitals": "لا توجد مستشفيات في المفضلة بعد",
+  "noFavoritesDescription": "العناصر التي تضيفها إلى المفضلة ستظهر هنا للوصول السريع إليها."
 }

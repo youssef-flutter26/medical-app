@@ -9,6 +9,7 @@ import 'package:medical_app/core/routing/routes.dart';
 import 'package:medical_app/core/theme/app_colors.dart';
 import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
+import 'package:image_picker/image_picker.dart';
 import '../cubit/profile_cubit.dart';
 import '../cubit/profile_state.dart';
 import '../widgets/logout_bottom_sheet.dart';
@@ -31,7 +32,7 @@ class _ProfileView extends StatelessWidget {
   const _ProfileView();
 
   void _navigateToEditProfile(BuildContext context, ProfileState state) {
-    String name = 'Daniel Martinez';
+    String name = '';
     String email = '';
 
     if (state is ProfileLoaded && state.user != null) {
@@ -49,6 +50,30 @@ class _ProfileView extends StatelessWidget {
         'email': email,
       },
     );
+  }
+
+  Future<void> _pickAndSavePhoto(BuildContext context) async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+      );
+
+      if (pickedFile != null && context.mounted) {
+        await context.read<ProfileCubit>().updatePhoto(pickedFile.path);
+      }
+    } catch (e) {
+      debugPrint('Error picking profile image: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to pick image: $e'),
+            backgroundColor: AppColors.red,
+          ),
+        );
+      }
+    }
   }
 
   void _showLogoutDialog(BuildContext context) {
@@ -117,6 +142,7 @@ class _ProfileView extends StatelessWidget {
         builder: (context, state) {
           String? userName;
           String? userSubtitle;
+          String? userAvatarUrl;
 
           if (state is ProfileLoaded && state.user != null) {
             final user = state.user!;
@@ -126,25 +152,33 @@ class _ProfileView extends StatelessWidget {
             if (user.email.isNotEmpty) {
               userSubtitle = user.email;
             }
+            if (user.photoUrl != null && user.photoUrl!.isNotEmpty) {
+              userAvatarUrl = user.photoUrl;
+            }
           }
 
           return SafeArea(
             top: false,
+            left: false,
+            right: false,
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   SizedBox(height: 12.h),
                   ProfileAvatarSection(
                     name: userName,
                     subtitle: userSubtitle,
-                    onEdit: () => _navigateToEditProfile(context, state),
+                    avatarUrl: userAvatarUrl,
+                    onEdit: () => _pickAndSavePhoto(context),
+                    onPickPhoto: () => _pickAndSavePhoto(context),
                   ),
                   SizedBox(height: 24.h),
                   ProfileMenuList(
                     onEditProfile: () => _navigateToEditProfile(context, state),
                     onFavorite: () {
-                      // Navigate to favorite or show info
+                      Navigator.pushNamed(context, Routes.favorites);
                     },
                     onNotifications: () {
                       // Navigate to notifications or show info

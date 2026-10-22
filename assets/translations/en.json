@@ -124,7 +124,6 @@
   "doctor": "Doctor",
   "addDoctor": "Add a doctor",
   "addBanner": "Add Banner",
-  "addCategory": "Add Category",
   "bannerDetails": "Banner Details",
   "addBannerInformation": "Add the information that will appear on the Home banner.",
   "bannerTitle": "Banner Title",
@@ -277,5 +276,13 @@
   "pleaseSelectSlotToProceed": "Please select a time slot above to proceed",
   "doctorNoAvailability": "This doctor has no available appointments currently.",
   "doctorNotFound": "Doctor information could not be found.",
-  "back": "Back"
+  "back": "Back",
+  "favorites": "Favorites",
+  "doctors": "Doctors",
+  "hospitals": "Hospitals",
+  "removeFromFavorites": "Remove from Favorites?",
+  "yesRemove": "Yes, Remove",
+  "noFavoriteDoctors": "No favorite doctors yet",
+  "noFavoriteHospitals": "No favorite hospitals yet",
+  "noFavoritesDescription": "Items you favorite will appear here for easy access."
 }

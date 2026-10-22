@@ -296,6 +296,14 @@ abstract class LocaleKeys {
   static const termsAndConditions = 'Terms & Conditions';
   static const logout = 'Logout';
   static const yesLogout = 'Yes, Logout';
+  static const favorites = 'favorites';
+  static const doctors = 'doctors';
+  static const hospitals = 'hospitals';
+  static const removeFromFavorites = 'removeFromFavorites';
+  static const yesRemove = 'yesRemove';
+  static const noFavoriteDoctors = 'noFavoriteDoctors';
+  static const noFavoriteHospitals = 'noFavoriteHospitals';
+  static const noFavoritesDescription = 'noFavoritesDescription';
 }
 
 
