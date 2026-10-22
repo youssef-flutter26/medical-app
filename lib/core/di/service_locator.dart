@@ -98,6 +98,11 @@ import 'package:medical_app/features/favorites/data/datasources/favorite_remote_
 import 'package:medical_app/features/favorites/data/repositories/favorite_repository_impl.dart';
 import 'package:medical_app/features/favorites/domain/repositories/favorite_repository.dart';
 import 'package:medical_app/features/favorites/presentation/cubit/favorites_cubit.dart';
+import 'package:medical_app/features/notifications/data/datasources/notification_local_data_source.dart';
+import 'package:medical_app/features/notifications/data/datasources/notification_remote_data_source.dart';
+import 'package:medical_app/features/notifications/data/repositories/notification_repository_impl.dart';
+import 'package:medical_app/features/notifications/domain/repositories/notification_repository.dart';
+import 'package:medical_app/features/notifications/presentation/cubit/notifications_cubit.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -624,5 +629,38 @@ void setupServiceLocator() {
       homeRepository: getIt<HomeRepository>(),
       firebaseAuth: getIt<FirebaseAuth>(),
     )..init(),
+  );
+
+  // ==========================================
+  // NOTIFICATIONS
+  // ==========================================
+
+  getIt.registerLazySingleton<NotificationLocalDataSource>(
+    () => NotificationLocalDataSourceImpl(),
+  );
+
+  getIt.registerLazySingleton<NotificationRemoteDataSource>(
+    () => NotificationRemoteDataSourceImpl(
+      appointmentRepository: getIt<AppointmentRepository>(),
+      firestore: getIt.isRegistered<FirebaseFirestore>()
+          ? getIt<FirebaseFirestore>()
+          : null,
+    ),
+  );
+
+  getIt.registerLazySingleton<NotificationRepository>(
+    () => NotificationRepositoryImpl(
+      remoteDataSource: getIt<NotificationRemoteDataSource>(),
+      localDataSource: getIt<NotificationLocalDataSource>(),
+    ),
+  );
+
+  getIt.registerFactory<NotificationsCubit>(
+    () => NotificationsCubit(
+      notificationRepository: getIt<NotificationRepository>(),
+      firebaseAuth: getIt.isRegistered<FirebaseAuth>()
+          ? getIt<FirebaseAuth>()
+          : null,
+    ),
   );
 }

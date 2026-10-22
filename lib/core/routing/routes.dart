@@ -24,4 +24,6 @@ abstract final class Routes {
   static const String appointment = '/appointment';
   static const String bookAppointment = '/book-appointment';
   static const String favorites = '/favorites';
+  static const String notifications = '/notifications';
+  static const String settings = '/settings';
 }

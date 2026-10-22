@@ -777,6 +777,9 @@ class _HomeScreenState extends State<HomeScreen>
 
               HomeHeader(
                 location: _currentLocation,
+                onNotificationPressed: () {
+                  Navigator.pushNamed(context, Routes.notifications);
+                },
               ),
 
               SizedBox(height: 16.h),

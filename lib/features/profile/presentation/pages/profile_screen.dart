@@ -13,6 +13,7 @@ import 'package:image_picker/image_picker.dart';
 import '../cubit/profile_cubit.dart';
 import '../cubit/profile_state.dart';
 import '../widgets/logout_bottom_sheet.dart';
+import '../widgets/language_bottom_sheet.dart';
 import '../widgets/profile_avatar_section.dart';
 import '../widgets/profile_menu_list.dart';
 import '../widgets/profile_photo_bottom_sheet.dart';
@@ -222,10 +223,10 @@ class _ProfileView extends StatelessWidget {
                       Navigator.pushNamed(context, Routes.favorites);
                     },
                     onNotifications: () {
-                      // Navigate to notifications or show info
+                      Navigator.pushNamed(context, Routes.notifications);
                     },
                     onSettings: () {
-                      // Navigate to settings or show info
+                      LanguageBottomSheet.show(context);
                     },
                     onHelpAndSupport: () {
                       // Navigate to help or show info

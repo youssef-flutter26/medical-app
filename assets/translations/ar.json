@@ -289,5 +289,22 @@
   "chooseFromGallery": "اختيار من المعرض",
   "takePhoto": "التقاط صورة",
   "removeProfilePicture": "حذف صورة الملف الشخصي",
-  "removePhotoConfirmation": "هل أنت متأكد من حذف صورة ملفك الشخصي؟"
+  "removePhotoConfirmation": "هل أنت متأكد من حذف صورة ملفك الشخصي؟",
+  "notification": "الإشعارات",
+  "notifications": "الإشعارات",
+  "newNotificationsCount": "{} جديد",
+  "today": "اليوم",
+  "yesterday": "أمس",
+  "older": "سابقاً",
+  "markAllAsRead": "تحديد الكل كمقروء",
+  "appointmentSuccess": "تم تأكيد الموعد",
+  "appointmentCancelled": "تم إلغاء الموعد",
+  "scheduleChanged": "تم تعديل الموعد",
+  "noNotificationsYet": "لا توجد إشعارات بعد",
+  "noNotificationsDescription": "ستظهر جميع تحديثات المواعيد والتنبيهات الخاصة بك هنا.",
+  "settings": "الإعدادات",
+  "language": "اللغة",
+  "english": "الإنجليزية",
+  "arabic": "العربية",
+  "selectLanguage": "اختر اللغة"
 }

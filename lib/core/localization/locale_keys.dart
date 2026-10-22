@@ -309,6 +309,22 @@ abstract class LocaleKeys {
   static const takePhoto = 'takePhoto';
   static const removeProfilePicture = 'removeProfilePicture';
   static const removePhotoConfirmation = 'removePhotoConfirmation';
+  static const notification = 'notification';
+  static const newNotificationsCount = 'newNotificationsCount';
+  static const today = 'today';
+  static const yesterday = 'yesterday';
+  static const older = 'older';
+  static const markAllAsRead = 'markAllAsRead';
+  static const appointmentSuccess = 'appointmentSuccess';
+  static const appointmentCancelled = 'appointmentCancelled';
+  static const scheduledChanged = 'scheduleChanged';
+  static const scheduleChanged = 'scheduleChanged';
+  static const noNotificationsYet = 'noNotificationsYet';
+  static const noNotificationsDescription = 'noNotificationsDescription';
+  static const language = 'language';
+  static const english = 'english';
+  static const arabic = 'arabic';
+  static const selectLanguage = 'selectLanguage';
 }
 
 

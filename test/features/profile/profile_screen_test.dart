@@ -7,6 +7,7 @@ import 'package:medical_app/core/utils/app_assets.dart';
 import 'package:medical_app/features/profile/presentation/widgets/logout_bottom_sheet.dart';
 import 'package:medical_app/features/profile/presentation/widgets/profile_avatar_section.dart';
 import 'package:medical_app/features/profile/presentation/widgets/profile_menu_item.dart';
+import 'package:medical_app/features/profile/presentation/widgets/profile_menu_list.dart';
 
 void main() {
   group('Profile Widgets Tests', () {
@@ -95,6 +96,40 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(AppButton), findsNWidgets(2));
+    });
+
+    testWidgets(
+        'ProfileMenuList renders notifications and settings and handles callbacks',
+        (WidgetTester tester) async {
+      bool notifTapped = false;
+      bool settingsTapped = false;
+
+      await tester.pumpWidget(
+        AppScreenUtilScope(
+          child: MaterialApp(
+            home: Scaffold(
+              body: ProfileMenuList(
+                onEditProfile: () {},
+                onFavorite: () {},
+                onNotifications: () => notifTapped = true,
+                onSettings: () => settingsTapped = true,
+                onHelpAndSupport: () {},
+                onTermsAndConditions: () {},
+                onLogout: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Notifications'), findsOneWidget);
+      expect(find.text('Settings'), findsOneWidget);
+
+      await tester.tap(find.text('Notifications'));
+      expect(notifTapped, isTrue);
+
+      await tester.tap(find.text('Settings'));
+      expect(settingsTapped, isTrue);
     });
   });
 }

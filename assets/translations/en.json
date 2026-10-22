@@ -289,5 +289,22 @@
   "chooseFromGallery": "Choose from Gallery",
   "takePhoto": "Take Photo",
   "removeProfilePicture": "Remove Profile Picture",
-  "removePhotoConfirmation": "Are you sure you want to remove your profile picture?"
+  "removePhotoConfirmation": "Are you sure you want to remove your profile picture?",
+  "notification": "Notification",
+  "notifications": "Notifications",
+  "newNotificationsCount": "{} New",
+  "today": "TODAY",
+  "yesterday": "YESTERDAY",
+  "older": "OLDER",
+  "markAllAsRead": "Mark all as read",
+  "appointmentSuccess": "Appointment Success",
+  "appointmentCancelled": "Appointment Cancelled",
+  "scheduleChanged": "Schedule Changed",
+  "noNotificationsYet": "No Notifications Yet",
+  "noNotificationsDescription": "You don't have any notifications right now.",
+  "settings": "Settings",
+  "language": "Language",
+  "english": "English",
+  "arabic": "Arabic",
+  "selectLanguage": "Select Language"
 }

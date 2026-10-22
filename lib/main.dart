@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
       path: AppLocalization.translationsPath,
       fallbackLocale: AppLocalization.fallbackLocale,
       startLocale: AppLocalization.startLocale,
-      saveLocale: false,
+      saveLocale: true,
       child: AppScreenUtilScope(
         child: Builder(
           builder: (context) {
