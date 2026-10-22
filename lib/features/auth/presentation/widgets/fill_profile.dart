@@ -14,11 +14,13 @@ import 'package:medical_app/core/theme/app_text_styles.dart';
 import 'package:medical_app/core/utils/app_assets.dart';
 import 'package:medical_app/core/validators/validator_app.dart';
 import 'package:medical_app/core/common/widgets/app_button.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:medical_app/features/auth/data/datasources/user_remote_data_source.dart';
 import 'package:medical_app/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:medical_app/features/auth/presentation/cubit/auth_state.dart';
 import 'package:medical_app/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:medical_app/features/auth/presentation/widgets/gender_type.dart';
+import 'package:medical_app/features/profile/presentation/widgets/profile_photo_bottom_sheet.dart';
 
 class FillProfile extends StatefulWidget {
   final String name;
@@ -117,13 +119,48 @@ class _FillProfileState extends State<FillProfile> {
   }
 
   Future<void> _pickImage() async {
+    final hasPhoto = photoUrl != null && photoUrl!.trim().isNotEmpty;
+    final action = await ProfilePhotoBottomSheet.show(
+      context,
+      hasExistingPhoto: hasPhoto,
+    );
+
+    if (action == null || !mounted) return;
+
+    switch (action) {
+      case ProfilePhotoAction.gallery:
+        await _chooseImage(ImageSource.gallery);
+        break;
+      case ProfilePhotoAction.camera:
+        await _chooseImage(ImageSource.camera);
+        break;
+      case ProfilePhotoAction.remove:
+        final confirmed =
+            await ProfilePhotoBottomSheet.showConfirmRemove(context);
+        if (confirmed == true && mounted) {
+          setState(() {
+            photoUrl = null;
+          });
+          final currentUser = FirebaseAuth.instance.currentUser;
+          if (currentUser != null) {
+            try {
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.remove('profile_photo_${currentUser.uid}');
+            } catch (_) {}
+          }
+        }
+        break;
+    }
+  }
+
+  Future<void> _chooseImage(ImageSource source) async {
     try {
       final picker = ImagePicker();
       final picked = await picker.pickImage(
-        source: ImageSource.gallery,
+        source: source,
         imageQuality: 85,
       );
-      if (picked != null) {
+      if (picked != null && mounted) {
         setState(() {
           photoUrl = picked.path;
         });
@@ -144,6 +181,24 @@ class _FillProfileState extends State<FillProfile> {
     }
   }
 
+  Widget _buildPlaceholderAvatar() {
+    return Container(
+      width: 120.r,
+      height: 120.r,
+      color: const Color(0xFFEBE8E8),
+      alignment: Alignment.center,
+      child: SvgPicture.asset(
+        AppAssets.iconsUser,
+        width: 50.r,
+        height: 50.r,
+        colorFilter: const ColorFilter.mode(
+          AppColors.gray400,
+          BlendMode.srcIn,
+        ),
+      ),
+    );
+  }
+
   Widget _buildAvatarWidget() {
     Widget imageWidget;
     if (photoUrl != null && photoUrl!.trim().isNotEmpty) {
@@ -154,12 +209,8 @@ class _FillProfileState extends State<FillProfile> {
           width: 120.r,
           height: 120.r,
           fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => Image.asset(
-            AppAssets.imagesUserAvatar,
-            width: 120.r,
-            height: 120.r,
-            fit: BoxFit.cover,
-          ),
+          errorBuilder: (context, error, stackTrace) =>
+              _buildPlaceholderAvatar(),
         );
       } else {
         final file = File(path);
@@ -169,29 +220,15 @@ class _FillProfileState extends State<FillProfile> {
             width: 120.r,
             height: 120.r,
             fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) => Image.asset(
-              AppAssets.imagesUserAvatar,
-              width: 120.r,
-              height: 120.r,
-              fit: BoxFit.cover,
-            ),
+            errorBuilder: (context, error, stackTrace) =>
+                _buildPlaceholderAvatar(),
           );
         } else {
-          imageWidget = Image.asset(
-            AppAssets.imagesUserAvatar,
-            width: 120.r,
-            height: 120.r,
-            fit: BoxFit.cover,
-          );
+          imageWidget = _buildPlaceholderAvatar();
         }
       }
     } else {
-      imageWidget = Image.asset(
-        AppAssets.imagesUserAvatar,
-        width: 120.r,
-        height: 120.r,
-        fit: BoxFit.cover,
-      );
+      imageWidget = _buildPlaceholderAvatar();
     }
 
     return GestureDetector(

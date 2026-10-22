@@ -15,6 +15,7 @@ import '../cubit/profile_state.dart';
 import '../widgets/logout_bottom_sheet.dart';
 import '../widgets/profile_avatar_section.dart';
 import '../widgets/profile_menu_list.dart';
+import '../widgets/profile_photo_bottom_sheet.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -52,11 +53,38 @@ class _ProfileView extends StatelessWidget {
     );
   }
 
-  Future<void> _pickAndSavePhoto(BuildContext context) async {
+  Future<void> _handlePhotoAction(
+    BuildContext context, {
+    required bool hasExistingPhoto,
+  }) async {
+    final action = await ProfilePhotoBottomSheet.show(
+      context,
+      hasExistingPhoto: hasExistingPhoto,
+    );
+
+    if (action == null || !context.mounted) return;
+
+    switch (action) {
+      case ProfilePhotoAction.gallery:
+        await _pickAndSavePhoto(context, ImageSource.gallery);
+        break;
+      case ProfilePhotoAction.camera:
+        await _pickAndSavePhoto(context, ImageSource.camera);
+        break;
+      case ProfilePhotoAction.remove:
+        await _confirmAndRemovePhoto(context);
+        break;
+    }
+  }
+
+  Future<void> _pickAndSavePhoto(
+    BuildContext context, [
+    ImageSource source = ImageSource.gallery,
+  ]) async {
     try {
       final picker = ImagePicker();
       final pickedFile = await picker.pickImage(
-        source: ImageSource.gallery,
+        source: source,
         imageQuality: 85,
       );
 
@@ -73,6 +101,13 @@ class _ProfileView extends StatelessWidget {
           ),
         );
       }
+    }
+  }
+
+  Future<void> _confirmAndRemovePhoto(BuildContext context) async {
+    final confirmed = await ProfilePhotoBottomSheet.showConfirmRemove(context);
+    if (confirmed == true && context.mounted) {
+      await context.read<ProfileCubit>().removePhoto();
     }
   }
 
@@ -157,6 +192,9 @@ class _ProfileView extends StatelessWidget {
             }
           }
 
+          final hasExistingPhoto =
+              userAvatarUrl != null && userAvatarUrl.trim().isNotEmpty;
+
           return SafeArea(
             top: false,
             left: false,
@@ -171,8 +209,14 @@ class _ProfileView extends StatelessWidget {
                     name: userName,
                     subtitle: userSubtitle,
                     avatarUrl: userAvatarUrl,
-                    onEdit: () => _pickAndSavePhoto(context),
-                    onPickPhoto: () => _pickAndSavePhoto(context),
+                    onEdit: () => _handlePhotoAction(
+                      context,
+                      hasExistingPhoto: hasExistingPhoto,
+                    ),
+                    onPickPhoto: () => _handlePhotoAction(
+                      context,
+                      hasExistingPhoto: hasExistingPhoto,
+                    ),
                   ),
                   SizedBox(height: 24.h),
                   ProfileMenuList(

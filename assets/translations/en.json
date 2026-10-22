@@ -284,5 +284,10 @@
   "yesRemove": "Yes, Remove",
   "noFavoriteDoctors": "No favorite doctors yet",
   "noFavoriteHospitals": "No favorite hospitals yet",
-  "noFavoritesDescription": "Items you favorite will appear here for easy access."
+  "noFavoritesDescription": "Items you favorite will appear here for easy access.",
+  "profilePicture": "Profile Picture",
+  "chooseFromGallery": "Choose from Gallery",
+  "takePhoto": "Take Photo",
+  "removeProfilePicture": "Remove Profile Picture",
+  "removePhotoConfirmation": "Are you sure you want to remove your profile picture?"
 }

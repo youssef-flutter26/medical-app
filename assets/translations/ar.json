@@ -284,5 +284,10 @@
   "yesRemove": "نعم، إزالة",
   "noFavoriteDoctors": "لا يوجد أطباء في المفضلة بعد",
   "noFavoriteHospitals": "لا توجد مستشفيات في المفضلة بعد",
-  "noFavoritesDescription": "العناصر التي تضيفها إلى المفضلة ستظهر هنا للوصول السريع إليها."
+  "noFavoritesDescription": "العناصر التي تضيفها إلى المفضلة ستظهر هنا للوصول السريع إليها.",
+  "profilePicture": "صورة الملف الشخصي",
+  "chooseFromGallery": "اختيار من المعرض",
+  "takePhoto": "التقاط صورة",
+  "removeProfilePicture": "حذف صورة الملف الشخصي",
+  "removePhotoConfirmation": "هل أنت متأكد من حذف صورة ملفك الشخصي؟"
 }

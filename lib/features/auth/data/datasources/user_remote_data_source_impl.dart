@@ -10,10 +10,27 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
 
   @override
   Future<void> saveUser(UserModel user) async {
+    final data = user.toFirestore();
+    if (user.photoUrl == null || user.photoUrl!.trim().isEmpty) {
+      data['photoUrl'] = FieldValue.delete();
+    }
     await firestore
         .collection('users')
         .doc(user.id)
-        .set(user.toFirestore(), SetOptions(merge: true));
+        .set(data, SetOptions(merge: true));
+  }
+
+  @override
+  Future<void> deleteUserPhoto(String uid) async {
+    try {
+      await firestore.collection('users').doc(uid).update({
+        'photoUrl': FieldValue.delete(),
+      });
+    } catch (_) {
+      await firestore.collection('users').doc(uid).set({
+        'photoUrl': FieldValue.delete(),
+      }, SetOptions(merge: true));
+    }
   }
 
   @override

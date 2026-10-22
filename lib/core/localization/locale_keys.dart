@@ -290,7 +290,7 @@ abstract class LocaleKeys {
   static const back = 'back';
   static const editProfile = 'Edit Profile';
   static const favorite = 'Favorite';
-  static const notifications = 'N   otifications';
+  static const notifications = 'Notifications';
   static const settings = 'Settings';
   static const helpAndSupport = 'Help & Support';
   static const termsAndConditions = 'Terms & Conditions';
@@ -304,6 +304,11 @@ abstract class LocaleKeys {
   static const noFavoriteDoctors = 'noFavoriteDoctors';
   static const noFavoriteHospitals = 'noFavoriteHospitals';
   static const noFavoritesDescription = 'noFavoritesDescription';
+  static const profilePicture = 'profilePicture';
+  static const chooseFromGallery = 'chooseFromGallery';
+  static const takePhoto = 'takePhoto';
+  static const removeProfilePicture = 'removeProfilePicture';
+  static const removePhotoConfirmation = 'removePhotoConfirmation';
 }
 
 

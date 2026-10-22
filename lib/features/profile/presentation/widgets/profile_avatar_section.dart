@@ -61,8 +61,7 @@ class ProfileAvatarSection extends StatelessWidget {
           width: 120.r,
           height: 120.r,
           fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) =>
-              _buildDefaultAssetImage(),
+          errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
         );
       }
 
@@ -73,23 +72,12 @@ class ProfileAvatarSection extends StatelessWidget {
           width: 120.r,
           height: 120.r,
           fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) =>
-              _buildDefaultAssetImage(),
+          errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
         );
       }
     }
 
-    return _buildDefaultAssetImage();
-  }
-
-  Widget _buildDefaultAssetImage() {
-    return Image.asset(
-      AppAssets.imagesUserAvatar,
-      width: 120.r,
-      height: 120.r,
-      fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
-    );
+    return _buildPlaceholder();
   }
 
   @override

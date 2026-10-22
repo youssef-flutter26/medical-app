@@ -39,8 +39,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         if (photo == null || photo.isEmpty) {
           try {
             final prefs = await SharedPreferences.getInstance();
-            photo = prefs.getString('profile_photo_${currentUser.uid}') ??
-                currentUser.photoURL;
+            photo = prefs.getString('profile_photo_${currentUser.uid}');
           } catch (_) {}
         }
 
@@ -53,7 +52,7 @@ class ProfileCubit extends Cubit<ProfileState> {
               nickname: userModel.nickname,
               birthDate: userModel.birthDate,
               gender: userModel.gender,
-              photoUrl: photo,
+              photoUrl: (photo != null && photo.isNotEmpty) ? photo : null,
               role: userModel.role,
             ),
           ));
@@ -63,7 +62,7 @@ class ProfileCubit extends Cubit<ProfileState> {
               id: currentUser.uid,
               email: currentUser.email ?? '',
               name: currentUser.displayName,
-              photoUrl: photo,
+              photoUrl: (photo != null && photo.isNotEmpty) ? photo : null,
             ),
           ));
         }
@@ -72,8 +71,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         String? photo;
         try {
           final prefs = await SharedPreferences.getInstance();
-          photo = prefs.getString('profile_photo_${currentUser.uid}') ??
-              currentUser.photoURL;
+          photo = prefs.getString('profile_photo_${currentUser.uid}');
         } catch (_) {}
 
         emit(
@@ -82,7 +80,7 @@ class ProfileCubit extends Cubit<ProfileState> {
               id: currentUser.uid,
               email: currentUser.email ?? '',
               name: currentUser.displayName,
-              photoUrl: photo,
+              photoUrl: (photo != null && photo.isNotEmpty) ? photo : null,
             ),
           ),
         );
@@ -143,6 +141,48 @@ class ProfileCubit extends Cubit<ProfileState> {
       }
     } catch (e) {
       debugPrint('Error saving photo to Firestore: $e');
+    }
+  }
+
+  Future<void> removePhoto() async {
+    final currentUser = firebaseAuth.currentUser;
+    if (currentUser == null) return;
+
+    // 1. Immediately clear from SharedPreferences
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('profile_photo_${currentUser.uid}');
+    } catch (e) {
+      debugPrint('Error removing photo from SharedPreferences: $e');
+    }
+
+    // 2. Immediately reflect in current state
+    if (state is ProfileLoaded) {
+      final current = (state as ProfileLoaded).user;
+      if (current != null) {
+        emit(ProfileLoaded(
+          UserModel(
+            id: current.id,
+            email: current.email,
+            name: current.name,
+            nickname: current.nickname,
+            birthDate: current.birthDate,
+            gender: current.gender,
+            photoUrl: null,
+            role: current.role,
+          ),
+        ));
+      }
+    }
+
+    // 3. Persist removal to Firestore and Firebase Auth
+    try {
+      await userRemoteDataSource.deleteUserPhoto(currentUser.uid);
+      try {
+        await currentUser.updatePhotoURL(null);
+      } catch (_) {}
+    } catch (e) {
+      debugPrint('Error deleting photo in Firestore: $e');
     }
   }
 

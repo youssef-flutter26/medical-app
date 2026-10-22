@@ -286,7 +286,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       final assignedPhotoUrl = (photoUrl != null && photoUrl.trim().isNotEmpty)
           ? photoUrl.trim()
-          : (existingUser?.photoUrl ?? refreshedUser.photoURL);
+          : null;
 
       final userModel = UserModel(
         id: refreshedUser.uid,
@@ -319,6 +319,15 @@ class AuthRepositoryImpl implements AuthRepository {
             await refreshedUser.updatePhotoURL(assignedPhotoUrl);
           } catch (_) {}
         }
+      } else {
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.remove('profile_photo_${refreshedUser.uid}');
+        } catch (_) {}
+
+        try {
+          await refreshedUser.updatePhotoURL(null);
+        } catch (_) {}
       }
 
       if (assignedName != null &&
