@@ -288,6 +288,43 @@ abstract class LocaleKeys {
   static const doctorNoAvailability = 'doctorNoAvailability';
   static const doctorNotFound = 'doctorNotFound';
   static const back = 'back';
+  static const editProfile = 'Edit Profile';
+  static const favorite = 'Favorite';
+  static const notifications = 'Notifications';
+  static const settings = 'Settings';
+  static const helpAndSupport = 'Help & Support';
+  static const termsAndConditions = 'Terms & Conditions';
+  static const logout = 'Logout';
+  static const yesLogout = 'Yes, Logout';
+  static const favorites = 'favorites';
+  static const doctors = 'doctors';
+  static const hospitals = 'hospitals';
+  static const removeFromFavorites = 'removeFromFavorites';
+  static const yesRemove = 'yesRemove';
+  static const noFavoriteDoctors = 'noFavoriteDoctors';
+  static const noFavoriteHospitals = 'noFavoriteHospitals';
+  static const noFavoritesDescription = 'noFavoritesDescription';
+  static const profilePicture = 'profilePicture';
+  static const chooseFromGallery = 'chooseFromGallery';
+  static const takePhoto = 'takePhoto';
+  static const removeProfilePicture = 'removeProfilePicture';
+  static const removePhotoConfirmation = 'removePhotoConfirmation';
+  static const notification = 'notification';
+  static const newNotificationsCount = 'newNotificationsCount';
+  static const today = 'today';
+  static const yesterday = 'yesterday';
+  static const older = 'older';
+  static const markAllAsRead = 'markAllAsRead';
+  static const appointmentSuccess = 'appointmentSuccess';
+  static const appointmentCancelled = 'appointmentCancelled';
+  static const scheduledChanged = 'scheduleChanged';
+  static const scheduleChanged = 'scheduleChanged';
+  static const noNotificationsYet = 'noNotificationsYet';
+  static const noNotificationsDescription = 'noNotificationsDescription';
+  static const language = 'language';
+  static const english = 'english';
+  static const arabic = 'arabic';
+  static const selectLanguage = 'selectLanguage';
 }
 
 

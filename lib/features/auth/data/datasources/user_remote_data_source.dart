@@ -6,4 +6,6 @@ abstract class UserRemoteDataSource {
   Future<UserModel?> getUser(String uid);
 
   Stream<UserModel?> getUserStream(String uid);
+
+  Future<void> deleteUserPhoto(String uid);
 }

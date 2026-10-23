@@ -21,12 +21,17 @@ import 'package:medical_app/features/home/presentation/pages/category_page.dart'
 import 'package:medical_app/features/home/presentation/pages/doctor_details_page.dart';
 import 'package:medical_app/features/home/presentation/widgets/doctor_card.dart';
 import 'package:medical_app/features/appointment/domain/entities/appointment_entity.dart';
+import 'package:medical_app/features/appointment/presention/pages/appointment_details_page.dart';
 import 'package:medical_app/features/appointment/presention/pages/book_appointment_page.dart';
 import 'package:medical_app/features/appointment/presention/pages/my_bookings_page.dart';
+import 'package:medical_app/features/appointment/presention/widgets/booking_tab_bar.dart';
 import 'package:medical_app/features/onboarding/presentation/pages/onboarding_screen.dart';
 import 'package:medical_app/features/splash/presentation/pages/splash_screen.dart';
 
 import '../../features/home/presentation/pages/medical_center_details_page.dart';
+import '../../features/profile/presentation/pages/profile_screen.dart';
+import 'package:medical_app/features/favorites/presentation/pages/favorites_page.dart';
+import 'package:medical_app/features/notifications/presentation/pages/notifications_page.dart';
 
 class AppRouter {
   Route<dynamic>? generateRoute(RouteSettings settings) {
@@ -214,10 +219,26 @@ class AppRouter {
           settings: settings,
         );
 
-      case Routes.myBookings:
       case Routes.appointment:
+        if (settings.arguments is AppointmentEntity) {
+          return MaterialPageRoute(
+            builder: (_) => AppointmentDetailsPage(
+              appointment: settings.arguments as AppointmentEntity,
+            ),
+            settings: settings,
+          );
+        }
         return MaterialPageRoute(
           builder: (_) => const MyBookingsPage(),
+          settings: settings,
+        );
+
+      case Routes.myBookings:
+        final initialTab = settings.arguments is BookingTab
+            ? settings.arguments as BookingTab
+            : BookingTab.upcoming;
+        return MaterialPageRoute(
+          builder: (_) => MyBookingsPage(initialTab: initialTab),
           settings: settings,
         );
 
@@ -259,8 +280,23 @@ class AppRouter {
         }
         return null;
 
+      case Routes.profile:
+        return MaterialPageRoute(
+          builder: (_) => const ProfileScreen(),
+          settings: settings,
+        );
 
+      case Routes.favorites:
+        return MaterialPageRoute(
+          builder: (_) => const FavoritesPage(),
+          settings: settings,
+        );
 
+      case Routes.notifications:
+        return MaterialPageRoute(
+          builder: (_) => const NotificationsPage(),
+          settings: settings,
+        );
 
       default:
         return null;

@@ -10,9 +10,12 @@ class HomeHeader extends StatelessWidget {
   final ValueChanged<String>? onSearchChanged;
   final VoidCallback? onSearchClear;
 
+  final VoidCallback? onNotificationPressed;
+
   const HomeHeader({
     super.key,
     this.location = 'Current Location',
+    this.onNotificationPressed,
     this.onSearchTap,
     this.searchController,
     this.onSearchChanged,
@@ -26,6 +29,7 @@ class HomeHeader extends StatelessWidget {
       children: [
         HomeLocation(
           location: location,
+          onNotificationPressed: onNotificationPressed,
         ),
         SizedBox(height: 18.h),
         HomeSearch(

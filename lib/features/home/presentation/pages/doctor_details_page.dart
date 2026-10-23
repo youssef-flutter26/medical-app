@@ -20,6 +20,8 @@ import '../../../reviews/presentation/cubit/review_cubit.dart';
 import '../../../reviews/presentation/cubit/review_state.dart';
 import '../../../reviews/presentation/pages/add_review_page.dart';
 import '../widgets/doctor_card.dart';
+import 'package:medical_app/features/favorites/presentation/cubit/favorites_cubit.dart';
+import 'package:medical_app/features/favorites/presentation/cubit/favorites_state.dart';
 
 class DoctorDetailsPage extends StatefulWidget {
   final DoctorEntity? doctor;
@@ -1087,22 +1089,29 @@ class _DoctorDetailsPageState extends State<DoctorDetailsPage> {
               onPressed:
               _onEditDoctor,
             ),
-          IconButton(
-            icon: Icon(
-              _isFavorite
-                  ? Icons.favorite_rounded
-                  : Icons
-                  .favorite_border_rounded,
-              color: _isFavorite
-                  ? Colors.red
-                  : AppColors.gray500,
-              size: 24.r,
-            ),
-            onPressed: () {
-              setState(() {
-                _isFavorite =
-                !_isFavorite;
-              });
+          BlocBuilder<FavoritesCubit, FavoritesState>(
+            builder: (context, favState) {
+              final docId = _doctor?.id ?? _doctorData?.id;
+              final isFav = docId != null
+                  ? favState.isDoctorFavorite(docId)
+                  : _isFavorite;
+              return IconButton(
+                icon: Icon(
+                  isFav
+                      ? Icons.favorite_rounded
+                      : Icons.favorite_border_rounded,
+                  color: isFav ? Colors.red : AppColors.gray500,
+                  size: 24.r,
+                ),
+                onPressed: () {
+                  if (docId != null && docId.isNotEmpty) {
+                    context.read<FavoritesCubit>().toggleDoctorFavorite(docId);
+                  }
+                  setState(() {
+                    _isFavorite = !isFav;
+                  });
+                },
+              );
             },
           ),
           SizedBox(width: 8.w),

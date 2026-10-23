@@ -23,6 +23,9 @@ import '../../domain/entities/doctor_entity.dart';
 import '../../domain/usecases/get_doctors_by_category_stream.dart';
 import '../../domain/usecases/get_doctors_stream.dart';
 import '../widgets/category_doctors_header.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:medical_app/features/favorites/presentation/cubit/favorites_cubit.dart';
+import 'package:medical_app/features/favorites/presentation/cubit/favorites_state.dart';
 import '../widgets/category_doctors_list.dart';
 import '../widgets/doctor_card.dart';
 
@@ -299,6 +302,10 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
   }
 
   void _toggleFavorite(DoctorData doctor) {
+    if (doctor.id != null && doctor.id!.isNotEmpty) {
+      context.read<FavoritesCubit>().toggleDoctorFavorite(doctor.id!);
+    }
+
     if (_doctors == null) return;
 
     setState(() {
@@ -540,12 +547,22 @@ class _CategoryDoctorsPageState extends State<CategoryDoctorsPage> {
                   ),
                 )
               else
-                CategoryDoctorsList(
-                  doctors: doctors,
-                  isAdmin: isAdmin,
-                  onDoctorTap: _navigateToDoctorDetails,
-                  onFavoriteTap: _toggleFavorite,
-                  onEditDoctor: _navigateToEditDoctor,
+                BlocBuilder<FavoritesCubit, FavoritesState>(
+                  builder: (context, favState) {
+                    final syncedDoctors = doctors.map((d) {
+                      final isFav =
+                          d.id != null && favState.isDoctorFavorite(d.id);
+                      return d.copyWith(isFavorite: isFav);
+                    }).toList();
+
+                    return CategoryDoctorsList(
+                      doctors: syncedDoctors,
+                      isAdmin: isAdmin,
+                      onDoctorTap: _navigateToDoctorDetails,
+                      onFavoriteTap: _toggleFavorite,
+                      onEditDoctor: _navigateToEditDoctor,
+                    );
+                  },
                 ),
             ],
           ),

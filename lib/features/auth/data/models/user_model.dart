@@ -8,6 +8,7 @@ class UserModel extends UserEntity {
     super.nickname,
     super.birthDate,
     super.gender,
+    super.photoUrl,
     super.role = 'user',
     super.isNewUser,
   });
@@ -19,6 +20,7 @@ class UserModel extends UserEntity {
     String? nickname,
     String? birthDate,
     String? gender,
+    String? photoUrl,
     String role = 'user',
     bool isNewUser = false,
   }) {
@@ -29,6 +31,7 @@ class UserModel extends UserEntity {
       nickname: nickname,
       birthDate: birthDate,
       gender: gender,
+      photoUrl: photoUrl,
       role: role,
       isNewUser: isNewUser,
     );
@@ -42,6 +45,7 @@ class UserModel extends UserEntity {
       nickname: data['nickname'] as String?,
       birthDate: data['birthDate'] as String?,
       gender: data['gender'] as String?,
+      photoUrl: data['photoUrl'] as String?,
       role: (data['role'] as String?)?.trim().isNotEmpty == true
           ? (data['role'] as String).trim()
           : 'user',
@@ -58,6 +62,7 @@ class UserModel extends UserEntity {
       if (nickname != null) 'nickname': nickname,
       if (birthDate != null) 'birthDate': birthDate,
       if (gender != null) 'gender': gender,
+      if (photoUrl != null) 'photoUrl': photoUrl,
       'role': role,
     };
   }
